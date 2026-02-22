@@ -2,369 +2,174 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>RetailBoost | Smart Retail Finance</title>
+<title>RetailBoost | Stock & Finance Growth Partner</title>
+
+<link rel="stylesheet" href="style.css">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
 
-<style>
-
-/* ========= GLOBAL ========= */
-
-html{scroll-behavior:smooth;}
-
-body{
-margin:0;
-font-family:'Poppins',sans-serif;
-background:#f6f9ff;
-color:#222;
-}
-
-/* ========= NAVBAR ========= */
-
-.navbar{
-position:fixed;
-width:100%;
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:18px 60px;
-background:rgba(11,61,145,.9);
-color:white;
-z-index:1000;
-}
-
-.logo{
-font-size:26px;
-font-weight:700;
-color:#2ecc71;
-}
-
-.navbar a{
-color:white;
-text-decoration:none;
-margin-left:25px;
-font-weight:500;
-}
-
-.login{
-background:#2ecc71;
-padding:8px 18px;
-border-radius:20px;
-}
-
-/* ========= HERO ========= */
-
-.hero{
-height:100vh;
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:0 8%;
-background:linear-gradient(135deg,#0b3d91,#2ecc71);
-color:white;
-flex-wrap:wrap;
-}
-
-.hero-text{max-width:520px;}
-
-.hero h1{
-font-size:54px;
-margin:0;
-}
-
-.hero p{
-font-size:20px;
-margin:20px 0;
-}
-
-.btn{
-background:white;
-color:#0b3d91;
-padding:14px 32px;
-border-radius:40px;
-border:none;
-font-weight:600;
-cursor:pointer;
-margin-right:10px;
-transition:.3s;
-}
-
-.btn:hover{
-transform:translateY(-3px);
-}
-
-.btn2{
-background:transparent;
-border:2px solid white;
-color:white;
-}
-
-.hero img{
-width:480px;
-max-width:100%;
-animation:float 4s ease-in-out infinite;
-}
-
-@keyframes float{
-0%,100%{transform:translateY(0);}
-50%{transform:translateY(-15px);}
-}
-
-/* ========= SECTION ========= */
-
-.section{
-padding:90px 8%;
-text-align:center;
-}
-
-.section h2{
-color:#0b3d91;
-font-size:36px;
-}
-
-/* ========= CARDS ========= */
-
-.cards{
-display:flex;
-flex-wrap:wrap;
-justify-content:center;
-gap:25px;
-margin-top:30px;
-}
-
-.card{
-background:white;
-padding:28px;
-width:260px;
-border-radius:16px;
-box-shadow:0 10px 25px rgba(0,0,0,.08);
-transition:.35s;
-}
-
-.card:hover{
-transform:translateY(-10px);
-box-shadow:0 20px 45px rgba(0,0,0,.18);
-}
-
-/* ========= STATS ========= */
-
-.stats{
-background:#0b3d91;
-color:white;
-display:flex;
-justify-content:center;
-gap:70px;
-padding:70px 20px;
-flex-wrap:wrap;
-}
-
-.stat h3{
-font-size:44px;
-color:#2ecc71;
-margin:0;
-}
-
-/* ========= EMI ========= */
-
-.calculator{
-background:white;
-padding:40px;
-border-radius:20px;
-max-width:420px;
-margin:auto;
-box-shadow:0 15px 40px rgba(0,0,0,.15);
-}
-
-input{
-width:100%;
-padding:12px;
-margin:10px 0;
-border-radius:8px;
-border:1px solid #ccc;
-font-size:16px;
-}
-
-/* ========= FORM ========= */
-
-.form{
-max-width:450px;
-margin:auto;
-}
-
-.form button{
-background:#0b3d91;
-color:white;
-border:none;
-padding:14px;
-width:100%;
-border-radius:8px;
-cursor:pointer;
-}
-
-/* ========= FOOTER ========= */
-
-.footer{
-background:#081f4f;
-color:white;
-text-align:center;
-padding:25px;
-}
-
-/* ========= WHATSAPP ========= */
-
-.whatsapp{
-position:fixed;
-bottom:25px;
-right:25px;
-background:#25D366;
-color:white;
-padding:14px 18px;
-border-radius:50%;
-font-size:24px;
-text-decoration:none;
-box-shadow:0 5px 15px rgba(0,0,0,.3);
-}
-
-</style>
 </head>
 
 <body>
 
+<!-- ===== WELCOME SCREEN ===== -->
+<div id="welcomeScreen">
+<div class="welcome-box">
+<h1 class="welcome-logo">Welcome To RetailBoost</h1>
+<p id="typingText"></p>
+<div class="loader-line"></div>
+</div>
+</div>
+
 <!-- NAVBAR -->
-<div class="navbar">
-<div class="logo">RetailBoost</div>
-<div>
-<a href="#">Home</a>
-<a href="#emi">EMI</a>
-<a href="#contact">Contact</a>
-<a href="dashboard.html" class="login">Retailer Login</a>
+<header class="navbar">
+<div class="container nav-flex">
+<h2 class="logo">RetailBoost</h2>
+
+<nav>
+<a href="#about">About</a>
+<a href="#works">How it Works</a>
+<a href="#benefits">Benefits</a>
+<a href="#join">Join</a>
+</nav>
 </div>
-</div>
+</header>
 
 <!-- HERO -->
 <section class="hero">
 
-<div class="hero-text">
-<h1>India's Smart Retail Finance Platform</h1>
-<p>Instant EMI approval for retailers & customers. Increase sales with RetailBoost.</p>
+<div class="hero-slide active"
+style="background-image:url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d');">
+<div class="overlay">
+<div class="hero-content">
+<h1>Increase Your Mobile Shop Sales with Easy EMI</h1>
+<p>No customer leaves without purchase — RetailBoost makes finance simple.</p>
 
-<button class="btn" onclick="location.href='dashboard.html'">
-Retailer Dashboard
-</button>
-
-<button class="btn btn2">Become Retailer</button>
+<a href="https://wa.me/919187627737" class="btn">Join via WhatsApp</a>
+</div>
+</div>
 </div>
 
-<img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+<div class="hero-slide"
+style="background-image:url('https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da');">
+<div class="overlay">
+<div class="hero-content">
+<h1>More Approval. More Sales.</h1>
+<p>Smart finance solution for modern retailers.</p>
+</div>
+</div>
+</div>
 
 </section>
 
-<!-- HOW IT WORKS -->
-<div class="section">
+<!-- ABOUT -->
+<section class="section" id="about" data-aos="fade-up">
+<div class="container">
+<h2>About RetailBoost</h2>
+
+<p class="about-text">
+RetailBoost helps retailers increase sales by offering easy EMI finance so customers never leave without buying.
+</p>
+
+</div>
+</section>
+
+<!-- HOW WORKS -->
+<section class="section gray" id="works" data-aos="fade-up">
+<div class="container">
 <h2>How RetailBoost Works</h2>
 
-<div class="cards">
-<div class="card">📱 Select Product</div>
-<div class="card">💳 Pay Down Payment</div>
-<div class="card">⚡ Instant Approval</div>
-<div class="card">💰 Retailer Paid</div>
-</div>
-</div>
-
-<!-- STATS -->
-<div class="stats">
-<div class="stat">
-<h3 class="counter" data-target="5000">0</h3>
-<p>Retailers</p>
+<div class="grid">
+<div class="card">📱 Select Phone</div>
+<div class="card">💳 40–45% Down Payment</div>
+<div class="card">⚡ RetailBoost Finances Rest</div>
+<div class="card">💰 Retailer Paid Instantly</div>
+<div class="card">📊 EMI Managed by RetailBoost</div>
+<div class="card">🤝 First 2 EMI Retailer Support</div>
 </div>
 
-<div class="stat">
-<h3 class="counter" data-target="50">0</h3>
-<p>₹ Crore Financed</p>
 </div>
-
-<div class="stat">
-<h3 class="counter" data-target="98">0</h3>
-<p>% Approval</p>
-</div>
-</div>
+</section>
 
 <!-- EMI CALCULATOR -->
-<div class="section" id="emi">
+<section class="section gray" data-aos="fade-up">
+<div class="container">
+
 <h2>EMI Calculator</h2>
 
-<div class="calculator">
-<input type="number" id="amount" placeholder="Loan Amount">
-<input type="number" id="months" placeholder="Months">
-<button class="btn" onclick="calcEMI()">Calculate EMI</button>
+<div class="emi-box">
+
+<label>Loan Amount: ₹ <span id="loanValue">20000</span></label>
+<input type="range" id="loanSlider" min="5000" max="100000" step="1000" value="20000">
+
+<label>Tenure (Months): <span id="monthValue">12</span></label>
+<input type="range" id="monthSlider" min="3" max="24" step="1" value="12">
+
 <h3 id="emiResult"></h3>
-</div>
-</div>
-
-<!-- CONTACT -->
-<div class="section" id="contact">
-<h2>Become a Retailer</h2>
-
-<div class="form">
-<input id="name" placeholder="Your Name">
-<input id="phone" placeholder="Phone Number">
-<button onclick="sendWhatsApp()">Submit</button>
-</div>
 
 </div>
 
-<div class="footer">
-RetailBoost © 2026 | Finance Made Simple
+</div>
+</section>
+
+<!-- BENEFITS -->
+<section class="section" id="benefits" data-aos="fade-up">
+<div class="container">
+<h2>Partner Benefits</h2>
+
+<div class="benefits">
+<ul>
+<li>✔ Easy Finance Facility</li>
+<li>✔ Distributor Pricing</li>
+<li>✔ Stock Support</li>
+<li>✔ Partner Network</li>
+</ul>
+
+<ul>
+<li>✔ Higher Sales Conversion</li>
+<li>✔ EMI Collection Managed</li>
+<li>✔ Growth Support</li>
+<li>✔ Priority Onboarding</li>
+</ul>
 </div>
 
-<a class="whatsapp" href="https://wa.me/919999999999">💬</a>
+</div>
+</section>
 
-<script>
+<!-- COUNTDOWN -->
+<section class="countdown">
+<h2>🚀 RetailBoost Launch Countdown</h2>
 
-/* COUNTERS */
+<div class="timer">
+<div><span id="days">0</span><p>Days</p></div>
+<div><span id="hours">0</span><p>Hours</p></div>
+<div><span id="minutes">0</span><p>Minutes</p></div>
+<div><span id="seconds">0</span><p>Seconds</p></div>
+</div>
+</section>
 
-document.querySelectorAll(".counter").forEach(counter=>{
-const update=()=>{
-const target=+counter.dataset.target;
-const count=+counter.innerText;
-const inc=target/80;
+<!-- JOIN -->
+<section class="cta" id="join">
+<h2>Become a RetailBoost Partner</h2>
 
-if(count<target){
-counter.innerText=Math.ceil(count+inc);
-setTimeout(update,20);
-}else{
-counter.innerText=target;
-}
-};
-update();
-});
+<a href="https://wa.me/919187627737" class="btn">
+Register on WhatsApp
+</a>
 
-/* EMI CALC */
+<h3>📞 +91 91876 27737</h3>
+</section>
 
-function calcEMI(){
-let P=document.getElementById("amount").value;
-let N=document.getElementById("months").value;
-let R=12/100/12;
+<footer>
+RetailBoost © 2026
+</footer>
 
-let emi=(P*R*Math.pow(1+R,N))/(Math.pow(1+R,N)-1);
-document.getElementById("emiResult").innerText=
-"Monthly EMI: ₹ "+Math.round(emi);
-}
+<a class="whatsapp" href="https://wa.me/919187627737">💬</a>
 
-/* WHATSAPP LEAD */
-
-function sendWhatsApp(){
-let name=document.getElementById("name").value;
-let phone=document.getElementById("phone").value;
-
-let msg=`Hello RetailBoost,%0AI want to become retailer.%0AName: ${name}%0APhone: ${phone}`;
-
-window.open(`https://wa.me/919999999999?text=${msg}`);
-}
-
-</script>
+<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+<script src="script.js"></script>
 
 </body>
 </html>

@@ -1,0 +1,128 @@
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
+
+body{background:#f6f9ff;color:#222;}
+
+.container{max-width:1200px;margin:auto;padding:0 20px;}
+
+.navbar{
+position:fixed;top:0;width:100%;
+background:rgba(11,61,145,.95);
+padding:15px 0;
+z-index:9999;
+}
+
+.nav-flex{display:flex;justify-content:space-between;align-items:center;}
+
+.logo{color:#2ecc71;}
+
+nav a{color:white;margin-left:25px;text-decoration:none;}
+
+.hero{margin-top:70px;height:90vh;position:relative;overflow:hidden;}
+
+.hero-slide{
+position:absolute;width:100%;height:100%;
+background-size:cover;background-position:center;
+opacity:0;transition:1s;
+}
+
+.hero-slide.active{opacity:1;}
+
+.overlay{
+background:linear-gradient(135deg,#0b3d91cc,#2ecc71cc);
+height:100%;display:flex;align-items:center;justify-content:center;
+text-align:center;color:white;
+}
+
+.hero h1{font-size:48px;}
+
+.btn{
+background:white;color:#0b3d91;
+padding:14px 28px;border-radius:30px;
+text-decoration:none;font-weight:600;
+display:inline-block;margin-top:20px;
+}
+
+.section{padding:90px 0;text-align:center;}
+
+.gray{background:#eef3ff;}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:25px;margin-top:40px;
+}
+
+.card{
+background:white;padding:30px;border-radius:14px;
+box-shadow:0 10px 25px rgba(0,0,0,.1);
+}
+
+.emi-box{
+max-width:500px;margin:40px auto;background:white;
+padding:30px;border-radius:15px;
+box-shadow:0 15px 40px rgba(0,0,0,.15);
+text-align:left;
+}
+
+.emi-box input{width:100%;margin:15px 0;}
+
+.benefits{
+display:grid;grid-template-columns:1fr 1fr;
+gap:40px;max-width:800px;margin:auto;text-align:left;
+}
+
+.countdown{
+background:linear-gradient(135deg,#2ecc71,#0b3d91);
+color:white;text-align:center;padding:70px 20px;
+}
+
+.timer{display:flex;justify-content:center;gap:30px;margin-top:30px;flex-wrap:wrap;}
+
+.timer div{
+background:white;color:#0b3d91;padding:20px;
+border-radius:12px;min-width:90px;font-weight:700;
+}
+
+.cta{background:#0b3d91;color:white;padding:80px 20px;text-align:center;}
+
+footer{background:#081f4f;color:white;text-align:center;padding:25px;}
+
+.whatsapp{
+position:fixed;bottom:25px;right:25px;
+background:#25D366;padding:16px;border-radius:50%;
+color:white;text-decoration:none;font-size:24px;
+}
+
+/* WELCOME SCREEN */
+
+#welcomeScreen{
+position:fixed;top:0;left:0;width:100%;height:100%;
+display:flex;align-items:center;justify-content:center;
+background:linear-gradient(270deg,#0b3d91,#2ecc71,#0b3d91);
+background-size:400% 400%;
+animation:gradientMove 8s ease infinite;
+z-index:10000;color:white;text-align:center;
+}
+
+@keyframes gradientMove{
+0%{background-position:0% 50%;}
+50%{background-position:100% 50%;}
+100%{background-position:0% 50%;}
+}
+
+.welcome-logo{
+font-size:60px;
+animation:logoGlow 2s infinite alternate;
+}
+
+@keyframes logoGlow{
+from{text-shadow:0 0 10px rgba(255,255,255,.4);}
+to{text-shadow:0 0 35px rgba(255,255,255,.9);}
+}
+
+.loader-line{
+margin-top:30px;height:4px;background:white;
+width:0;animation:loading 3.5s forwards;
+}
+
+@keyframes loading{to{width:80%;}}
