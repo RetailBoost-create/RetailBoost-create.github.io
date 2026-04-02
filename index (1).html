@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>RetailBoost Finance</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #eef2f7;
+      text-align: center;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      margin: 40px auto;
+      width: 350px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container" id="step1">
+  <h2>Check Loan Eligibility</h2>
+  <input type="text" placeholder="Enter Mobile Number" id="mobile">
+  <button onclick="checkLoan()">Check Limit</button>
+</div>
+
+<div class="container hidden" id="step2">
+  <h2>Your Loan Limit</h2>
+  <h3 id="limit"></h3>
+  <button onclick="goToModel()">Select Model</button>
+</div>
+
+<div class="container hidden" id="step3">
+  <h2>Select Mobile</h2>
+
+  <select id="model" onchange="showPrice()">
+    <option value="">-- Select Model --</option>
+    <option value="Vivo V30e,28000">Vivo V30e</option>
+    <option value="Vivo V29,32000">Vivo V29</option>
+    <option value="Samsung A15,20000">Samsung A15</option>
+    <option value="Redmi Note 13,18000">Redmi Note 13</option>
+    <option value="iPhone 13,52000">iPhone 13</option>
+  </select>
+
+  <p id="price"></p>
+
+  <button onclick="goToForm()">Apply Now</button>
+</div>
+
+<div class="container hidden" id="step4">
+  <h2>Customer Details</h2>
+  <input type="text" placeholder="Full Name">
+  <input type="text" placeholder="Aadhaar Number">
+  <input type="text" placeholder="PAN Number">
+  <button onclick="submitApp()">Submit</button>
+</div>
+
+<div class="container hidden" id="step5">
+  <h2>✅ Application Submitted</h2>
+  <p>Our team will contact you soon</p>
+</div>
+
+<script>
+function checkLoan() {
+  let mobile = document.getElementById("mobile").value;
+  if(mobile.length < 10){
+    alert("Enter valid mobile number");
+    return;
+  }
+
+  document.getElementById("step1").classList.add("hidden");
+  document.getElementById("step2").classList.remove("hidden");
+
+  document.getElementById("limit").innerText = "₹50,000 Approved";
+}
+
+function goToModel(){
+  document.getElementById("step2").classList.add("hidden");
+  document.getElementById("step3").classList.remove("hidden");
+}
+
+function showPrice(){
+  let val = document.getElementById("model").value;
+  if(val){
+    let data = val.split(",");
+    document.getElementById("price").innerText = "Price: ₹" + data[1];
+  }
+}
+
+function goToForm(){
+  let model = document.getElementById("model").value;
+  if(model === ""){
+    alert("Select model first");
+    return;
+  }
+
+  document.getElementById("step3").classList.add("hidden");
+  document.getElementById("step4").classList.remove("hidden");
+}
+
+function submitApp(){
+  document.getElementById("step4").classList.add("hidden");
+  document.getElementById("step5").classList.remove("hidden");
+}
+</script>
+
+</body>
+</html>
