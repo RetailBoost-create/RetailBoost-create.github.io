@@ -775,12 +775,19 @@ function isValidIndianPhone(v){ return /^[6-9]\d{9}$/.test(v.replace(/\D/g,''));
 
 /* ── FIREBASE OTP ── */
 function initRecaptcha(){
-  if(recaptchaVerifier) return; // already initialised
+  if (window.recaptchaVerifier) {
+    return; // already exists
+  }
+
   const auth = window._firebaseAuth;
-  recaptchaVerifier = new window._RecaptchaVerifier(auth, 'recaptcha-container', {
-    size: 'invisible',
-    callback: ()=>{}
-  });
+
+  window.recaptchaVerifier = new window._RecaptchaVerifier(
+    'recaptcha-container',
+    {
+      size: 'invisible'
+    },
+    auth
+  );
 }
 
 async function sendOTP(){
@@ -801,8 +808,8 @@ async function sendOTP(){
     initRecaptcha();
     const phoneNumber = '+91' + ph;
     confirmationResult = await window._signInWithPhoneNumber(
-      window._firebaseAuth, phoneNumber, recaptchaVerifier
-    );
+  window._firebaseAuth, phoneNumber, window.recaptchaVerifier
+);
     showToast('✅ OTP sent to +91 ' + ph);
     document.getElementById('otpWrap').classList.add('show');
     btn.textContent = 'Sent ✓';
