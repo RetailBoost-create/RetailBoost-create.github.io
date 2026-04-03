@@ -766,7 +766,6 @@ const CALLMEBOT_KEY   = 'YOUR_CALLMEBOT_API_KEY'; // ← paste key here
 let confirmationResult = null;  // Firebase confirmation object
 let otpVerified        = false;
 let otpTimerHandle     = null;
-let recaptchaVerifier  = null;
 
 /* ── HELPERS ── */
 function enforceNameInput(el){ el.value = el.value.replace(/[^a-zA-Z\s.\-']/g,''); }
@@ -775,19 +774,23 @@ function isValidIndianPhone(v){ return /^[6-9]\d{9}$/.test(v.replace(/\D/g,''));
 
 /* ── FIREBASE OTP ── */
 function initRecaptcha(){
-  if (window.recaptchaVerifier) {
-    return; // already exists
-  }
+  if (window.recaptchaVerifier) return;
 
   const auth = window._firebaseAuth;
 
   window.recaptchaVerifier = new window._RecaptchaVerifier(
+    auth,
     'recaptcha-container',
     {
-      size: 'invisible'
-    },
-    auth
+      size: 'invisible',
+      callback: () => {
+        console.log("Recaptcha verified");
+      }
+    }
   );
+
+
+  window.recaptchaVerifier.render();
 }
 
 async function sendOTP(){
@@ -821,7 +824,10 @@ async function sendOTP(){
     btn.textContent = 'Send OTP';
     // Reset recaptcha so user can retry
   
-    recaptchaVerifier = null;
+   if (window.recaptchaVerifier) {
+  window.recaptchaVerifier.clear();
+  window.recaptchaVerifier = null;
+}
   }
 }
 
@@ -841,7 +847,7 @@ function startOTPTimer(sec){
 }
 
 function resendOTP(){
-  recaptchaVerifier = null; // force fresh recaptcha
+  window.recaptchaVerifier = null; // force fresh recaptcha
   document.getElementById('btnSendOtp').disabled = false;
   sendOTP();
 }
