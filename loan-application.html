@@ -19,12 +19,12 @@
      Go to: console.firebase.google.com → Project Settings → Your apps → SDK setup
   ───────────────────────────────────────────────── */
   const firebaseConfig = {
-  apiKey: "AIzaSyAquGLlwRfMwPvVi6HLZoeOVdEbFtd3k1U",
-  authDomain: "reatilboost.firebaseapp.com",
-  projectId: "reatilboost",
-  storageBucket: "reatilboost.firebasestorage.app",
-  messagingSenderId: "1069831766341",
-  appId: "1:1069831766341:web:332515528ded9ec7f53e2c"
+  apiKey: "AIzaSyAFFuohqtfzT2S1X4-THRQfnUp33JwSSjU",
+  authDomain: "retailboost-e5931.firebaseapp.com",
+  projectId: "retailboost-e5931",
+  storageBucket: "retailboost-e5931.firebasestorage.app",
+  messagingSenderId: "491960635046",
+  appId: "1:491960635046:web:b412e285989c656219ae67"
 };
   const app  = initializeApp(firebaseConfig);
   const auth = getAuth(app);
@@ -813,7 +813,7 @@ async function sendOTP(){
     btn.disabled = false;
     btn.textContent = 'Send OTP';
     // Reset recaptcha so user can retry
-    recaptchaVerifier.clear();
+  
     recaptchaVerifier = null;
   }
 }
