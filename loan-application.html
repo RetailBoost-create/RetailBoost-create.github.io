@@ -6,6 +6,9 @@
 <title>RetailBoost | Loan Application</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
+<!-- PDF Generation Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 <!-- ══════════════════════════════════════════════════
      FIREBASE SDK  — loaded from CDN (no backend needed)
      ══════════════════════════════════════════════════ -->
@@ -36,10 +39,121 @@
   window._signInWithPhoneNumber = signInWithPhoneNumber;
 </script>
 
+<script>
+/* ══════════════════════════════════════════════════
+   LOGIN AUTHENTICATION
+   ══════════════════════════════════════════════════ */
+const HARDCODED_CREDENTIALS = {
+  username: 'admin',
+  password: 'password123'
+};
+
+function handleLogin(event) {
+  event.preventDefault();
+  
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const errorEl = document.getElementById('loginError');
+  
+  // Clear previous errors
+  errorEl.classList.remove('show');
+  errorEl.textContent = '';
+  
+  // Validate credentials
+  if (username === HARDCODED_CREDENTIALS.username && password === HARDCODED_CREDENTIALS.password) {
+    // Success - hide login and show form
+    localStorage.setItem('retailboost_login', 'true');
+    hideLoginPage();
+    showToast('✅ Login successful!');
+  } else {
+    // Failed
+    errorEl.textContent = '❌ Invalid username or password. Try: admin / password123';
+    errorEl.classList.add('show');
+    document.getElementById('password').value = '';
+  }
+}
+
+function hideLoginPage() {
+  const loginPage = document.getElementById('loginPage');
+  loginPage.classList.remove('active-login');
+  loginPage.classList.add('hidden-login');
+  document.getElementById('loginForm').reset();
+  
+  // Show main content
+  document.querySelector('.loan-hero').classList.remove('hidden-content');
+  document.querySelector('.stepper-wrap').classList.remove('hidden-content');
+  document.querySelector('.form-wrap').classList.remove('hidden-content');
+}
+
+function showLoginPage() {
+  const loginPage = document.getElementById('loginPage');
+  loginPage.classList.add('active-login');
+  loginPage.classList.remove('hidden-login');
+  
+  // Hide main content
+  document.querySelector('.loan-hero').classList.add('hidden-content');
+  document.querySelector('.stepper-wrap').classList.add('hidden-content');
+  document.querySelector('.form-wrap').classList.add('hidden-content');
+}
+
+// Check if already logged in on page load
+window.addEventListener('DOMContentLoaded', function() {
+  const isLoggedIn = localStorage.getItem('retailboost_login');
+  if (isLoggedIn === 'true') {
+    hideLoginPage();
+  } else {
+    showLoginPage();
+  }
+});
+
+// Add logout functionality
+function logout() {
+  localStorage.removeItem('retailboost_login');
+  location.reload();
+}
+</script>
+
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
-:root{--navy:#0b3d91;--green:#2ecc71;--light:#f6f9ff;--border:#dde6f7;--text:#222;--muted:#666;--red:#e74c3c;}
+html{scroll-behavior:smooth;}
+:root{
+  --navy:#0b3d91;
+  --navy-mid:#1565c0;
+  --green:#2ecc71;
+  --green-dark:#27ae60;
+  --light:#f6f9ff;
+  --border:#dde6f7;
+  --text:#1a1a2e;
+  --muted:#64748b;
+  --red:#e74c3c;
+  --shadow-sm:0 4px 12px rgba(11,61,145,.07);
+  --shadow-md:0 10px 36px rgba(11,61,145,.12);
+}
 body{background:var(--light);color:var(--text);}
+
+/* ══════════════════════════════════════════════════
+   LOGIN PAGE STYLES
+   ══════════════════════════════════════════════════ */
+.login-container{position:fixed;inset:0;background:linear-gradient(135deg,#0b3d91,#081f4f);display:flex;align-items:center;justify-content:center;z-index:10000;opacity:1;transition:opacity .3s;}
+.login-container.hidden-login{opacity:0;pointer-events:none;}
+.login-box{background:white;border-radius:20px;box-shadow:0 24px 64px rgba(0,0,0,.32);max-width:420px;width:90%;padding:44px 40px;text-align:center;}
+.login-header{margin-bottom:30px;}
+.login-icon{font-size:3rem;margin-bottom:15px;}
+.login-header h1{font-size:1.6rem;font-weight:700;color:var(--navy);margin-bottom:8px;}
+.login-header p{font-size:.9rem;color:var(--muted);}
+.login-form{display:flex;flex-direction:column;gap:18px;}
+.login-field{display:flex;flex-direction:column;text-align:left;}
+.login-field label{font-size:.85rem;font-weight:600;color:var(--navy);margin-bottom:6px;}
+.login-field input{width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:.9rem;font-family:Poppins,sans-serif;transition:.25s;outline:none;color:var(--text);}
+.login-field input:hover{border-color:#b8cef5;}
+.login-field input:focus{border-color:var(--navy);box-shadow:0 0 0 4px rgba(11,61,145,.12);}
+.login-error{background:#fee;border:1px solid var(--red);color:var(--red);padding:10px 14px;border-radius:8px;font-size:.85rem;display:none;text-align:left;}
+.login-error.show{display:block;}
+.btn-login{background:linear-gradient(135deg,var(--navy),#1565c0);color:white;border:none;padding:13px 20px;border-radius:10px;font-size:.95rem;font-weight:600;cursor:pointer;font-family:Poppins,sans-serif;box-shadow:0 6px 18px rgba(11,61,145,.3);transition:.3s;margin-top:10px;}
+.btn-login:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(11,61,145,.4);}
+.btn-login:active{transform:translateY(0);}
+.login-footer{border-top:1px solid var(--border);padding-top:15px;margin-top:15px;font-size:.75rem;}
+.login-footer code{background:#f0f5ff;padding:2px 6px;border-radius:4px;color:var(--navy);font-family:monospace;font-weight:600;}
 
 .navbar{position:fixed;top:0;width:100%;background:rgba(11,61,145,.95);padding:15px 0;z-index:9999;backdrop-filter:blur(8px);}
 .nav-flex{display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:auto;padding:0 20px;}
@@ -47,33 +161,37 @@ body{background:var(--light);color:var(--text);}
 nav a{color:white;margin-left:25px;text-decoration:none;font-size:.9rem;opacity:.85;transition:.2s;}
 nav a:hover{opacity:1;}
 
-.loan-hero{margin-top:70px;background:linear-gradient(135deg,#0b3d91,#0a5294,#1a7a3a);padding:55px 20px 35px;text-align:center;color:white;position:relative;overflow:hidden;}
+.loan-hero{margin-top:70px;background:linear-gradient(135deg,#0b3d91,#0a5294,#1a7a3a);padding:55px 20px 35px;text-align:center;color:white;position:relative;overflow:hidden;opacity:1;transition:opacity .3s;pointer-events:auto;}
+.loan-hero.hidden-content{opacity:0;pointer-events:none;position:absolute;}
 .loan-hero h1{font-size:2.2rem;font-weight:700;margin-bottom:8px;position:relative;}
 .loan-hero p{font-size:.95rem;opacity:.85;max-width:500px;margin:0 auto;position:relative;}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(46,204,113,.2);border:1px solid rgba(46,204,113,.4);color:#2ecc71;padding:6px 16px;border-radius:20px;font-size:.8rem;font-weight:600;margin-bottom:16px;position:relative;}
 
-.stepper-wrap{background:white;box-shadow:0 2px 20px rgba(11,61,145,.1);padding:22px 20px;position:sticky;top:70px;z-index:100;}
+.stepper-wrap{background:white;box-shadow:0 4px 24px rgba(11,61,145,.09);padding:20px 20px;position:sticky;top:70px;z-index:100;opacity:1;transition:opacity .3s;pointer-events:auto;border-bottom:1px solid var(--border);}
+.stepper-wrap.hidden-content{opacity:0;pointer-events:none;position:absolute;}
 .stepper{display:flex;align-items:center;justify-content:center;max-width:700px;margin:0 auto;}
 .step{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;}
-.step:not(:last-child)::after{content:'';position:absolute;top:18px;left:50%;width:100%;height:2px;background:var(--border);z-index:0;transition:.4s;}
-.step.done:not(:last-child)::after{background:var(--green);}
-.step-circle{width:36px;height:36px;border-radius:50%;background:var(--border);color:#999;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;position:relative;z-index:1;transition:.3s;}
-.step.active .step-circle{background:var(--navy);color:white;box-shadow:0 0 0 4px rgba(11,61,145,.2);}
-.step.done .step-circle{background:var(--green);color:white;}
-.step-label{font-size:.65rem;font-weight:600;color:#999;margin-top:6px;text-align:center;transition:.3s;}
+.step:not(:last-child)::after{content:'';position:absolute;top:18px;left:50%;width:100%;height:2px;background:var(--border);z-index:0;transition:.5s ease;}
+.step.done:not(:last-child)::after{background:linear-gradient(90deg,var(--green),var(--green-dark));}
+.step-circle{width:36px;height:36px;border-radius:50%;background:var(--border);color:#aab;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.83rem;position:relative;z-index:1;transition:.3s;}
+.step.active .step-circle{background:var(--navy);color:white;box-shadow:0 0 0 5px rgba(11,61,145,.18);}
+.step.done .step-circle{background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;box-shadow:0 2px 10px rgba(46,204,113,.35);}
+.step-label{font-size:.62rem;font-weight:600;color:#aab;margin-top:7px;text-align:center;transition:.3s;}
 .step.active .step-label{color:var(--navy);}
-.step.done .step-label{color:var(--green);}
+.step.done .step-label{color:var(--green-dark);}
 
-.form-wrap{max-width:760px;margin:36px auto;padding:0 20px 60px;}
+.form-wrap{max-width:760px;margin:36px auto;padding:0 20px 60px;opacity:1;transition:opacity .3s;pointer-events:auto;}
+.form-wrap.hidden-content{opacity:0;pointer-events:none;position:absolute;}
 .form-page{display:none;}
 .form-page.active{display:block;animation:fadeIn .4s ease;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
-.form-card{background:white;border-radius:18px;box-shadow:0 10px 40px rgba(11,61,145,.1);overflow:hidden;}
-.form-card-header{background:linear-gradient(135deg,var(--navy),#1565c0);padding:22px 30px;color:white;}
-.form-card-header h2{font-size:1.2rem;font-weight:700;}
-.form-card-header p{font-size:.82rem;opacity:.8;margin-top:4px;}
-.page-icon{font-size:1.8rem;margin-bottom:6px;}
-.form-body{padding:28px 30px;}
+.form-card{background:white;border-radius:20px;box-shadow:var(--shadow-md);overflow:hidden;border:1px solid rgba(221,230,247,.6);}
+.form-card-header{background:linear-gradient(135deg,var(--navy),var(--navy-mid));padding:24px 32px;color:white;position:relative;overflow:hidden;}
+.form-card-header::after{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.05);top:-60px;right:-60px;}
+.form-card-header h2{font-size:1.2rem;font-weight:700;position:relative;z-index:1;}
+.form-card-header p{font-size:.82rem;opacity:.8;margin-top:5px;position:relative;z-index:1;}
+.page-icon{font-size:2rem;margin-bottom:8px;display:block;position:relative;z-index:1;}
+.form-body{padding:28px 32px;}
 
 .field-group{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
 .field-group.single{grid-template-columns:1fr;}
@@ -82,8 +200,9 @@ nav a:hover{opacity:1;}
 .field label{font-size:.8rem;font-weight:600;color:var(--navy);}
 .req{color:var(--red);margin-left:2px;}
 .opt-tag{font-size:.7rem;font-weight:400;color:var(--muted);margin-left:4px;background:#eef3ff;padding:1px 6px;border-radius:6px;}
-.field input,.field select{width:100%;padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:.88rem;font-family:Poppins,sans-serif;color:var(--text);background:white;transition:.2s;outline:none;}
-.field input:focus,.field select:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(11,61,145,.1);}
+.field input,.field select{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:.88rem;font-family:Poppins,sans-serif;color:var(--text);background:white;transition:.25s;outline:none;}
+.field input:hover,.field select:hover{border-color:#b8cef5;}
+.field input:focus,.field select:focus{border-color:var(--navy);box-shadow:0 0 0 4px rgba(11,61,145,.1);background:#fafcff;}
 .field input.error,.field select.error{border-color:var(--red)!important;box-shadow:0 0 0 3px rgba(231,76,60,.1);}
 .err-msg{font-size:.72rem;color:var(--red);display:none;}
 .err-msg.show{display:block;}
@@ -107,36 +226,46 @@ nav a:hover{opacity:1;}
 /* recaptcha container - hidden visually but Firebase needs it in DOM */
 #recaptcha-container{margin-top:8px;}
 
-.upload-box{border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:.2s;position:relative;overflow:hidden;}
-.upload-box:hover{border-color:var(--navy);background:#f0f5ff;}
-.upload-box.has-file{border-style:solid;border-color:var(--green);background:#f0fff5;}
+.upload-box{border:2px dashed var(--border);border-radius:12px;padding:22px 16px;text-align:center;cursor:pointer;transition:.25s;position:relative;overflow:hidden;background:#fafcff;}
+.upload-box:hover{border-color:var(--navy);background:#f0f5ff;transform:translateY(-2px);box-shadow:var(--shadow-sm);}
+.upload-box.has-file{border-style:solid;border-color:var(--green-dark);background:#f0fff8;box-shadow:0 4px 14px rgba(39,174,96,.1);}
 .upload-box.error{border-color:var(--red)!important;background:#fff8f8;}
 .upload-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;}
-.upload-box .uicon{font-size:1.8rem;margin-bottom:6px;}
-.upload-box strong{display:block;font-size:.82rem;color:var(--navy);}
-.upload-box p{font-size:.75rem;color:var(--muted);}
+.upload-box .uicon{font-size:2rem;margin-bottom:8px;display:block;}
+.upload-box strong{display:block;font-size:.83rem;color:var(--navy);font-weight:600;}
+.upload-box p{font-size:.74rem;color:var(--muted);margin-top:3px;}
 
 .radio-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;}
 .radio-opt input{display:none;}
-.radio-opt label{display:inline-block;padding:8px 16px;border:1.5px solid var(--border);border-radius:8px;font-size:.82rem;cursor:pointer;transition:.2s;color:var(--muted);font-weight:500;}
-.radio-opt input:checked+label{border-color:var(--navy);background:var(--navy);color:white;}
+.radio-opt label{display:inline-block;padding:9px 18px;border:1.5px solid var(--border);border-radius:20px;font-size:.82rem;cursor:pointer;transition:.25s;color:var(--muted);font-weight:500;}
+.radio-opt label:hover{border-color:#b8cef5;color:var(--navy);}
+.radio-opt input:checked+label{border-color:var(--navy);background:var(--navy);color:white;box-shadow:0 4px 12px rgba(11,61,145,.25);}
 .radio-group.error .radio-opt label{border-color:#f5c6cb;}
 
 .checkbox-row{display:flex;align-items:flex-start;gap:12px;background:#f0f5ff;border-radius:12px;padding:16px;border:1.5px solid var(--border);transition:.2s;}
 .checkbox-row.error{border-color:var(--red);background:#fff5f5;}
 .checkbox-row input[type=checkbox]{width:18px;height:18px;margin-top:2px;flex-shrink:0;accent-color:var(--navy);cursor:pointer;}
 .checkbox-row label{font-size:.82rem;color:var(--text);line-height:1.5;cursor:pointer;}
-.hint{font-size:.75rem;color:var(--muted);margin-top:4px;}
-.section-divider{font-size:.82rem;font-weight:700;color:var(--navy);margin:22px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--border);}
+.hint{font-size:.74rem;color:var(--muted);margin-top:5px;line-height:1.5;}
+.section-divider{
+  font-size:.78rem;font-weight:700;color:var(--navy);
+  margin:26px 0 16px;padding-bottom:10px;
+  border-bottom:2px solid var(--border);
+  letter-spacing:.5px;text-transform:uppercase;
+}
 
-.form-nav{display:flex;justify-content:space-between;align-items:center;padding:18px 30px 26px;border-top:1px solid var(--border);}
-.page-indicator{font-size:.8rem;color:var(--muted);font-weight:600;}
-.btn-back{background:none;border:1.5px solid var(--border);color:var(--muted);padding:11px 24px;border-radius:30px;font-size:.88rem;font-weight:600;cursor:pointer;transition:.2s;font-family:Poppins,sans-serif;}
-.btn-back:hover{border-color:var(--navy);color:var(--navy);}
-.btn-next{background:linear-gradient(135deg,var(--navy),#1565c0);color:white;border:none;padding:12px 30px;border-radius:30px;font-size:.9rem;font-weight:600;cursor:pointer;font-family:Poppins,sans-serif;box-shadow:0 6px 18px rgba(11,61,145,.3);transition:.3s;}
-.btn-next:hover{transform:translateY(-2px);}
-.btn-submit{background:linear-gradient(135deg,var(--green),#27ae60);color:white;border:none;padding:12px 30px;border-radius:30px;font-size:.9rem;font-weight:600;cursor:pointer;font-family:Poppins,sans-serif;box-shadow:0 6px 18px rgba(46,204,113,.35);transition:.3s;}
-.btn-submit:hover{transform:translateY(-2px);}
+.form-nav{display:flex;justify-content:space-between;align-items:center;padding:18px 32px 26px;border-top:1px solid var(--border);background:#fafcff;}
+.page-indicator{
+  font-size:.78rem;color:var(--muted);font-weight:600;
+  background:#eef3ff;padding:5px 14px;border-radius:20px;
+  border:1px solid var(--border);
+}
+.btn-back{background:none;border:1.5px solid var(--border);color:var(--muted);padding:11px 26px;border-radius:30px;font-size:.88rem;font-weight:600;cursor:pointer;transition:.25s;font-family:Poppins,sans-serif;letter-spacing:.2px;}
+.btn-back:hover{border-color:var(--navy);color:var(--navy);background:#f0f5ff;}
+.btn-next{background:linear-gradient(135deg,var(--navy),var(--navy-mid));color:white;border:none;padding:12px 32px;border-radius:30px;font-size:.9rem;font-weight:600;cursor:pointer;font-family:Poppins,sans-serif;box-shadow:0 6px 20px rgba(11,61,145,.3);transition:.3s;letter-spacing:.2px;}
+.btn-next:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(11,61,145,.4);}
+.btn-submit{background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;border:none;padding:12px 32px;border-radius:30px;font-size:.9rem;font-weight:600;cursor:pointer;font-family:Poppins,sans-serif;box-shadow:0 6px 20px rgba(46,204,113,.35);transition:.3s;letter-spacing:.2px;}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(46,204,113,.45);}
 
 /* PROCESSING OVERLAY */
 #processingOverlay{display:none;position:fixed;inset:0;background:linear-gradient(135deg,#0b3d91,#081f4f);z-index:99999;align-items:center;justify-content:center;flex-direction:column;color:white;text-align:center;padding:30px;}
@@ -183,9 +312,13 @@ nav a:hover{opacity:1;}
 .appr-loan-num{background:linear-gradient(135deg,#f0f5ff,#e8f5e9);border:1px solid var(--border);border-radius:12px;padding:14px 18px;text-align:center;margin-bottom:18px;}
 .appr-loan-num .rl{font-size:.7rem;color:var(--muted);font-weight:600;margin-bottom:4px;letter-spacing:.5px;}
 .appr-loan-num .rc{font-size:1.05rem;font-weight:700;color:var(--navy);letter-spacing:1.5px;word-break:break-all;}
-.appr-actions{display:flex;flex-direction:column;gap:9px;}
-.btn-wa{display:flex;align-items:center;justify-content:center;gap:8px;background:#25D366;color:white;padding:13px;border-radius:12px;font-weight:600;font-size:.88rem;cursor:pointer;border:none;width:100%;font-family:Poppins,sans-serif;transition:.2s;}
-.btn-wa:hover{background:#22c55e;}
+.appr-actions{display:flex;flex-direction:column;gap:11px;width:100%;}
+.btn-download{display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:14px 20px;border-radius:12px;font-weight:600;font-size:.88rem;cursor:pointer;border:none;width:100%;font-family:Poppins,sans-serif;transition:.3s;box-shadow:0 4px 15px rgba(102,126,234,.3);}
+.btn-download:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(102,126,234,.4);}
+.btn-wa{display:flex;align-items:center;justify-content:center;gap:8px;background:#25D366;color:white;padding:14px 20px;border-radius:12px;font-weight:600;font-size:.88rem;cursor:pointer;border:none;width:100%;font-family:Poppins,sans-serif;transition:.3s;box-shadow:0 4px 15px rgba(37,211,102,.3);}
+.btn-wa:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(37,211,102,.4);}
+.btn-continue{display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,var(--navy),#1565c0);color:white;padding:14px 20px;border-radius:12px;font-weight:600;font-size:.88rem;cursor:pointer;border:none;width:100%;font-family:Poppins,sans-serif;transition:.3s;box-shadow:0 4px 15px rgba(11,61,145,.3);}
+.btn-continue:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(11,61,145,.4);}
 .btn-hm{display:flex;align-items:center;justify-content:center;gap:6px;background:#f0f5ff;color:var(--navy);padding:11px;border-radius:12px;text-decoration:none;font-weight:600;font-size:.86rem;border:1.5px solid var(--border);transition:.2s;}
 .btn-hm:hover{background:#e0eaff;}
 
@@ -196,22 +329,89 @@ nav a:hover{opacity:1;}
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:#1a1a2e;color:white;padding:12px 24px;border-radius:30px;font-size:.84rem;font-weight:500;z-index:999999;transition:.4s;opacity:0;white-space:nowrap;max-width:90vw;text-align:center;}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
 
-footer{background:#081f4f;color:white;text-align:center;padding:22px;font-size:.82rem;}
-.whatsapp{position:fixed;bottom:25px;right:25px;background:#25D366;padding:16px;border-radius:50%;color:white;text-decoration:none;font-size:24px;box-shadow:0 4px 16px rgba(0,0,0,.2);z-index:998;}
+footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:26px;font-size:.82rem;border-top:1px solid rgba(255,255,255,.06);}
+.whatsapp{position:fixed;bottom:26px;right:26px;background:#25D366;padding:15px;border-radius:50%;color:white;text-decoration:none;font-size:24px;box-shadow:0 6px 20px rgba(37,211,102,.45);z-index:998;transition:.3s;}
+.whatsapp:hover{transform:scale(1.1);box-shadow:0 8px 28px rgba(37,211,102,.6);}
 
 @media(max-width:600px){
   .field-group,.field-group.triple{grid-template-columns:1fr;}
   .loan-hero h1{font-size:1.5rem;}
-  .form-body{padding:18px;}
-  .form-nav{padding:14px 18px 20px;}
+  .loan-hero{padding:40px 15px 25px;}
+  .form-body{padding:18px 16px;}
+  .form-nav{padding:14px 16px 18px;}
+  .form-card-header{padding:18px 20px 16px;}
   .step-label{display:none;}
-  .appr-body{padding:20px;}
+  .appr-body{padding:18px 16px;}
+  .appr-top{padding:20px 24px 16px;}
+  .appr-top h2{font-size:1.2rem;}
+  .approval-card{max-width:95vw;margin:10px;border-radius:16px;}
   .phone-row{flex-direction:column;}
   .btn-send-otp{width:100%;}
+  .appr-actions{gap:10px;}
+  .btn-wa,.btn-download,.btn-continue{padding:12px 16px;font-size:.82rem;}
+  .appr-amt{font-size:2.2rem;margin:15px 0;}
+  .appr-grid{grid-template-columns:1fr;gap:8px;margin:12px 0;}
+  .appr-box{padding:10px;}
+  .page-icon{font-size:1.6rem;}
+  .form-card-header h2{font-size:1.1rem;}
+  .form-card-header p{font-size:.75rem;}
+  .field input,.field select{padding:10px 12px;font-size:.85rem;}
+  .upload-box{padding:16px 12px;}
+  .upload-box .uicon{font-size:1.6rem;margin-bottom:4px;}
+  .upload-box strong{font-size:.75rem;}
+  .checkbox-row{padding:12px;gap:10px;}
+  .checkbox-row input[type=checkbox]{width:16px;height:16px;}
+  .radio-group{gap:6px;}
+  .radio-opt label{padding:7px 12px;font-size:.78rem;}
+  .btn-back,.btn-next,.btn-submit{padding:10px 16px;font-size:.82rem;}
+  .page-indicator{font-size:.75rem;}
+}
+
+@media(max-width:400px){
+  .loan-hero h1{font-size:1.3rem;}
+  .appr-top h2{font-size:1rem;}
+  .appr-amt{font-size:1.8rem;}
+  .appr-amt span.sym{font-size:1.2rem;}
+  .form-body{padding:14px 12px;}
+  .appr-body{padding:14px 12px;}
+  .approval-card{max-width:98vw;}
+  .field input,.field select{font-size:.8rem;padding:9px 11px;}
 }
 </style>
 </head>
 <body>
+
+<!-- ══════════════════════════════════════════════════
+     LOGIN PAGE
+     ══════════════════════════════════════════════════ -->
+<div id="loginPage" class="login-container active-login">
+  <div class="login-box">
+    <div class="login-header">
+      <div class="login-icon">🏦</div>
+      <h1>RetailBoost Loan Portal</h1>
+      <p>Sign in to your account</p>
+    </div>
+    <form id="loginForm" onsubmit="handleLogin(event)" class="login-form">
+      <div class="login-field">
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="Enter your username" required>
+      </div>
+      <div class="login-field">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter your password" required>
+      </div>
+      <div id="loginError" class="login-error"></div>
+      <button type="submit" class="btn-login">Sign In</button>
+    </form>
+    <!-- <div class="login-footer">
+      <p style="font-size: 0.8rem; color: #666; margin-top: 15px;">
+        <strong>Demo Credentials:</strong><br>
+        Username: <code>admin</code><br>
+        Password: <code>password123</code>
+      </p>
+    </div>-->
+  </div>
+</div>
 
 <header class="navbar">
   <div class="nav-flex">
@@ -221,6 +421,7 @@ footer{background:#081f4f;color:white;text-align:center;padding:22px;font-size:.
       <a href="index.html#works">How it Works</a>
       <a href="index.html#benefits">Benefits</a>
       <a href="index.html#join">Join</a>
+      <a href="#" onclick="logout()" style="color:#ff6b6b;margin-left:35px;border-left:1px solid rgba(255,255,255,.2);padding-left:35px;">Logout</a>
     </nav>
   </div>
 </header>
@@ -228,7 +429,7 @@ footer{background:#081f4f;color:white;text-align:center;padding:22px;font-size:.
 <div class="loan-hero">
   <div class="hero-badge">🏦 Instant EMI Finance</div>
   <h1>New Loan Application</h1>
-  <p>Complete this 5-step form to apply for RetailBoost EMI financing.</p>
+  <p>Complete this 6-step form to apply for RetailBoost EMI financing.</p>
 </div>
 
 <div class="stepper-wrap">
@@ -238,6 +439,7 @@ footer{background:#081f4f;color:white;text-align:center;padding:22px;font-size:.
     <div class="step" id="st3"><div class="step-circle">3</div><div class="step-label">References</div></div>
     <div class="step" id="st4"><div class="step-circle">4</div><div class="step-label">Loan Details</div></div>
     <div class="step" id="st5"><div class="step-circle">5</div><div class="step-label">Store Info</div></div>
+    <div class="step" id="st6"><div class="step-circle">6</div><div class="step-label">Device Info</div></div>
   </div>
 </div>
 
@@ -300,16 +502,30 @@ footer{background:#081f4f;color:white;text-align:center;padding:22px;font-size:.
             <span class="err-msg" id="err-email">Enter a valid email address</span>
           </div>
           <div class="field">
+            <label>PAN Card Number <span class="req">*</span></label>
+            <input type="text" id="panNumber" placeholder="e.g. ABCDE1234F" maxlength="10" 
+                   oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,10)">
+            <span class="err-msg" id="err-panNumber">Enter valid PAN format (ABCDE1234F)</span>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field">
             <label>Name as per Aadhaar / PAN <span class="req">*</span></label>
             <input type="text" id="aadharName" placeholder="Full name on ID" oninput="enforceNameInput(this)">
-            <span class="err-msg" id="err-aadharName">Enter valid name (letters only)</span>
+            <span class="err-msg" id="err-aadharName">Enter valid name (letters only, minimum 3 characters)</span>
+          </div>
+          <div class="field">
+            <label>&nbsp;</label>
+            <div style="background:#f0f5ff;border-radius:10px;padding:11px 14px;height:100%;display:flex;align-items:center;">
+              <p style="font-size:.75rem;color:var(--muted);">📌 PAN format: ABCDE1234F (5 letters, 4 digits, 1 letter)</p>
+            </div>
           </div>
         </div>
         <div class="field-group single">
           <div class="field">
             <label>Street Address <span class="req">*</span></label>
-            <input type="text" id="addr1" placeholder="Street Address">
-            <span class="err-msg" id="err-addr1">Street address is required</span>
+            <input type="text" id="addr1" placeholder="Street Address (minimum 10 characters)">
+            <span class="err-msg" id="err-addr1">Street address must be at least 10 characters</span>
           </div>
         </div>
         <div class="field-group single" style="margin-top:-10px;">
@@ -398,8 +614,8 @@ footer{background:#081f4f;color:white;text-align:center;padding:22px;font-size:.
         <div class="field-group">
           <div class="field">
             <label>Employer Name <span class="req">*</span></label>
-            <input type="text" id="employer" placeholder="Company or business name">
-            <span class="err-msg" id="err-employer">Employer name is required</span>
+            <input type="text" id="employer" placeholder="Company or business name" oninput="validateEmployer()">
+            <span class="err-msg" id="err-employer">Employer name must be at least 5 characters</span>
           </div>
           <div class="field">
             <label>Work Type <span class="req">*</span></label>
@@ -425,8 +641,9 @@ footer{background:#081f4f;color:white;text-align:center;padding:22px;font-size:.
         <div class="field-group">
           <div class="field">
             <label>Monthly Income (₹) <span class="req">*</span></label>
-            <input type="number" id="income" placeholder="e.g. 25000" min="0">
-            <span class="err-msg" id="err-income">Monthly income is required</span>
+            <input type="number" id="income" placeholder="Default: ₹25,000" min="0" value="25000" oninput="validateIncome()">
+            <span class="err-msg" id="err-income">Monthly income is required and must be greater than 0</span>
+            <p class="hint" style="margin-top:4px;">💡 Default value: ₹25,000 (editable)</p>
           </div>
           <div class="field">
             <label>Other Monthly Income (₹) <span class="opt-tag">optional</span></label>
@@ -547,29 +764,47 @@ footer{background:#081f4f;color:white;text-align:center;padding:22px;font-size:.
           </div>
           <div class="field">
             <label>Total Product Amount (₹) <span class="req">*</span></label>
-            <input type="number" id="productAmt" placeholder="e.g. 45000" min="0">
+            <input type="number" id="productAmt" placeholder="e.g. 45000" min="0" oninput="calculateLoan()">
             <span class="err-msg" id="err-productAmt">Product amount is required</span>
           </div>
         </div>
         <div class="field-group">
           <div class="field">
-            <label>Loan Amount Required (₹) <span class="req">*</span></label>
-            <input type="number" id="loanAmt" placeholder="e.g. 30000" min="0">
+            <label>Down Payment Amount (₹) <span class="req">*</span></label>
+            <input type="number" id="downPayment" placeholder="Auto-calculated (40% min)" min="0" oninput="validateDownPayment()">
+            <span class="err-msg" id="err-downPayment">Down payment must be at least 40% of product amount</span>
+            <p class="hint" style="margin-top:4px;">📌 Minimum: 40% of product price (auto-adjusted if less)</p>
+          </div>
+          <div class="field" style="background:#f0f5ff;border-radius:10px;padding:11px 14px;display:flex;flex-direction:column;justify-content:center;">
+            <label style="color:var(--navy); font-weight:600;">Loan Calculation Summary</label>
+            <p style="font-size:.75rem;color:var(--muted);line-height:1.6;margin-top:4px;">
+              🏷️ <strong>Product:</strong> <span id="dsp-productAmt">₹0</span><br>
+              💳 <strong>Down Pmt:</strong> <span id="dsp-downPayment">₹0</span><br>
+              📊 <strong>Loan Basis:</strong> <span id="dsp-loanBasis">₹0</span><br>
+              💰 <strong>Interest:</strong> <span id="dsp-interest">₹0</span><br>
+              ✅ <strong>Total Loan:</strong> <span id="dsp-totalLoan">₹0</span>
+            </p>
+          </div>
+        </div>
+        <div class="field-group">
+          <div class="field">
+            <label>Loan Amount (Auto-Calculated) <span class="req">*</span></label>
+            <input type="number" id="loanAmt" placeholder="Auto-calculated" min="0" readonly style="background:#f0f5ff;color:var(--navy);font-weight:600;">
             <span class="err-msg" id="err-loanAmt">Loan amount is required</span>
           </div>
           <div class="field">
-            <label>Down Payment Amount (₹) <span class="req">*</span></label>
-            <input type="number" id="downPayment" placeholder="e.g. 15000" min="0">
-            <span class="err-msg" id="err-downPayment">Down payment is required</span>
+            <label>Approx. Interest (₹) <span class="req">*</span></label>
+            <input type="number" id="interestAmt" placeholder="₹3000 - ₹3500" min="3000" max="3500" readonly style="background:#f0f5ff;color:var(--navy);font-weight:600;">
+            <span class="hint" style="margin-top:4px;">Range: ₹3,000 - ₹3,500</span>
           </div>
         </div>
         <div class="field-group single">
           <div class="field">
             <label>EMI Duration <span class="req">*</span></label>
             <div class="radio-group" id="rg-emiDur">
-              <div class="radio-opt"><input type="radio" name="emiDur" id="em3" value="3 Months"><label for="em3">3 Months</label></div>
-              <div class="radio-opt"><input type="radio" name="emiDur" id="em6" value="6 Months"><label for="em6">6 Months</label></div>
-              <div class="radio-opt"><input type="radio" name="emiDur" id="em9" value="9 Months"><label for="em9">9 Months</label></div>
+              <div class="radio-opt"><input type="radio" name="emiDur" id="em3" value="3 Months" data-months="3" onchange="updateEMI()"><label for="em3">3 Months</label></div>
+              <div class="radio-opt"><input type="radio" name="emiDur" id="em6" value="6 Months" data-months="6" onchange="updateEMI()"><label for="em6">6 Months</label></div>
+              <div class="radio-opt"><input type="radio" name="emiDur" id="em9" value="9 Months" data-months="9" onchange="updateEMI()"><label for="em9">9 Months</label></div>
             </div>
             <span class="err-msg" id="err-emiDur">Please select EMI duration</span>
           </div>
@@ -584,7 +819,7 @@ footer{background:#081f4f;color:white;text-align:center;padding:22px;font-size:.
       </div>
       <div class="form-nav">
         <button class="btn-back" onclick="goPrev(4)">← Back</button>
-        <span class="page-indicator">Step 4 of 5</span>
+        <span class="page-indicator">Step 4 of 6</span>
         <button class="btn-next" onclick="goNext(4)">Next →</button>
       </div>
     </div>
@@ -639,8 +874,51 @@ footer{background:#081f4f;color:white;text-align:center;padding:22px;font-size:.
       </div>
       <div class="form-nav">
         <button class="btn-back" onclick="goPrev(5)">← Back</button>
-        <span class="page-indicator">Step 5 of 5</span>
-        <button class="btn-submit" onclick="submitForm()">✅ Submit Application</button>
+        <span class="page-indicator">Step 5 of 6</span>
+        <button class="btn-next" onclick="goNext(5)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 6 (DEVICE INFO) -->
+  <div class="form-page" id="page6">
+    <div class="form-card">
+      <div class="form-card-header">
+        <div class="page-icon">📱</div>
+        <h2>Device Information</h2>
+        <p>Enter the IMEI numbers of your device</p>
+      </div>
+      <div class="form-body">
+        <div class="field-group single">
+          <div class="field">
+            <label>IMEI Number 1 <span class="req">*</span></label>
+            <input type="text" id="imei1" placeholder="e.g. 350082345678901" maxlength="15" 
+                   oninput="this.value=this.value.replace(/\D/g,'').slice(0,15)">
+            <span class="err-msg" id="err-imei1">IMEI must be 15 digits</span>
+            <p class="hint" style="margin-top:4px;">📌 IMEI is a 15-digit number (dial *#06# to check)</p>
+          </div>
+        </div>
+        <div class="field-group single">
+          <div class="field">
+            <label>IMEI Number 2 <span class="req">*</span></label>
+            <input type="text" id="imei2" placeholder="e.g. 350082345678902" maxlength="15"
+                   oninput="this.value=this.value.replace(/\D/g,'').slice(0,15)">
+            <span class="err-msg" id="err-imei2">IMEI must be 15 digits</span>
+            <p class="hint" style="margin-top:4px;">📌 Leave blank if device has only one IMEI</p>
+          </div>
+        </div>
+        <div style="background:linear-gradient(135deg,#f0f5ff,#e8f5e9);border-radius:12px;padding:14px;border:1px solid var(--border);margin-top:16px;">
+          <p style="font-size:.76rem;color:var(--muted);line-height:1.8;">
+            ℹ️ IMEIs are used to verify device authenticity<br>
+            ℹ️ Both IMEIs must be valid 15-digit numbers<br>
+            ℹ️ This information is kept strictly confidential
+          </p>
+        </div>
+      </div>
+      <div class="form-nav">
+        <button class="btn-back" onclick="goPrev(6)">← Back</button>
+        <span class="page-indicator">Step 6 of 6</span>
+        <button class="btn-submit" onclick="submitForm()">✅ Final Submit</button>
       </div>
     </div>
   </div>
@@ -717,6 +995,18 @@ footer{background:#081f4f;color:white;text-align:center;padding:22px;font-size:.
         <div class="appr-box"><div class="dl">STATUS</div><div class="dv" style="color:#27ae60;">✅ Approved</div></div>
         <div class="appr-box"><div class="dl">EMI DURATION</div><div class="dv" id="emiDisplay">—</div></div>
       </div>
+      
+      <!-- SUMMARY DISPLAY -->
+      <div style="background:linear-gradient(135deg,#f0f5ff,#e8f5e9);border-radius:12px;padding:16px;border:1.5px solid var(--border);margin-bottom:16px;">
+        <div style="font-size:.75rem;color:var(--muted);font-weight:600;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">📊 Loan Breakdown</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:.82rem;">
+          <div><strong>Mobile Price:</strong><br><span id="sum-product" style="color:var(--navy);font-weight:600;">₹0</span></div>
+          <div><strong>Down Payment:</strong><br><span id="sum-down" style="color:var(--navy);font-weight:600;">₹0</span></div>
+          <div><strong>Loan Amount:</strong><br><span id="sum-loan" style="color:#27ae60;font-weight:700;">₹0</span></div>
+          <div><strong>Interest:</strong><br><span id="sum-interest" style="color:var(--navy);font-weight:600;">₹0</span></div>
+          <div style="grid-column:1/-1;"><strong>💳 Monthly EMI:</strong><br><span id="sum-emi" style="color:#0b3d91;font-weight:700;font-size:.95rem;">₹0</span></div>
+        </div>
+      </div>
       <div class="appr-loan-num">
         <div class="rl">🏦 LOAN NUMBER</div>
         <div class="rc" id="loanNumber">RB-2026-000000</div>
@@ -728,11 +1018,18 @@ footer{background:#081f4f;color:white;text-align:center;padding:22px;font-size:.
       </div>
 
       <div class="appr-actions">
-        <!-- wa.me link — opens WhatsApp on user's device with full data -->
-        <button class="btn-wa" onclick="confirmOnWhatsApp()">
-          💬 Send My Copy on WhatsApp
+        <!-- PDF Download Button -->
+        <button class="btn-download" onclick="generateAndDownloadPDF()">
+          📄 Download Loan Summary PDF
         </button>
-        <a href="index.html" class="btn-hm">🏠 Back to RetailBoost Home</a>
+        <!-- WhatsApp Button - sends PDF info -->
+        <button class="btn-wa" onclick="shareViaWhatsApp()">
+          💬 Share on WhatsApp
+        </button>
+        <!-- Continue Button -->
+        <button class="btn-continue" onclick="continueToDeviceInfo()">
+          ➜ Continue to Application
+        </button>
       </div>
     </div>
   </div>
@@ -769,8 +1066,21 @@ let otpTimerHandle     = null;
 
 /* ── HELPERS ── */
 function enforceNameInput(el){ el.value = el.value.replace(/[^a-zA-Z\s.\-']/g,''); }
-function isValidName(v){ v=v.trim(); return v.length>=2&&/^[a-zA-Z\s.\-']+$/.test(v); }
+function isValidName(v){ v=v.trim(); return v.length>=3&&/^[a-zA-z\s.\-']+$/.test(v); }
 function isValidIndianPhone(v){ return /^[6-9]\d{9}$/.test(v.replace(/\D/g,'')); }
+function isValidPAN(v){ return /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(v.trim().toUpperCase()); }
+function isValidEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); }
+function isValidAddress(v){ return v.trim().length >= 10; }
+function isValidEmployer(v){ return v.trim().length >= 5; }
+function isValidIncome(v){ return v > 0; }
+function isAtLeast18(dob){
+  const birthDate = new Date(dob);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if(monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) age--;
+  return age >= 18;
+}
 
 /* ── FIREBASE OTP ── */
 function initRecaptcha(){
@@ -872,17 +1182,19 @@ async function verifyOTP(){
 
 /* ── VALIDATION ── */
 const rules={
-  1:[{id:'firstName',type:'name'},{id:'lastName',type:'name'},{id:'dob',type:'text'},
-     {id:'phone',type:'phone'},{id:'email',type:'email'},{id:'aadharName',type:'name'},
-     {id:'addr1',type:'text'},{id:'city',type:'text'},{id:'state',type:'text'},
-     {id:'pin',type:'pin'},{id:'panCard',type:'file'},{id:'custPhoto',type:'file'},{id:'aadhar',type:'file'}],
-  2:[{id:'employer',type:'text'},{id:'workType',type:'select'},{id:'empLen',type:'radio',name:'empLen'},{id:'income',type:'text'}],
+  1:[{id:'firstName',type:'name'},{id:'lastName',type:'name'},{id:'dob',type:'dob18'},
+     {id:'phone',type:'phone'},{id:'email',type:'email'},{id:'panNumber',type:'pan'},
+     {id:'aadharName',type:'name'},{id:'addr1',type:'addr10'},{id:'city',type:'text'},{id:'state',type:'text'},
+     {id:'pin',type:'pin'},{id:'panCard',type:'pan'},{id:'custPhoto',type:'file'},{id:'aadhar',type:'file'}],
+  2:[{id:'employer',type:'employer'},{id:'workType',type:'select'},{id:'empLen',type:'radio',name:'empLen'},{id:'income',type:'income'}],
   3:[{id:'ref1First',type:'name'},{id:'ref1Last',type:'name'},{id:'ref1Rel',type:'select'},{id:'ref1Phone',type:'phone'},
      {id:'ref2First',type:'name'},{id:'ref2Last',type:'name'},{id:'ref2Rel',type:'select'},{id:'ref2Phone',type:'phone'}],
-  4:[{id:'product',type:'text'},{id:'productAmt',type:'text'},{id:'loanAmt',type:'text'},
-     {id:'downPayment',type:'text'},{id:'emiDur',type:'radio',name:'emiDur'},{id:'creditScore',type:'text'}],
-  5:[{id:'storeName',type:'text'},{id:'storePhone',type:'phone'},{id:'salesExec',type:'name'},{id:'certify',type:'checkbox'}]
+  4:[{id:'product',type:'text'},{id:'productAmt',type:'text'},{id:'downPayment',type:'text'},
+     {id:'loanAmt',type:'text'},{id:'interestAmt',type:'text'},{id:'emiDur',type:'radio',name:'emiDur'},{id:'creditScore',type:'text'}],
+  5:[{id:'storeName',type:'text'},{id:'storePhone',type:'phone'},{id:'salesExec',type:'name'},{id:'certify',type:'checkbox'}],
+  6:[{id:'imei1',type:'imei'},{id:'imei2',type:'imei-optional'}]
 };
+
 
 function validatePage(page){
   let valid=true;
@@ -891,8 +1203,30 @@ function validatePage(page){
     const errEl=document.getElementById('err-'+r.id);
     const el=document.getElementById(r.id);
     if(r.type==='name'){ ok=el&&isValidName(el.value); if(el)el.classList.toggle('error',!ok); }
+    else if(r.type==='dob18'){ 
+      const dobValue = el ? el.value : '';
+      ok = dobValue !== '' && isAtLeast18(dobValue);
+      if(el) el.classList.toggle('error', !ok);
+      if(errEl && !ok) errEl.textContent = 'User must be at least 18 years old';
+    }
+    else if(r.type==='employer'){ ok=el&&isValidEmployer(el.value); if(el)el.classList.toggle('error',!ok); }
+    else if(r.type==='income'){ ok=el&&isValidIncome(el.value); if(el)el.classList.toggle('error',!ok); }
     else if(r.type==='text'||r.type==='select'){ ok=el&&el.value.trim()!==''; if(el)el.classList.toggle('error',!ok); }
-    else if(r.type==='email'){ ok=el&&/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim()); if(el)el.classList.toggle('error',!ok); }
+    else if(r.type==='email'){ ok=el&&isValidEmail(el.value); if(el)el.classList.toggle('error',!ok); }
+    else if(r.type==='pan'){ 
+      if(r.id==='panNumber'){
+        ok=el&&isValidPAN(el.value);
+        if(el)el.classList.toggle('error',!ok);
+      } else {
+        ok=el&&el.files&&el.files.length>0;
+        const box=document.getElementById('box-'+r.id);
+        if(box)box.classList.toggle('error',!ok);
+      }
+    }
+    else if(r.type==='addr10'){ 
+      ok=el&&isValidAddress(el.value);
+      if(el)el.classList.toggle('error',!ok);
+    }
     else if(r.type==='phone'){
       ok=el&&isValidIndianPhone(el.value); if(el)el.classList.toggle('error',!ok);
       if(r.id==='phone'&&ok&&!otpVerified){ ok=false; document.getElementById('err-otp').classList.add('show'); }
@@ -911,13 +1245,157 @@ function validatePage(page){
       ok=el&&el.checked;
       const box=document.getElementById('certify-box'); if(box)box.classList.toggle('error',!ok);
     }
+    else if(r.type==='imei'){
+      ok=el&&/^\d{15}$/.test(el.value.trim());
+      if(el)el.classList.toggle('error',!ok);
+    }
+    else if(r.type==='imei-optional'){
+      // IMEI 2 is optional - only validate if not empty
+      const val = el ? el.value.trim() : '';
+      ok = val === '' || /^\d{15}$/.test(val);
+      if(el)el.classList.toggle('error',!ok);
+    }
     if(errEl&&r.id!=='phone') errEl.classList.toggle('show',!ok);
     if(!ok) valid=false;
   });
   return valid;
 }
 
-function updateStepper(p){ for(let i=1;i<=5;i++){const s=document.getElementById('st'+i);s.classList.remove('active','done');if(i<p)s.classList.add('done');if(i===p)s.classList.add('active');} }
+/* ── EMPLOYMENT & LOAN VALIDATORS ── */
+function validateEmployer(){
+  const el = document.getElementById('employer');
+  const errEl = document.getElementById('err-employer');
+  const ok = isValidEmployer(el.value);
+  el.classList.toggle('error', !ok);
+  errEl.classList.toggle('show', !ok);
+}
+
+function validateIncome(){
+  const el = document.getElementById('income');
+  const errEl = document.getElementById('err-income');
+  const ok = isValidIncome(el.value);
+  el.classList.toggle('error', !ok);
+  errEl.classList.toggle('show', !ok);
+}
+
+/* ══════════════════════════════════════════════════
+   🧮 LOAN CALCULATION LOGIC
+   ══════════════════════════════════════════════════ */
+function calculateLoan(){
+  const productAmt = parseFloat(document.getElementById('productAmt').value) || 0;
+  if(productAmt <= 0){ resetLoanCalculation(); return; }
+
+  // STEP 1: Calculate default down payment (40-42%)
+  const downPaymentPercent = 0.40 + Math.random() * 0.02; // 40-42%
+  const defaultDownPayment = Math.round(productAmt * downPaymentPercent);
+  
+  // Display product amount
+  document.getElementById('dsp-productAmt').textContent = '₹' + productAmt.toLocaleString('en-IN');
+  
+  // Set down payment field if empty or invalid
+  const dpField = document.getElementById('downPayment');
+  if(!dpField.value || parseFloat(dpField.value) === 0){
+    dpField.value = defaultDownPayment;
+  }
+  
+  validateDownPayment(); // This will auto-adjust if needed and recalculate
+}
+
+function validateDownPayment(){
+  const productAmt = parseFloat(document.getElementById('productAmt').value) || 0;
+  let downPayment = parseFloat(document.getElementById('downPayment').value) || 0;
+  const dpField = document.getElementById('downPayment');
+  const errEl = document.getElementById('err-downPayment');
+  
+  if(productAmt <= 0){ resetLoanCalculation(); return; }
+  
+  const minDownPayment = Math.ceil(productAmt * 0.40); // Minimum 40%
+  
+  // STEP 2: Auto-adjust if down payment < 40%
+  if(downPayment < minDownPayment){
+    downPayment = minDownPayment;
+    dpField.value = downPayment;
+  }
+  
+  dpField.classList.toggle('error', downPayment < minDownPayment);
+  errEl.classList.toggle('show', downPayment < minDownPayment);
+  
+  // Update display
+  document.getElementById('dsp-downPayment').textContent = '₹' + Math.round(downPayment).toLocaleString('en-IN');
+  
+  // STEP 3: Calculate loan basis (remaining = price - down payment)
+  let loanBasis = productAmt - downPayment;
+  
+  // STEP 4: Calculate interest (random between ₹3000-₹3500)
+  let interest = Math.floor(Math.random() * 501) + 3000; // ₹3000 - ₹3500
+  
+  // STEP 5: Calculate total loan (basis + interest)
+  let totalLoan = Math.round(loanBasis + interest);
+  
+  // CRITICAL: Ensure loan is between ₹15,000 - ₹18,000
+  const MIN_LOAN = 15000;
+  const MAX_LOAN = 18000;
+  
+  if(totalLoan < MIN_LOAN){
+    // Loan too low - reduce down payment to increase loan basis
+    const newDownPayment = productAmt - (MIN_LOAN - interest) + 500;
+    if(newDownPayment > 0 && newDownPayment < productAmt){
+      downPayment = Math.max(Math.ceil(productAmt * 0.40), newDownPayment);
+      dpField.value = downPayment;
+      loanBasis = productAmt - downPayment;
+      totalLoan = Math.round(loanBasis + interest);
+    }
+  } else if(totalLoan > MAX_LOAN){
+    // Loan too high - increase down payment to decrease loan basis
+    const newDownPayment = productAmt - (MAX_LOAN - interest) - 500;
+    if(newDownPayment > 0 && newDownPayment < productAmt){
+      downPayment = newDownPayment;
+      dpField.value = downPayment;
+      loanBasis = productAmt - downPayment;
+      totalLoan = Math.round(loanBasis + interest);
+    }
+  }
+  
+  // Update displays
+  document.getElementById('dsp-loanBasis').textContent = '₹' + Math.round(loanBasis).toLocaleString('en-IN');
+  document.getElementById('dsp-interest').textContent = '₹' + interest.toLocaleString('en-IN');
+  document.getElementById('dsp-totalLoan').textContent = '₹' + totalLoan.toLocaleString('en-IN');
+  document.getElementById('dsp-downPayment').textContent = '₹' + Math.round(downPayment).toLocaleString('en-IN');
+  
+  // Store calculated values
+  document.getElementById('loanAmt').value = totalLoan;
+  document.getElementById('interestAmt').value = interest;
+  document.getElementById('downPayment').value = Math.round(downPayment);
+  
+  // Update EMI if duration is selected
+  updateEMI();
+}
+
+function updateEMI(){
+  const loanAmt = parseFloat(document.getElementById('loanAmt').value) || 0;
+  const emiDurRadio = document.querySelector('input[name="emiDur"]:checked');
+  
+  if(!emiDurRadio || loanAmt <= 0) return;
+  
+  const months = parseInt(emiDurRadio.dataset.months) || 0;
+  const emi = Math.round(loanAmt / months);
+  
+  // Store EMI for reference 
+  document.getElementById('loanAmt').dataset.emi = emi;
+}
+
+function resetLoanCalculation(){
+  document.getElementById('dsp-productAmt').textContent = '₹0';
+  document.getElementById('dsp-downPayment').textContent = '₹0';
+  document.getElementById('dsp-loanBasis').textContent = '₹0';
+  document.getElementById('dsp-interest').textContent = '₹0';
+  document.getElementById('dsp-totalLoan').textContent = '₹0';
+  document.getElementById('loanAmt').value = '';
+  document.getElementById('interestAmt').value = '';
+  document.getElementById('downPayment').value = '';
+}
+
+function updateStepper(p){ for(let i=1;i<=6;i++){const s=document.getElementById('st'+i);s.classList.remove('active','done');if(i<p)s.classList.add('done');if(i===p)s.classList.add('active');} }
 function showPage(n){ document.querySelectorAll('.form-page').forEach(p=>p.classList.remove('active')); document.getElementById('page'+n).classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); updateStepper(n); }
 function goNext(from){ if(!validatePage(from)){const e=document.querySelector('#page'+from+' .err-msg.show');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});return;} showPage(from+1); }
 function goPrev(from){ showPage(from-1); }
@@ -966,6 +1444,7 @@ function collectFormData(loanNum,amt){
     product:g('product'), productAmt:g('productAmt'), loanAmt:g('loanAmt'), downPayment:g('downPayment'),
     emiDuration:radio('emiDur'), creditScore:g('creditScore'), approvedAmt:amt,
     storeName:g('storeName'), storePhone:g('storePhone'), salesExec:g('salesExec'),
+    imei1:g('imei1'), imei2:g('imei2'),
   };
 }
 
@@ -1045,7 +1524,11 @@ function confirmOnWhatsApp(){
 
 /* ── SUBMIT & APPROVAL ── */
 function submitForm(){
-  if(!validatePage(5)){const e=document.querySelector('#page5 .err-msg.show');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});return;}
+  if(!validatePage(6)){const e=document.querySelector('#page6 .err-msg.show');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});return;}
+  startProcessing();
+}
+
+function completeLoanApplication(){
   startProcessing();
 }
 
@@ -1059,11 +1542,31 @@ async function showApproval(){
 
   document.getElementById('loanNumber').textContent  = loanNum;
   document.getElementById('emiDisplay').textContent   = emiSel ? emiSel.value : '—';
+  
+  // Populate summary display
+  const productAmt = parseFloat(document.getElementById('productAmt').value) || 0;
+  const downPayment = parseFloat(document.getElementById('downPayment').value) || 0;
+  const loanAmt = parseFloat(document.getElementById('loanAmt').value) || 0;
+  const interest = parseFloat(document.getElementById('interestAmt').value) || 0;
+  const months = emiSel ? parseInt(emiSel.dataset.months) : 0;
+  const emi = months > 0 ? Math.round(loanAmt / months) : 0;
+  
+  document.getElementById('sum-product').textContent = '₹' + productAmt.toLocaleString('en-IN');
+  document.getElementById('sum-down').textContent = '₹' + Math.round(downPayment).toLocaleString('en-IN');
+  document.getElementById('sum-loan').textContent = '₹' + Math.round(loanAmt).toLocaleString('en-IN');
+  document.getElementById('sum-interest').textContent = '₹' + interest.toLocaleString('en-IN');
+  document.getElementById('sum-emi').textContent = '₹' + emi.toLocaleString('en-IN') + ' / month';
+  
   document.getElementById('approvalOverlay').classList.add('show');
   animateCount(0, amount, 1400, 'amtNum');
 
   // 🚀 Send to YOUR WhatsApp silently in background via CallMeBot
   await sendViaCallMeBot(currentFormData);
+}
+
+function continueToDeviceInfo(){
+  document.getElementById('approvalOverlay').classList.remove('show');
+  showPage(6);
 }
 
 function animateCount(from,to,dur,elId){
@@ -1073,6 +1576,167 @@ function animateCount(from,to,dur,elId){
 }
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
+
+/* ══════════════════════════════════════════════════
+   📄 PDF GENERATION & DOWNLOAD
+   ══════════════════════════════════════════════════ */
+function generateAndDownloadPDF(){
+  const productAmt = parseFloat(document.getElementById('productAmt').value) || 0;
+  const downPayment = parseFloat(document.getElementById('downPayment').value) || 0;
+  const loanAmt = parseFloat(document.getElementById('loanAmt').value) || 0;
+  const interest = parseFloat(document.getElementById('interestAmt').value) || 0;
+  const emiSel = document.querySelector('input[name="emiDur"]:checked');
+  const months = emiSel ? parseInt(emiSel.dataset.months) : 0;
+  const emi = months > 0 ? Math.round(loanAmt / months) : 0;
+  const loanNum = document.getElementById('loanNumber').textContent;
+  const imei1 = document.getElementById('imei1').value;
+  const imei2 = document.getElementById('imei2').value;
+  const appDate = new Date().toLocaleDateString('en-IN');
+  
+  const htmlContent = `
+    <html>
+    <head>
+      <style>
+        body { font-family: Arial, sans-serif; padding: 20px; color: #222; }
+        .header { background: linear-gradient(135deg, #0b3d91, #1565c0); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .header p { margin: 5px 0 0; font-size: 14px; opacity: 0.9; }
+        .section { margin-bottom: 20px; }
+        .section-title { background: #f0f5ff; padding: 10px 15px; border-left: 4px solid #0b3d91; font-weight: bold; margin-bottom: 10px; font-size: 14px; }
+        .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px; }
+        .row-label { font-weight: 600; color: #0b3d91; }
+        .row-value { text-align: right; font-weight: bold; color: #222; }
+        .highlight { background: #e8f5e9; padding: 2px 6px; border-radius: 4px; }
+        .footer { background: #f0f5ff; padding: 15px; border-radius: 8px; text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+      </style>
+    </head>
+    <body>
+      <div class="header">
+        <h1>🏦 RetailBoost Loan Summary</h1>
+        <p>Single Page Loan Document</p>
+      </div>
+      
+      <div class="section">
+        <div class="section-title">📊 Loan Details</div>
+        <div class="row">
+          <span class="row-label">Loan Number:</span>
+          <span class="row-value">${loanNum}</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Application Date:</span>
+          <span class="row-value">${appDate}</span>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="section-title">📱 Mobile Details</div>
+        <div class="row">
+          <span class="row-label">Mobile Price:</span>
+          <span class="row-value">₹${productAmt.toLocaleString('en-IN')}</span>
+        </div>
+        <div class="row">
+          <span class="row-label">Down Payment:</span>
+          <span class="row-value">₹${Math.round(downPayment).toLocaleString('en-IN')}</span>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="section-title">💰 Loan Calculation</div>
+        <div class="row">
+          <span class="row-label">Loan Amount:</span>
+          <span class="row-value"><span class="highlight">₹${loanAmt.toLocaleString('en-IN')}</span></span>
+        </div>
+        <div class="row">
+          <span class="row-label">Interest:</span>
+          <span class="row-value">₹${interest.toLocaleString('en-IN')}</span>
+        </div>
+        <div class="row">
+          <span class="row-label">EMI Duration:</span>
+          <span class="row-value">${months} Months</span>
+        </div>
+        <div class="row" style="border: none; background: #fffbea; padding: 10px; border-radius: 4px; margin-top: 5px;">
+          <span class="row-label">Monthly EMI:</span>
+          <span class="row-value" style="color: #d97706; font-size: 16px;">₹${emi.toLocaleString('en-IN')}</span>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="section-title">📱 Device IMEI Numbers</div>
+        <div class="row">
+          <span class="row-label">IMEI 1:</span>
+          <span class="row-value">${imei1 || 'N/A'}</span>
+        </div>
+        <div class="row">
+          <span class="row-label">IMEI 2:</span>
+          <span class="row-value">${imei2 || 'N/A'}</span>
+        </div>
+      </div>
+      
+      <div class="footer">
+        <p>✅ This loan has been approved by RetailBoost</p>
+        <p style="margin-top: 10px; font-size: 11px;">Generated on ${new Date().toLocaleString('en-IN')}</p>
+        <p style="margin-top: 5px; font-size: 11px;">RetailBoost © 2026 • Making Finance Simple</p>
+      </div>
+    </body>
+    </html>
+  `;
+  
+  const element = document.createElement('div');
+  element.innerHTML = htmlContent;
+  
+  const opt = {
+    margin: 10,
+    filename: `RetailBoost_Loan_${loanNum}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+  };
+  
+  html2pdf().set(opt).from(htmlContent).save();
+  showToast('✅ PDF downloaded successfully!');
+}
+
+/* ══════════════════════════════════════════════════
+   💬 WHATSAPP SHARING WITH LOAN SUMMARY
+   ══════════════════════════════════════════════════ */
+function shareViaWhatsApp(){
+  const loanNum = document.getElementById('loanNumber').textContent;
+  const productAmt = parseFloat(document.getElementById('productAmt').value) || 0;
+  const downPayment = parseFloat(document.getElementById('downPayment').value) || 0;
+  const loanAmt = parseFloat(document.getElementById('loanAmt').value) || 0;
+  const interest = parseFloat(document.getElementById('interestAmt').value) || 0;
+  const emiSel = document.querySelector('input[name="emiDur"]:checked');
+  const months = emiSel ? parseInt(emiSel.dataset.months) : 0;
+  const emi = months > 0 ? Math.round(loanAmt / months) : 0;
+  const imei1 = document.getElementById('imei1').value;
+  const imei2 = document.getElementById('imei2').value;
+  
+  const msg = encodeURIComponent(
+    `🏦 *RetailBoost Loan Approved!* 🎉\n\n` +
+    `📋 *Loan Details*\n` +
+    `🔢 Loan Number: ${loanNum}\n` +
+    `📅 Date: ${new Date().toLocaleDateString('en-IN')}\n\n` +
+    `📱 *Mobile Details*\n` +
+    `💰 Mobile Price: ₹${productAmt.toLocaleString('en-IN')}\n` +
+    `💳 Down Payment: ₹${Math.round(downPayment).toLocaleString('en-IN')}\n\n` +
+    `💵 *Loan Calculation*\n` +
+    `✅ Loan Amount: ₹${loanAmt.toLocaleString('en-IN')}\n` +
+    `📌 Interest: ₹${interest.toLocaleString('en-IN')}\n` +
+    `📅 Duration: ${months} Months\n` +
+    `💳 Monthly EMI: ₹${emi.toLocaleString('en-IN')}\n\n` +
+    `📱 *Device IMEIs*\n` +
+    `🔹 IMEI 1: ${imei1 || 'N/A'}\n` +
+    `🔹 IMEI 2: ${imei2 || 'N/A'}\n\n` +
+    `✨ *Ready to proceed?* Contact our team for next steps!\n` +
+    `RetailBoost • Your Trusted Finance Partner`
+  );
+  
+  const phoneNumber = WHATSAPP_NUMBER || '919187627737';
+  const waLink = `https://wa.me/${phoneNumber}?text=${msg}`;
+  window.open(waLink, '_blank');
+  showToast('💬 Opening WhatsApp...');
+}
+
 </script>
 </body>
 </html>
