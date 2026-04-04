@@ -117,19 +117,26 @@ function logout() {
 *{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif;}
 html{scroll-behavior:smooth;}
 :root{
-  --navy:#0b3d91;
-  --navy-mid:#1565c0;
-  --green:#2ecc71;
-  --green-dark:#27ae60;
-  --light:#f6f9ff;
-  --border:#dde6f7;
-  --text:#1a1a2e;
-  --muted:#64748b;
+  --navy:#1A3FAA;
+  --navy-mid:#2D63FF;
+  --navy-dark:#0D2272;
+  --green:#10C48C;
+  --green-dark:#059669;
+  --light:#F2F6FE;
+  --border:#DEE8FA;
+  --border-2:#C8D8F4;
+  --text:#0C1A4E;
+  --text-2:#2D3C72;
+  --muted:#5B6F99;
   --red:#e74c3c;
-  --shadow-sm:0 4px 12px rgba(11,61,145,.07);
-  --shadow-md:0 10px 36px rgba(11,61,145,.12);
+  --shadow-xs:0 1px 4px rgba(12,26,78,.05);
+  --shadow-sm:0 4px 16px rgba(12,26,78,.08);
+  --shadow-md:0 10px 36px rgba(12,26,78,.13);
+  --shadow-lg:0 24px 60px rgba(12,26,78,.17);
+  --radius:16px;
+  --t:.28s cubic-bezier(.4,0,.2,1);
 }
-body{background:var(--light);color:var(--text);}
+body{background:var(--light);color:var(--text);-webkit-font-smoothing:antialiased;}
 
 /* ══════════════════════════════════════════════════
    LOGIN PAGE STYLES
@@ -443,7 +450,7 @@ footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:
     <div class="login-header">
       <div class="login-icon">🏦</div>
       <h1>RetailBoost Loan Portal</h1>
-      <p>Sign in to your account</p>
+      <p>Authorized partner access</p>
     </div>
     <form id="loginForm" onsubmit="handleLogin(event)" class="login-form">
       <div class="login-field">
@@ -455,8 +462,13 @@ footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:
         <input type="password" id="password" placeholder="Enter your password" required>
       </div>
       <div id="loginError" class="login-error"></div>
-      <button type="submit" class="btn-login">Sign In</button>
+      <button type="submit" class="btn-login">Sign In →</button>
     </form>
+    <div style="display:flex;justify-content:center;gap:20px;margin-top:18px;font-size:.72rem;color:#888;">
+      <span>🔒 256-bit Secure</span>
+      <span>✅ Data Encrypted</span>
+      <span>📱 Instant Approval</span>
+    </div>
     <!-- <div class="login-footer">
       <p style="font-size: 0.8rem; color: #666; margin-top: 15px;">
         <strong>Demo Credentials:</strong><br>
@@ -483,7 +495,7 @@ footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:
 <div class="loan-hero">
   <div class="hero-badge">🏦 Instant EMI Finance</div>
   <h1>New Loan Application</h1>
-  <p>Complete this 6-step form to apply for RetailBoost EMI financing.</p>
+  <p>Quick 6-step process · Get approved in 24–48 hours · 🔒 100% Secure &amp; Paperless</p>
 </div>
 
 <div class="stepper-wrap">
@@ -505,7 +517,7 @@ footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:
       <div class="form-card-header">
         <div class="page-icon">👤</div>
         <h2>Personal Information</h2>
-        <p>All fields marked <span style="color:#f9c74f;">*</span> are mandatory</p>
+        <p>🔒 Your data is safe &amp; encrypted · All <span style="color:#f9c74f;">★</span> fields are required</p>
       </div>
       <div class="form-body">
         <div class="field-group">
@@ -524,6 +536,7 @@ footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:
           <div class="field">
             <label>Date of Birth <span class="req">*</span></label>
             <input type="date" id="dob">
+            <p class="hint" style="margin-top:4px;">📌 Applicant must be 18 years or older</p>
             <span class="err-msg" id="err-dob">Date of birth is required</span>
           </div>
           <div class="field">
@@ -650,8 +663,8 @@ footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:
         </div>
       </div>
       <div class="form-nav">
-        <span class="page-indicator">Step 1 of 5</span>
-        <button class="btn-next" onclick="goNext(1)">Next →</button>
+        <span class="page-indicator">Step 1 of 6</span>
+        <button class="btn-next" onclick="goNext(1)">Continue →</button>
       </div>
     </div>
   </div>
@@ -662,7 +675,7 @@ footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:
       <div class="form-card-header">
         <div class="page-icon">💼</div>
         <h2>Employment Information</h2>
-        <p>Customer's current employment and income details</p>
+        <p>Used to assess repayment capacity — information stays confidential</p>
       </div>
       <div class="form-body">
         <div class="field-group">
@@ -719,8 +732,8 @@ footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:
       </div>
       <div class="form-nav">
         <button class="btn-back" onclick="goPrev(2)">← Back</button>
-        <span class="page-indicator">Step 2 of 5</span>
-        <button class="btn-next" onclick="goNext(2)">Next →</button>
+        <span class="page-indicator">Step 2 of 6</span>
+        <button class="btn-next" onclick="goNext(2)">Continue →</button>
       </div>
     </div>
   </div>
@@ -731,7 +744,7 @@ footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:
       <div class="form-card-header">
         <div class="page-icon">🤝</div>
         <h2>References</h2>
-        <p>Provide two personal or professional references</p>
+        <p>Two contacts who know you — they may be reached for verification</p>
       </div>
       <div class="form-body">
         <p class="section-divider">Reference 1</p>
@@ -795,8 +808,8 @@ footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:
       </div>
       <div class="form-nav">
         <button class="btn-back" onclick="goPrev(3)">← Back</button>
-        <span class="page-indicator">Step 3 of 5</span>
-        <button class="btn-next" onclick="goNext(3)">Next →</button>
+        <span class="page-indicator">Step 3 of 6</span>
+        <button class="btn-next" onclick="goNext(3)">Continue →</button>
       </div>
     </div>
   </div>
@@ -807,7 +820,7 @@ footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:
       <div class="form-card-header">
         <div class="page-icon">📱</div>
         <h2>Loan Details</h2>
-        <p>Product and EMI configuration for this application</p>
+        <p>Enter device details and choose your EMI plan — loan up to ₹18,000</p>
       </div>
       <div class="form-body">
         <div class="field-group">
@@ -825,9 +838,9 @@ footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:
         <div class="field-group">
           <div class="field">
             <label>Down Payment Amount (₹) <span class="req">*</span></label>
-            <input type="number" id="downPayment" placeholder="Auto-calculated (40% min)" min="0" oninput="validateDownPayment()">
+            <input type="number" id="downPayment" placeholder="Min 40% of product price" min="0"
+                   oninput="validateDownPayment()" onblur="enforceDownPaymentMin()">
             <span class="err-msg" id="err-downPayment">Down payment must be at least 40% of product amount</span>
-            <p class="hint" style="margin-top:4px;">📌 Minimum: 40% of product price (auto-adjusted if less)</p>
           </div>
           <div class="field" style="background:#f0f5ff;border-radius:10px;padding:11px 14px;display:flex;flex-direction:column;justify-content:center;">
             <label style="color:var(--navy); font-weight:600;">Loan Calculation Summary</label>
@@ -845,11 +858,6 @@ footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:
             <label>Loan Amount (Auto-Calculated) <span class="req">*</span></label>
             <input type="number" id="loanAmt" placeholder="Auto-calculated" min="0" readonly style="background:#f0f5ff;color:var(--navy);font-weight:600;">
             <span class="err-msg" id="err-loanAmt">Loan amount is required</span>
-          </div>
-          <div class="field">
-            <label>Approx. Interest (₹) <span class="req">*</span></label>
-            <input type="number" id="interestAmt" placeholder="₹3000 - ₹3500" min="3000" max="3500" readonly style="background:#f0f5ff;color:var(--navy);font-weight:600;">
-            <span class="hint" style="margin-top:4px;">Range: ₹3,000 - ₹3,500</span>
           </div>
         </div>
         <div class="field-group single">
@@ -872,7 +880,8 @@ footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:
         <div class="field-group single">
           <div class="field">
             <label>Credit Score <span class="req">*</span></label>
-            <input type="number" id="creditScore" placeholder="e.g. 720" min="300" max="900">
+            <input type="number" id="creditScore" placeholder="e.g. 720 (300–900 range)" min="300" max="900">
+            <p class="hint" style="margin-top:4px;">📌 Credit score 650+ improves approval chances</p>
             <span class="err-msg" id="err-creditScore">Credit score is required (300–900)</span>
           </div>
         </div>
@@ -880,7 +889,7 @@ footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:
       <div class="form-nav">
         <button class="btn-back" onclick="goPrev(4)">← Back</button>
         <span class="page-indicator">Step 4 of 6</span>
-        <button class="btn-next" onclick="goNext(4)">Next →</button>
+        <button class="btn-next" onclick="goNext(4)">Continue →</button>
       </div>
     </div>
   </div>
@@ -891,7 +900,7 @@ footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:
       <div class="form-card-header">
         <div class="page-icon">🏪</div>
         <h2>Store Details</h2>
-        <p>Retailer and sales executive information</p>
+        <p>Almost there! Add retailer info and certify your application</p>
       </div>
       <div class="form-body">
         <div class="field-group">
@@ -935,7 +944,7 @@ footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:
       <div class="form-nav">
         <button class="btn-back" onclick="goPrev(5)">← Back</button>
         <span class="page-indicator">Step 5 of 6</span>
-        <button class="btn-next" onclick="goNext(5)">Next →</button>
+        <button class="btn-next" onclick="goNext(5)">Continue →</button>
       </div>
     </div>
   </div>
@@ -946,7 +955,7 @@ footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:
       <div class="form-card-header">
         <div class="page-icon">📱</div>
         <h2>Device Information</h2>
-        <p>Enter the IMEI numbers of your device</p>
+        <p>Last step! Dial *#06# on the device to find its IMEI numbers</p>
       </div>
       <div class="form-body">
         <div class="field-group single">
@@ -978,7 +987,7 @@ footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:
       <div class="form-nav">
         <button class="btn-back" onclick="goPrev(6)">← Back</button>
         <span class="page-indicator">Step 6 of 6</span>
-        <button class="btn-submit" onclick="submitForm()">✅ Final Submit</button>
+        <button class="btn-submit" onclick="submitForm()">🚀 Get Approved Now</button>
       </div>
     </div>
   </div>
@@ -1084,7 +1093,7 @@ footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:
         </button>
         <!-- WhatsApp Button — downloads PDF first, then opens WA -->
         <button class="btn-wa" onclick="shareViaWhatsApp()">
-          💬 Download PDF & Share on WhatsApp
+          💬 Share Application on WhatsApp
         </button>
         <!-- Continue Button — resets form and goes back to Step 1 -->
         <button class="btn-continue" onclick="continueToDeviceInfo()">
@@ -1341,94 +1350,134 @@ function validateIncome(){
 /* ══════════════════════════════════════════════════
    🧮 LOAN CALCULATION LOGIC
    ══════════════════════════════════════════════════ */
+
+/* ── Module-level state ─────────────────────────────
+   lockedInterest : interest value fixed the moment a product amount is
+                    entered — never re-randomised until product amount changes.
+                    This makes the minimum down-payment deterministic.
+   lastProductAmt : detects when product amount changes so we can re-lock.
+   lastValidDP    : last down-payment value that passed validation — used by
+                    enforceDownPaymentMin() to restore on blur.
+   ─────────────────────────────────────────────────── */
+let lockedInterest = null;
+let lastProductAmt = 0;
+let lastValidDP    = 0;
+
+const MAX_LOAN = 18000;
+const MIN_LOAN = 15000;
+
+/* Returns the lowest down-payment the user is allowed to enter.
+   Two rules apply (the stricter one wins):
+   1. Must be ≥ 40 % of the product price.
+   2. Must be high enough so that (productAmt − dp + interest) ≤ MAX_LOAN
+      ⟹  dp ≥ productAmt + interest − MAX_LOAN                         */
+function _calcEffectiveMinDP(productAmt){
+  const interest     = lockedInterest || 3250;
+  const minForPct    = Math.ceil(productAmt * 0.40);
+  const minForCap    = Math.ceil(productAmt + interest - MAX_LOAN);
+  return Math.max(minForPct, minForCap);
+}
+
 function calculateLoan(){
   const productAmt = parseFloat(document.getElementById('productAmt').value) || 0;
-  if(productAmt <= 0){ resetLoanCalculation(); return; }
+  if(productAmt <= 0){
+    resetLoanCalculation();
+    lockedInterest = null;
+    lastProductAmt = 0;
+    lastValidDP    = 0;
+    return;
+  }
 
-  // STEP 1: Calculate default down payment (40-42%)
-  const downPaymentPercent = 0.40 + Math.random() * 0.02; // 40-42%
-  const defaultDownPayment = Math.round(productAmt * downPaymentPercent);
-  
-  // Display product amount
+  // Lock interest once per product amount (re-lock only when amount changes)
+  if(productAmt !== lastProductAmt){
+    lockedInterest = Math.floor(Math.random() * 501) + 3000; // ₹3,000–₹3,500
+    lastProductAmt = productAmt;
+    lastValidDP    = 0; // reset so down payment is recalculated fresh
+  }
+
   document.getElementById('dsp-productAmt').textContent = '₹' + productAmt.toLocaleString('en-IN');
-  
-  // Set down payment field if empty or invalid
+
+  // Auto-populate down payment only when the field is empty / zero
   const dpField = document.getElementById('downPayment');
   if(!dpField.value || parseFloat(dpField.value) === 0){
-    dpField.value = defaultDownPayment;
+    const pct = 0.40 + Math.random() * 0.02; // 40–42 %
+    dpField.value = Math.round(productAmt * pct);
   }
-  
-  validateDownPayment(); // This will auto-adjust if needed and recalculate
+
+  validateDownPayment();
 }
 
 function validateDownPayment(){
-  const productAmt = parseFloat(document.getElementById('productAmt').value) || 0;
-  let downPayment = parseFloat(document.getElementById('downPayment').value) || 0;
-  const dpField = document.getElementById('downPayment');
-  const errEl = document.getElementById('err-downPayment');
-  
+  const productAmt  = parseFloat(document.getElementById('productAmt').value) || 0;
+  const dpField     = document.getElementById('downPayment');
+  const errEl       = document.getElementById('err-downPayment');
+  const downPayment = parseFloat(dpField.value) || 0;
+
   if(productAmt <= 0){ resetLoanCalculation(); return; }
-  
-  const minDownPayment = Math.ceil(productAmt * 0.40); // Minimum 40%
-  
-  // STEP 2: Auto-adjust if down payment < 40%
-  if(downPayment < minDownPayment){
-    downPayment = minDownPayment;
-    dpField.value = downPayment;
+
+  // Ensure interest is locked (safety net for direct calls before calculateLoan)
+  if(!lockedInterest){
+    lockedInterest = Math.floor(Math.random() * 501) + 3000;
+    lastProductAmt = productAmt;
   }
-  
-  dpField.classList.toggle('error', downPayment < minDownPayment);
-  errEl.classList.toggle('show', downPayment < minDownPayment);
-  
-  // Update display
-  document.getElementById('dsp-downPayment').textContent = '₹' + Math.round(downPayment).toLocaleString('en-IN');
-  
-  // STEP 3: Calculate loan basis (remaining = price - down payment)
-  let loanBasis = productAmt - downPayment;
-  
-  // STEP 4: Calculate interest (random between ₹3000-₹3500)
-  let interest = Math.floor(Math.random() * 501) + 3000; // ₹3000 - ₹3500
-  
-  // STEP 5: Calculate total loan (basis + interest)
-  let totalLoan = Math.round(loanBasis + interest);
-  
-  // CRITICAL: Ensure loan is between ₹15,000 - ₹18,000
-  const MIN_LOAN = 15000;
-  const MAX_LOAN = 18000;
-  
-  if(totalLoan < MIN_LOAN){
-    // Loan too low - reduce down payment to increase loan basis
-    const newDownPayment = productAmt - (MIN_LOAN - interest) + 500;
-    if(newDownPayment > 0 && newDownPayment < productAmt){
-      downPayment = Math.max(Math.ceil(productAmt * 0.40), newDownPayment);
-      dpField.value = downPayment;
-      loanBasis = productAmt - downPayment;
-      totalLoan = Math.round(loanBasis + interest);
-    }
-  } else if(totalLoan > MAX_LOAN){
-    // Loan too high - increase down payment to decrease loan basis
-    const newDownPayment = productAmt - (MAX_LOAN - interest) - 500;
-    if(newDownPayment > 0 && newDownPayment < productAmt){
-      downPayment = newDownPayment;
-      dpField.value = downPayment;
-      loanBasis = productAmt - downPayment;
-      totalLoan = Math.round(loanBasis + interest);
-    }
+
+  const effectiveMin = _calcEffectiveMinDP(productAmt);
+
+  // ── BLOCK if down-payment is below minimum ──────────────────────────
+  if(downPayment < effectiveMin){
+    dpField.classList.add('error');
+    errEl.textContent =
+      `Minimum down payment required is ₹${effectiveMin.toLocaleString('en-IN')} to stay within the ₹${MAX_LOAN.toLocaleString('en-IN')} loan limit`;
+    errEl.classList.add('show');
+    // Do NOT auto-adjust and do NOT update lastValidDP.
+    // Loan summary keeps the last successfully calculated values.
+    return;
   }
-  
-  // Update displays
-  document.getElementById('dsp-loanBasis').textContent = '₹' + Math.round(loanBasis).toLocaleString('en-IN');
-  document.getElementById('dsp-interest').textContent = '₹' + interest.toLocaleString('en-IN');
-  document.getElementById('dsp-totalLoan').textContent = '₹' + totalLoan.toLocaleString('en-IN');
+
+  // ── Valid value — proceed with calculation ──────────────────────────
+  lastValidDP = downPayment;
+  dpField.classList.remove('error');
+  errEl.classList.remove('show');
+
+  const interest  = lockedInterest;
+  const loanBasis = productAmt - downPayment;
+  let   totalLoan = Math.round(loanBasis + interest);
+
+  // Clamp to MIN_LOAN when a very high down-payment is entered
+  if(totalLoan < MIN_LOAN) totalLoan = MIN_LOAN;
+
+  // Update summary panel
   document.getElementById('dsp-downPayment').textContent = '₹' + Math.round(downPayment).toLocaleString('en-IN');
-  
-  // Store calculated values
-  document.getElementById('loanAmt').value = totalLoan;
+  document.getElementById('dsp-loanBasis').textContent   = '₹' + Math.round(loanBasis).toLocaleString('en-IN');
+  document.getElementById('dsp-interest').textContent    = '₹' + interest.toLocaleString('en-IN');
+  document.getElementById('dsp-totalLoan').textContent   = '₹' + totalLoan.toLocaleString('en-IN');
+
+  // Store values for later steps
+  document.getElementById('loanAmt').value     = totalLoan;
   document.getElementById('interestAmt').value = interest;
   document.getElementById('downPayment').value = Math.round(downPayment);
-  
-  // Update EMI if duration is selected
+
   updateEMI();
+}
+
+/* Called on blur — if the user typed an invalid value and clicked away,
+   restore the field to the last valid down-payment (or the calculated
+   minimum) so the form never stays in a broken state.                  */
+function enforceDownPaymentMin(){
+  const productAmt  = parseFloat(document.getElementById('productAmt').value) || 0;
+  const dpField     = document.getElementById('downPayment');
+  const downPayment = parseFloat(dpField.value) || 0;
+
+  if(productAmt <= 0 || !lockedInterest) return;
+
+  const effectiveMin = _calcEffectiveMinDP(productAmt);
+
+  if(downPayment < effectiveMin){
+    const restoreTo = lastValidDP > 0 ? lastValidDP : effectiveMin;
+    dpField.value = restoreTo;
+    validateDownPayment(); // clear error + recalculate with restored value
+    showToast(`⚠️ Down payment restored to ₹${restoreTo.toLocaleString('en-IN')}`);
+  }
 }
 
 function updateEMI(){
@@ -1457,14 +1506,18 @@ function updateEMI(){
 }
 
 function resetLoanCalculation(){
-  document.getElementById('dsp-productAmt').textContent = '₹0';
+  document.getElementById('dsp-productAmt').textContent  = '₹0';
   document.getElementById('dsp-downPayment').textContent = '₹0';
-  document.getElementById('dsp-loanBasis').textContent = '₹0';
-  document.getElementById('dsp-interest').textContent = '₹0';
-  document.getElementById('dsp-totalLoan').textContent = '₹0';
-  document.getElementById('loanAmt').value = '';
+  document.getElementById('dsp-loanBasis').textContent   = '₹0';
+  document.getElementById('dsp-interest').textContent    = '₹0';
+  document.getElementById('dsp-totalLoan').textContent   = '₹0';
+  document.getElementById('loanAmt').value     = '';
   document.getElementById('interestAmt').value = '';
   document.getElementById('downPayment').value = '';
+  // Reset locked state
+  lockedInterest = null;
+  lastProductAmt = 0;
+  lastValidDP    = 0;
 }
 
 function updateStepper(p){ for(let i=1;i<=6;i++){const s=document.getElementById('st'+i);s.classList.remove('active','done');if(i<p)s.classList.add('done');if(i===p)s.classList.add('active');} }

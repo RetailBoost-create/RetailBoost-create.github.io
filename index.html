@@ -5,213 +5,150 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RetailBoost | Stock & Finance Growth Partner</title>
 <link rel="stylesheet" href="style.css">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
 <style>
 /* ── NAVBAR APPLY LOAN BUTTON ── */
-.btn-loan{
-  background:linear-gradient(135deg,#2ecc71,#27ae60);
-  color:white !important;
-  padding:9px 20px;
-  border-radius:24px;
-  font-weight:600;
-  font-size:.82rem;
-  transition:.3s;
-  box-shadow:0 4px 14px rgba(46,204,113,.35);
-  margin-left:20px;
-  letter-spacing:.2px;
+.btn-loan {
+  background: linear-gradient(135deg, #10C48C, #059669);
+  color: white !important;
+  padding: 8px 20px;
+  border-radius: 24px;
+  font-weight: 700;
+  font-size: .82rem;
+  transition: var(--t);
+  box-shadow: 0 4px 16px rgba(16,196,140,.35);
+  margin-left: 8px;
+  letter-spacing: .2px;
 }
-.btn-loan:hover{
-  transform:translateY(-2px);
-  box-shadow:0 6px 20px rgba(46,204,113,.5);
+.btn-loan:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 24px rgba(16,196,140,.5) !important;
+  background: rgba(0,0,0,0) !important;
+  background: linear-gradient(135deg, #0dae7c, #047a57) !important;
 }
-/* Suppress underline animation on btn-loan */
-.btn-loan::after{display:none !important;}
+.btn-loan::after { display: none !important; }
 
-/* ── HERO SUBTITLE ── */
-.hero-badge{
-  display:inline-flex;align-items:center;gap:8px;
-  background:rgba(46,204,113,.2);
-  border:1px solid rgba(46,204,113,.45);
-  color:#2ecc71;
-  padding:6px 18px;
-  border-radius:20px;
-  font-size:.78rem;
-  font-weight:600;
-  letter-spacing:.4px;
-  margin-bottom:18px;
+/* ── HERO BADGE ── */
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(16,196,140,.18);
+  border: 1px solid rgba(16,196,140,.4);
+  color: #6EFFD4;
+  padding: 7px 18px; border-radius: 20px;
+  font-size: .76rem; font-weight: 600; letter-spacing: .5px;
+  margin-bottom: 20px;
 }
 
-/* ── ABOUT ── */
-.about-tagline{
-  display:inline-block;
-  background:#eef3ff;
-  color:#0b3d91;
-  padding:5px 16px;
-  border-radius:20px;
-  font-size:.8rem;
-  font-weight:600;
-  letter-spacing:.4px;
-  margin-bottom:16px;
+/* ── ABOUT SECTION ── */
+.about-tagline {
+  display: inline-block;
+  background: var(--accent-light);
+  color: var(--accent-dark);
+  padding: 5px 16px; border-radius: 20px;
+  font-size: .78rem; font-weight: 700; letter-spacing: .5px;
+  margin-bottom: 16px; text-transform: uppercase;
+  border: 1px solid rgba(16,196,140,.25);
+}
+.about-inner {
+  max-width: 680px; margin: 0 auto;
+}
+.about-features {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 14px; margin-top: 32px; text-align: left;
+}
+.about-feat {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: .84rem; font-weight: 600; color: var(--text);
+  transition: border-color var(--t), box-shadow var(--t);
+}
+.about-feat:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-sm);
+}
+.feat-icon {
+  font-size: 1.2rem; flex-shrink: 0;
+  width: 36px; height: 36px;
+  background: var(--accent-light);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
 }
 
 /* ── HOW IT WORKS CARDS ── */
-.card-emoji{
-  font-size:1.8rem;
-  display:block;
-  margin-bottom:10px;
-  line-height:1;
-}
-.card-text{
-  font-size:.88rem;
-  font-weight:600;
-  color:#1a1a2e;
-  line-height:1.4;
+.card-emoji { font-size: 1.5rem; display: block; margin-bottom: 10px; line-height: 1; }
+.card-text {
+  font-size: .86rem; font-weight: 600;
+  color: var(--text); line-height: 1.5;
 }
 
 /* ── LOAN STEP CARDS ── */
-.loan-steps{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:18px;
-  margin-top:36px;
-  text-align:center;
+.loan-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 18px; margin-top: 36px; text-align: center;
 }
-.loan-step-card{
-  background:rgba(255,255,255,.12);
-  border:1px solid rgba(255,255,255,.22);
-  border-radius:16px;
-  padding:22px 14px;
-  backdrop-filter:blur(8px);
-  transition:.3s;
+.loan-step-card {
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: var(--radius);
+  padding: 24px 14px;
+  backdrop-filter: blur(10px);
+  transition: var(--t);
 }
-.loan-step-card:hover{
-  background:rgba(255,255,255,.2);
-  transform:translateY(-4px);
+.loan-step-card:hover {
+  background: rgba(255,255,255,.18);
+  transform: translateY(-4px);
+  border-color: rgba(255,255,255,.3);
 }
-.loan-step-card .step-num{
-  font-weight:700;
-  background:rgba(255,255,255,.22);
-  width:40px;height:40px;
-  border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  margin:0 auto 12px;
-  font-size:.95rem;
-  border:1.5px solid rgba(255,255,255,.35);
+.loan-step-card .step-num {
+  font-weight: 800;
+  background: rgba(16,196,140,.25);
+  border: 1.5px solid rgba(16,196,140,.5);
+  color: #6EFFD4;
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 12px; font-size: .9rem;
 }
-.loan-step-card p{
-  font-size:.78rem;
-  opacity:.9;
-  line-height:1.5;
-  font-weight:500;
-  margin:0;
-}
-
-/* ── EMI CALCULATOR LABEL ── */
-.emi-label-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:baseline;
-  margin-bottom:8px;
-}
-.emi-label-row .emi-val{
-  font-size:1.15rem;
-  font-weight:700;
-  color:#0b3d91;
-}
-
-/* ── EMI TENURE RADIO ── */
-.emi-tenure-label{
-  display:block;
-  font-size:.85rem;
-  font-weight:600;
-  color:#0b3d91;
-  margin:20px 0 10px;
-}
-.emi-tenure{
-  display:flex;
-  gap:12px;
-}
-.tenure-opt{
-  flex:1;
-  cursor:pointer;
-}
-.tenure-opt input[type=radio]{display:none;}
-.tenure-opt span{
-  display:block;
-  text-align:center;
-  padding:10px 0;
-  border:1.5px solid #dde6f7;
-  border-radius:10px;
-  font-size:.88rem;
-  font-weight:600;
-  color:#64748b;
-  transition:.25s;
-  background:#fafcff;
-}
-.tenure-opt input:checked + span{
-  background:#0b3d91;
-  color:white;
-  border-color:#0b3d91;
-  box-shadow:0 4px 14px rgba(11,61,145,.25);
-}
-.tenure-opt span:hover{
-  border-color:#0b3d91;
-  color:#0b3d91;
-}
-
-/* ── EMI BREAKDOWN ── */
-.emi-breakdown{
-  margin:18px 0 16px;
-  border:1.5px solid #dde6f7;
-  border-radius:12px;
-  overflow:hidden;
-}
-.emi-brow{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:10px 16px;
-  font-size:.85rem;
-  color:#64748b;
-  border-bottom:1px solid #f0f3fa;
-}
-.emi-brow:last-child{border-bottom:none;}
-.emi-brow span:first-child{font-weight:500;}
-.emi-brow span:last-child{font-weight:700;color:#0b3d91;}
-.emi-brow--result{
-  background:linear-gradient(135deg,#0b3d91,#1565c0);
-  color:white !important;
-  padding:14px 16px;
-}
-.emi-brow--result span{color:rgba(255,255,255,.8) !important;font-weight:500;}
-#emiResult{
-  font-size:1.35rem;
-  font-weight:700;
-  color:white;
-  margin:0;
+.loan-step-card p {
+  font-size: .78rem; opacity: .88; line-height: 1.55; font-weight: 500; margin: 0;
 }
 
 /* ── CTA PHONE ── */
-.cta-phone{
-  margin-top:28px;
-  display:inline-flex;align-items:center;gap:10px;
-  background:rgba(255,255,255,.1);
-  padding:12px 24px;
-  border-radius:30px;
-  border:1px solid rgba(255,255,255,.2);
+.cta-phone {
+  margin-top: 24px;
+  display: inline-flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,.1);
+  padding: 12px 24px; border-radius: 30px;
+  border: 1px solid rgba(255,255,255,.18);
+  transition: background var(--t);
 }
-.cta-phone span{font-size:1rem;font-weight:600;color:white;}
+.cta-phone:hover { background: rgba(255,255,255,.15); }
+.cta-phone span { font-size: .97rem; font-weight: 600; color: white; }
+
+/* ── TRUST STRIP ── */
+.trust-strip {
+  display: flex; justify-content: center;
+  gap: 22px; margin-top: 18px; flex-wrap: wrap;
+}
+.trust-strip span {
+  font-size: .75rem; color: rgba(255,255,255,.68); font-weight: 500;
+  display: flex; align-items: center; gap: 5px;
+}
 
 /* ── FOOTER ── */
-footer{
-  background:#081f4f;
-  color:rgba(255,255,255,.55);
-  text-align:center;
-  padding:28px;
-  font-size:.82rem;
+footer {
+  background: #060F2E;
+  color: rgba(255,255,255,.45);
+  text-align: center;
+  padding: 30px 28px;
+  font-size: .82rem;
+  border-top: 1px solid rgba(255,255,255,.05);
 }
-footer strong{color:rgba(255,255,255,.8);}
+footer strong { color: rgba(255,255,255,.75); }
 </style>
 </head>
 <body>
@@ -233,7 +170,7 @@ footer strong{color:rgba(255,255,255,.8);}
 <!-- NAVBAR -->
 <header class="navbar" id="navbar">
   <div class="container nav-flex">
-    <h2 class="logo">RetailBoost</h2>
+    <h2 class="logo">Retail<span>Boost</span></h2>
     <nav>
       <a href="#about">About</a>
       <a href="#works">How it Works</a>
@@ -253,7 +190,7 @@ footer strong{color:rgba(255,255,255,.8);}
       <div class="hero-content" data-aos="fade-up" data-aos-duration="800">
         <div class="hero-badge">🚀 Smart EMI Finance Platform</div>
         <h1>Increase Your Mobile Shop Sales with Easy EMI</h1>
-        <p>No customer leaves without purchase — RetailBoost makes finance simple and instant.</p>
+        <p>No customer leaves empty-handed — instant approval, paperless process, same-day payout to retailers.</p>
       </div>
     </div>
   </div>
@@ -264,28 +201,74 @@ footer strong{color:rgba(255,255,255,.8);}
       <div class="hero-content">
         <div class="hero-badge">📈 Trusted by Retailers</div>
         <h1>More Approvals. More Sales. More Growth.</h1>
-        <p>Smart finance solution built for modern retailers across India.</p>
+        <p>Join hundreds of retailers already growing with RetailBoost EMI financing.</p>
       </div>
     </div>
   </div>
 
 </section>
 
-<!-- ABOUT -->
-<section class="section" id="about" data-aos="fade-up">
+<!-- STATS STRIP -->
+<div class="stats-strip" data-aos="fade-up">
   <div class="container">
-    <div class="about-tagline">Who We Are</div>
-    <h2>About RetailBoost</h2>
-    <p class="about-text">
-      RetailBoost is a fintech-powered platform that helps mobile retailers convert every walk-in into a confirmed sale by offering instant, paperless EMI financing — so no customer ever leaves empty-handed.
-    </p>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-num">500<span>+</span></div>
+        <div class="stat-label">Retailers Onboarded</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">₹2<span>Cr+</span></div>
+        <div class="stat-label">Total EMI Financed</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">98<span>%</span></div>
+        <div class="stat-label">Approval Rate</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">24<span>hr</span></div>
+        <div class="stat-label">Avg. Payout Time</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section class="section white-section" id="about" data-aos="fade-up">
+  <div class="container">
+    <div class="about-inner">
+      <div class="about-tagline">Who We Are</div>
+      <h2>About RetailBoost</h2>
+      <p class="about-text">
+        RetailBoost is a fintech-powered platform that helps mobile retailers convert every walk-in into a confirmed sale by offering instant, paperless EMI financing — so no customer ever leaves empty-handed.
+      </p>
+      <div class="about-features">
+        <div class="about-feat">
+          <div class="feat-icon">⚡</div>
+          Instant Approval
+        </div>
+        <div class="about-feat">
+          <div class="feat-icon">📄</div>
+          Zero Paperwork
+        </div>
+        <div class="about-feat">
+          <div class="feat-icon">🔒</div>
+          Secure & Trusted
+        </div>
+        <div class="about-feat">
+          <div class="feat-icon">💰</div>
+          Same-Day Payout
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
 <!-- HOW WORKS -->
 <section class="section gray" id="works" data-aos="fade-up">
   <div class="container">
+    <div class="section-tag">⚙️ The Process</div>
     <h2>How RetailBoost Works</h2>
+    <p class="section-subtitle">A seamless 6-step process from selection to payout — all digital, all instant.</p>
     <div class="grid">
       <div class="card">
         <span class="card-emoji">📱</span>
@@ -331,59 +314,12 @@ footer strong{color:rgba(255,255,255,.8);}
   </div>
 </section>
 
-<!-- EMI CALCULATOR -->
-<section class="section gray" data-aos="fade-up">
-  <div class="container">
-    <h2>EMI Calculator</h2>
-    <div class="emi-box">
-
-      <!-- Loan Amount Slider -->
-      <div class="emi-label-row">
-        <label>Loan Amount</label>
-        <span class="emi-val">₹ <span id="loanValue">20000</span></span>
-      </div>
-      <input type="range" id="loanSlider" min="5000" max="100000" step="1000" value="20000">
-
-      <!-- Tenure — 3 or 6 months only (matches loan application page) -->
-      <label class="emi-tenure-label">EMI Duration</label>
-      <div class="emi-tenure">
-        <label class="tenure-opt">
-          <input type="radio" name="homeTenure" value="3">
-          <span>3 Months</span>
-        </label>
-        <label class="tenure-opt">
-          <input type="radio" name="homeTenure" value="6" checked>
-          <span>6 Months</span>
-        </label>
-      </div>
-
-      <!-- Breakdown (same structure as loan app summary) -->
-      <div class="emi-breakdown">
-        <div class="emi-brow">
-          <span>Flat Interest</span>
-          <span id="emiInterestAmt">₹3,250</span>
-        </div>
-        <div class="emi-brow">
-          <span>Total Payable</span>
-          <span id="emiTotalAmt">₹0</span>
-        </div>
-        <div class="emi-brow emi-brow--result">
-          <span>Monthly EMI</span>
-          <strong id="emiResult"></strong>
-        </div>
-      </div>
-
-      <a href="loan-application.html" class="btn" style="background:#0b3d91;color:white;display:block;text-align:center;">
-        📋 Apply for This Loan →
-      </a>
-    </div>
-  </div>
-</section>
-
 <!-- BENEFITS -->
-<section class="section" id="benefits" data-aos="fade-up">
+<section class="section white-section" id="benefits" data-aos="fade-up">
   <div class="container">
+    <div class="section-tag">✅ Partner Perks</div>
     <h2>Partner Benefits</h2>
+    <p class="section-subtitle">Everything you need to grow your retail business — backed by RetailBoost.</p>
     <div class="benefits-grid">
       <div class="benefit-card">
         <div class="benefit-check">✓</div>
@@ -425,7 +361,14 @@ footer strong{color:rgba(255,255,255,.8);}
 <section class="loan-banner" data-aos="fade-up">
   <div class="container">
     <h2>💳 Apply for EMI Loan</h2>
-    <p>Quick 5-step digital application. Get your customer financed in 24–48 hours.</p>
+    <p>Quick 6-step digital application. Get your customer financed in 24–48 hours.</p>
+
+    <div class="banner-pills">
+      <span class="banner-pill">💰 Loan up to ₹18,000</span>
+      <span class="banner-pill">📅 3 or 6 Month EMI</span>
+      <span class="banner-pill">⚡ Approval in 24–48 hrs</span>
+      <span class="banner-pill">📄 Zero Paperwork</span>
+    </div>
 
     <div class="loan-steps">
       <div class="loan-step-card">
@@ -448,16 +391,27 @@ footer strong{color:rgba(255,255,255,.8);}
         <div class="step-num">5</div>
         <p>Store Details & Submit</p>
       </div>
+      <div class="loan-step-card">
+        <div class="step-num">6</div>
+        <p>Device IMEI & Approve</p>
+      </div>
     </div>
 
     <br><br>
-    <a href="loan-application.html" class="btn-apply">📋 Start Loan Application →</a>
+    <a href="loan-application.html" class="btn-apply">🚀 Apply Now — Free &amp; Instant →</a>
+    <div class="trust-strip">
+      <span>🔒 100% Secure</span>
+      <span>📱 WhatsApp Support</span>
+      <span>✅ NBFC Regulated</span>
+      <span>💬 Instant Confirmation</span>
+    </div>
   </div>
 </section>
 
 <!-- JOIN -->
 <section class="cta" id="join">
   <h2>Become a RetailBoost Partner</h2>
+  <p>Free to join. No setup fees. Start offering EMI to your customers today.</p>
   <a href="https://wa.me/919187627737" class="btn">💬 Register on WhatsApp</a>
   <div class="cta-phone">
     <span>📞 +91 91876 27737</span>
