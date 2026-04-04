@@ -814,6 +814,7 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
           <div class="field">
             <label>Loan Amount (Auto-Calculated) <span class="req">*</span></label>
             <input type="number" id="loanAmt" placeholder="Auto-calculated" min="0" readonly style="background:#f0f5ff;color:var(--navy);font-weight:600;">
+            <input type="hidden" id="interestAmt">
             <span class="err-msg" id="err-loanAmt">Loan amount is required</span>
           </div>
         </div>
@@ -1216,7 +1217,7 @@ const rules={
   3:[{id:'ref1First',type:'name'},{id:'ref1Last',type:'name'},{id:'ref1Rel',type:'select'},{id:'ref1Phone',type:'phone'},
      {id:'ref2First',type:'name'},{id:'ref2Last',type:'name'},{id:'ref2Rel',type:'select'},{id:'ref2Phone',type:'phone'}],
   4:[{id:'product',type:'text'},{id:'productAmt',type:'text'},{id:'downPayment',type:'text'},
-     {id:'loanAmt',type:'text'},{id:'interestAmt',type:'text'},{id:'emiDur',type:'radio',name:'emiDur'},{id:'creditScore',type:'text'}],
+     {id:'loanAmt',type:'text'},{id:'emiDur',type:'radio',name:'emiDur'},{id:'creditScore',type:'text'}],
   5:[{id:'storeName',type:'text'},{id:'storePhone',type:'phone'},{id:'salesExec',type:'name'},{id:'certify',type:'checkbox'}],
   6:[{id:'imei1',type:'imei'},{id:'imei2',type:'imei-optional'}]
 };
