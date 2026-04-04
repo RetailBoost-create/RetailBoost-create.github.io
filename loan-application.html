@@ -1225,6 +1225,7 @@ const rules={
 
 function validatePage(page){
   let valid=true;
+  if(!rules[page]) return true; // unknown page — allow through
   rules[page].forEach(r=>{
     let ok=false;
     const errEl=document.getElementById('err-'+r.id);
@@ -1337,83 +1338,99 @@ function _calcEffectiveMinDP(productAmt){
 }
 
 function calculateLoan(){
-  const productAmt = parseFloat(document.getElementById('productAmt').value) || 0;
-  if(productAmt <= 0){
-    resetLoanCalculation();
-    lockedInterest = null;
-    lastProductAmt = 0;
-    lastValidDP    = 0;
-    return;
+  try {
+    const productEl = document.getElementById('productAmt');
+    if(!productEl) return;
+    const productAmt = parseFloat(productEl.value) || 0;
+
+    if(productAmt <= 0){
+      resetLoanCalculation();
+      lockedInterest = null;
+      lastProductAmt = 0;
+      lastValidDP    = 0;
+      return;
+    }
+
+    // Lock interest once per product amount (re-lock only when amount changes)
+    if(productAmt !== lastProductAmt){
+      lockedInterest = Math.floor(Math.random() * 401) + 2900; // ₹2,900–₹3,300
+      lastProductAmt = productAmt;
+      lastValidDP    = 0;
+    }
+
+    const dspProduct = document.getElementById('dsp-productAmt');
+    if(dspProduct) dspProduct.textContent = '₹' + productAmt.toLocaleString('en-IN');
+
+    // Auto-populate down payment only when the field is empty / zero
+    const dpField = document.getElementById('downPayment');
+    if(dpField && (!dpField.value || parseFloat(dpField.value) === 0)){
+      const pct = 0.40 + Math.random() * 0.02;
+      dpField.value = Math.round(productAmt * pct);
+    }
+
+    validateDownPayment();
+  } catch(e) {
+    console.error('calculateLoan error:', e);
   }
-
-  // Lock interest once per product amount (re-lock only when amount changes)
-  if(productAmt !== lastProductAmt){
-    lockedInterest = Math.floor(Math.random() * 501) + 3000; // ₹3,000–₹3,500
-    lastProductAmt = productAmt;
-    lastValidDP    = 0; // reset so down payment is recalculated fresh
-  }
-
-  document.getElementById('dsp-productAmt').textContent = '₹' + productAmt.toLocaleString('en-IN');
-
-  // Auto-populate down payment only when the field is empty / zero
-  // Default suggestion: 40–42% of product price (keeps loan basis safely under ₹18,000)
-  const dpField = document.getElementById('downPayment');
-  if(!dpField.value || parseFloat(dpField.value) === 0){
-    const pct = 0.40 + Math.random() * 0.02;
-    dpField.value = Math.round(productAmt * pct);
-  }
-
-  validateDownPayment();
 }
 
 function validateDownPayment(){
-  const productAmt  = parseFloat(document.getElementById('productAmt').value) || 0;
-  const dpField     = document.getElementById('downPayment');
-  const errEl       = document.getElementById('err-downPayment');
-  const downPayment = parseFloat(dpField.value) || 0;
+  try {
+    const productEl  = document.getElementById('productAmt');
+    const dpField    = document.getElementById('downPayment');
+    const errEl      = document.getElementById('err-downPayment');
 
-  if(productAmt <= 0){ resetLoanCalculation(); return; }
+    // Guard: if any required element is missing, exit silently
+    if(!productEl || !dpField || !errEl) return;
 
-  // Ensure interest is locked (safety net for direct calls before calculateLoan)
-  if(!lockedInterest){
-    lockedInterest = Math.floor(Math.random() * 501) + 3000;
-    lastProductAmt = productAmt;
+    const productAmt  = parseFloat(productEl.value) || 0;
+    const downPayment = parseFloat(dpField.value)   || 0;
+
+    if(productAmt <= 0){ resetLoanCalculation(); return; }
+
+    // Ensure interest is locked
+    if(!lockedInterest){
+      lockedInterest = Math.floor(Math.random() * 401) + 2900;
+      lastProductAmt = productAmt;
+    }
+
+    // ── BLOCK only when loan basis would exceed MAX_LOAN ──────────────
+    const loanBasis    = productAmt - downPayment;
+    const effectiveMin = _calcEffectiveMinDP(productAmt);
+
+    if(loanBasis > MAX_LOAN){
+      dpField.classList.add('error');
+      errEl.textContent =
+        `Minimum down payment required is ₹${effectiveMin.toLocaleString('en-IN')} (loan basis cannot exceed ₹${MAX_LOAN.toLocaleString('en-IN')})`;
+      errEl.classList.add('show');
+      return;
+    }
+
+    // ── Valid — calculate ─────────────────────────────────────────────
+    lastValidDP = downPayment;
+    dpField.classList.remove('error');
+    errEl.classList.remove('show');
+
+    const interest  = lockedInterest;
+    const totalLoan = Math.round(loanBasis + interest);
+
+    // Update summary panel (null-safe)
+    const s = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+    s('dsp-downPayment', '₹' + Math.round(downPayment).toLocaleString('en-IN'));
+    s('dsp-loanBasis',   '₹' + Math.round(loanBasis).toLocaleString('en-IN'));
+    s('dsp-interest',    '₹' + interest.toLocaleString('en-IN'));
+    s('dsp-totalLoan',   '₹' + totalLoan.toLocaleString('en-IN'));
+
+    // Store calculated values (null-safe)
+    const setVal = (id, val) => { const el = document.getElementById(id); if(el) el.value = val; };
+    setVal('loanAmt',     totalLoan);
+    setVal('interestAmt', interest);
+    setVal('downPayment', Math.round(downPayment));
+
+    updateEMI();
+  } catch(e) {
+    console.error('validateDownPayment error:', e);
   }
-
-  const effectiveMin = _calcEffectiveMinDP(productAmt);
-
-  // ── BLOCK only when loan basis would exceed MAX_LOAN ──────────────
-  const loanBasis = productAmt - downPayment;
-  if(loanBasis > MAX_LOAN){
-    dpField.classList.add('error');
-    errEl.textContent =
-      `Minimum down payment required is ₹${effectiveMin.toLocaleString('en-IN')} (loan basis cannot exceed ₹${MAX_LOAN.toLocaleString('en-IN')})`;
-    errEl.classList.add('show');
-    // Do NOT auto-adjust and do NOT update lastValidDP.
-    return;
-  }
-
-  // ── Valid value — proceed with calculation ──────────────────────────
-  lastValidDP = downPayment;
-  dpField.classList.remove('error');
-  errEl.classList.remove('show');
-
-  const interest  = lockedInterest;
-  // Total loan = loan basis + interest (no minimum clamp)
-  const totalLoan = Math.round(loanBasis + interest);
-
-  // Update summary panel
-  document.getElementById('dsp-downPayment').textContent = '₹' + Math.round(downPayment).toLocaleString('en-IN');
-  document.getElementById('dsp-loanBasis').textContent   = '₹' + Math.round(loanBasis).toLocaleString('en-IN');
-  document.getElementById('dsp-interest').textContent    = '₹' + interest.toLocaleString('en-IN');
-  document.getElementById('dsp-totalLoan').textContent   = '₹' + totalLoan.toLocaleString('en-IN');
-
-  // Store values for later steps
-  document.getElementById('loanAmt').value     = totalLoan;
-  document.getElementById('interestAmt').value = interest;
-  document.getElementById('downPayment').value = Math.round(downPayment);
-
-  updateEMI();
 }
 
 /* Called on blur — if the loan basis would still exceed MAX_LOAN when the
@@ -1493,8 +1510,21 @@ function showPage(n){
     updateStepper(n);
   }
 }
-function goNext(from){ if(!validatePage(from)){const e=document.querySelector('#page'+from+' .err-msg.show');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});return;} showPage(from+1); }
-function goPrev(from){ showPage(from-1); }
+function goNext(from){
+  try {
+    if(!validatePage(from)){
+      const e = document.querySelector('#page'+from+' .err-msg.show');
+      if(e) e.scrollIntoView({behavior:'smooth', block:'center'});
+      return;
+    }
+    showPage(from + 1);
+  } catch(e) {
+    console.error('goNext error (page ' + from + '):', e);
+    // Still advance — don't let a JS error permanently block the user
+    showPage(from + 1);
+  }
+}
+function goPrev(from){ showPage(from - 1); }
 function handleUpload(input,boxId,lblId,errId){ if(input.files&&input.files[0]){ document.getElementById(lblId).textContent='✅ '+input.files[0].name; document.getElementById(boxId).classList.add('has-file'); document.getElementById(boxId).classList.remove('error'); if(errId)document.getElementById(errId).classList.remove('show'); } }
 
 /* ── PROCESSING ── */
