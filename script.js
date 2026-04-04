@@ -45,31 +45,43 @@ document.getElementById("seconds").innerText=Math.floor((gap%(1000*60))/1000);
 }
 
 
-/* EMI CALCULATOR */
-const loanSlider=document.getElementById("loanSlider");
-const monthSlider=document.getElementById("monthSlider");
+/* ══════════════════════════════════════════════
+   EMI CALCULATOR
+   Uses the EXACT same flat-fee model as loan-application.html:
+     totalPayable = loanAmount + FLAT_INTEREST
+     emi          = totalPayable / months
+   FLAT_INTEREST = midpoint of ₹3,000–₹3,500 range used in loan app.
+   ══════════════════════════════════════════════ */
+const FLAT_INTEREST = 3250; // ← same as loan app (midpoint of ₹3,000–₹3,500)
 
-const loanValue=document.getElementById("loanValue");
-const monthValue=document.getElementById("monthValue");
-const emiResult=document.getElementById("emiResult");
+const loanSlider = document.getElementById("loanSlider");
+const loanValue  = document.getElementById("loanValue");
+const emiResult  = document.getElementById("emiResult");
 
 function calculateEMI(){
-let P=loanSlider.value;
-let N=monthSlider.value;
-let R=12/100/12;
+  const P = parseInt(loanSlider.value);
 
-loanValue.innerText=P;
-monthValue.innerText=N;
+  // Read selected tenure (3 or 6 months — same options as loan app)
+  const selectedRadio = document.querySelector('input[name="homeTenure"]:checked');
+  const N = selectedRadio ? parseInt(selectedRadio.value) : 6;
 
-let emi=(P*R*Math.pow(1+R,N))/(Math.pow(1+R,N)-1);
+  // ── Same formula as loan-application.html ──────────────────
+  const totalPayable = P + FLAT_INTEREST;
+  const emi = Math.round(totalPayable / N);
+  // ───────────────────────────────────────────────────────────
 
-emiResult.innerText="Monthly EMI: ₹ "+Math.round(emi);
+  loanValue.innerText = P.toLocaleString('en-IN');
+  document.getElementById("emiInterestAmt").innerText = "₹" + FLAT_INTEREST.toLocaleString('en-IN');
+  document.getElementById("emiTotalAmt").innerText    = "₹" + totalPayable.toLocaleString('en-IN');
+  emiResult.innerText = "₹" + emi.toLocaleString('en-IN') + " / month";
 }
 
-loanSlider.addEventListener("input",calculateEMI);
-monthSlider.addEventListener("input",calculateEMI);
+// Tenure radio buttons
+document.querySelectorAll('input[name="homeTenure"]').forEach(r => r.addEventListener('change', calculateEMI));
+// Loan amount slider
+loanSlider.addEventListener("input", calculateEMI);
 
-calculateEMI();
+calculateEMI(); // initialise on load
 
 
 /* WELCOME SCREEN */

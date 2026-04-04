@@ -66,8 +66,8 @@ function handleLogin(event) {
     hideLoginPage();
     showToast('✅ Login successful!');
   } else {
-    // Failed
-    errorEl.textContent = '❌ Invalid username or password. Try: admin / password123';
+    // Failed — generic message, do not reveal which field is wrong
+    errorEl.textContent = 'Invalid ID or Password';
     errorEl.classList.add('show');
     document.getElementById('password').value = '';
   }
@@ -147,8 +147,21 @@ body{background:var(--light);color:var(--text);}
 .login-field input{width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:10px;font-size:.9rem;font-family:Poppins,sans-serif;transition:.25s;outline:none;color:var(--text);}
 .login-field input:hover{border-color:#b8cef5;}
 .login-field input:focus{border-color:var(--navy);box-shadow:0 0 0 4px rgba(11,61,145,.12);}
-.login-error{background:#fee;border:1px solid var(--red);color:var(--red);padding:10px 14px;border-radius:8px;font-size:.85rem;display:none;text-align:left;}
-.login-error.show{display:block;}
+.login-error{
+  background:linear-gradient(135deg,#fff5f5,#ffe8e8);
+  border:1.5px solid rgba(231,76,60,.3);
+  color:#c0392b;
+  padding:12px 16px;
+  border-radius:10px;
+  font-size:.85rem;
+  font-weight:600;
+  display:none;
+  text-align:center;
+  letter-spacing:.2px;
+  box-shadow:0 4px 12px rgba(231,76,60,.1);
+}
+.login-error.show{display:flex;align-items:center;justify-content:center;gap:8px;}
+.login-error::before{content:'⚠️';font-size:1rem;}
 .btn-login{background:linear-gradient(135deg,var(--navy),#1565c0);color:white;border:none;padding:13px 20px;border-radius:10px;font-size:.95rem;font-weight:600;cursor:pointer;font-family:Poppins,sans-serif;box-shadow:0 6px 18px rgba(11,61,145,.3);transition:.3s;margin-top:10px;}
 .btn-login:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(11,61,145,.4);}
 .btn-login:active{transform:translateY(0);}
@@ -183,8 +196,15 @@ nav a:hover{opacity:1;}
 .form-wrap{max-width:760px;margin:36px auto;padding:0 20px 60px;opacity:1;transition:opacity .3s;pointer-events:auto;}
 .form-wrap.hidden-content{opacity:0;pointer-events:none;position:absolute;}
 .form-page{display:none;}
-.form-page.active{display:block;animation:fadeIn .4s ease;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
+.form-page.active{display:block;animation:pageEnter .45s cubic-bezier(.22,.68,0,1.1) both;}
+.form-page.slide-out{animation:pageLeave .25s ease forwards;}
+@keyframes pageEnter{
+  from{opacity:0;transform:translateY(22px) scale(.98);}
+  to{opacity:1;transform:translateY(0) scale(1);}
+}
+@keyframes pageLeave{
+  to{opacity:0;transform:translateY(-16px);}
+}
 .form-card{background:white;border-radius:20px;box-shadow:var(--shadow-md);overflow:hidden;border:1px solid rgba(221,230,247,.6);}
 .form-card-header{background:linear-gradient(135deg,var(--navy),var(--navy-mid));padding:24px 32px;color:white;position:relative;overflow:hidden;}
 .form-card-header::after{content:'';position:absolute;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.05);top:-60px;right:-60px;}
@@ -225,6 +245,40 @@ nav a:hover{opacity:1;}
 
 /* recaptcha container - hidden visually but Firebase needs it in DOM */
 #recaptcha-container{margin-top:8px;}
+
+/* EMI live preview card */
+.emi-preview{
+  display:none;
+  background:linear-gradient(135deg,#0b3d91,#1565c0);
+  color:white;
+  border-radius:14px;
+  padding:18px 20px;
+  margin-top:14px;
+  text-align:center;
+  animation:pageEnter .3s ease both;
+}
+.emi-preview.show{display:block;}
+.emi-preview .ep-label{font-size:.72rem;opacity:.75;letter-spacing:.5px;text-transform:uppercase;margin-bottom:4px;}
+.emi-preview .ep-amount{font-size:2rem;font-weight:700;letter-spacing:-1px;}
+.emi-preview .ep-sub{font-size:.78rem;opacity:.8;margin-top:4px;}
+
+/* Better btn-login */
+.btn-login{
+  background:linear-gradient(135deg,var(--navy),var(--navy-mid));
+  color:white;border:none;
+  padding:14px 20px;border-radius:12px;
+  font-size:.95rem;font-weight:600;
+  cursor:pointer;font-family:Poppins,sans-serif;
+  box-shadow:0 6px 20px rgba(11,61,145,.3);
+  transition:.3s;margin-top:6px;width:100%;
+  letter-spacing:.3px;
+}
+.btn-login:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(11,61,145,.4);}
+.btn-login:active{transform:translateY(0);}
+
+/* Approval card entrance */
+.approval-card{animation:popIn .55s cubic-bezier(.175,.885,.32,1.275);}
+@keyframes popIn{from{transform:scale(.7) translateY(30px);opacity:0;}to{transform:scale(1) translateY(0);opacity:1;}}
 
 .upload-box{border:2px dashed var(--border);border-radius:12px;padding:22px 16px;text-align:center;cursor:pointer;transition:.25s;position:relative;overflow:hidden;background:#fafcff;}
 .upload-box:hover{border-color:var(--navy);background:#f0f5ff;transform:translateY(-2px);box-shadow:var(--shadow-sm);}
@@ -804,9 +858,15 @@ footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:
             <div class="radio-group" id="rg-emiDur">
               <div class="radio-opt"><input type="radio" name="emiDur" id="em3" value="3 Months" data-months="3" onchange="updateEMI()"><label for="em3">3 Months</label></div>
               <div class="radio-opt"><input type="radio" name="emiDur" id="em6" value="6 Months" data-months="6" onchange="updateEMI()"><label for="em6">6 Months</label></div>
-              <div class="radio-opt"><input type="radio" name="emiDur" id="em9" value="9 Months" data-months="9" onchange="updateEMI()"><label for="em9">9 Months</label></div>
             </div>
+            <p class="hint" style="margin-top:6px;">📌 RetailBoost offers 3-month and 6-month EMI plans only</p>
             <span class="err-msg" id="err-emiDur">Please select EMI duration</span>
+            <!-- Live EMI preview -->
+            <div class="emi-preview" id="emiPreview">
+              <div class="ep-label">Your Monthly EMI</div>
+              <div class="ep-amount">₹<span id="emiPreviewAmt">0</span></div>
+              <div class="ep-sub" id="emiPreviewSub">per month</div>
+            </div>
           </div>
         </div>
         <div class="field-group single">
@@ -1020,15 +1080,15 @@ footer{background:#081f4f;color:rgba(255,255,255,.55);text-align:center;padding:
       <div class="appr-actions">
         <!-- PDF Download Button -->
         <button class="btn-download" onclick="generateAndDownloadPDF()">
-          📄 Download Loan Summary PDF
+          📄 Download Full PDF Report
         </button>
-        <!-- WhatsApp Button - sends PDF info -->
+        <!-- WhatsApp Button — downloads PDF first, then opens WA -->
         <button class="btn-wa" onclick="shareViaWhatsApp()">
-          💬 Share on WhatsApp
+          💬 Download PDF & Share on WhatsApp
         </button>
-        <!-- Continue Button -->
+        <!-- Continue Button — resets form and goes back to Step 1 -->
         <button class="btn-continue" onclick="continueToDeviceInfo()">
-          ➜ Continue to Application
+          🔄 Start New Application
         </button>
       </div>
     </div>
@@ -1374,14 +1434,26 @@ function validateDownPayment(){
 function updateEMI(){
   const loanAmt = parseFloat(document.getElementById('loanAmt').value) || 0;
   const emiDurRadio = document.querySelector('input[name="emiDur"]:checked');
-  
-  if(!emiDurRadio || loanAmt <= 0) return;
-  
+  const preview = document.getElementById('emiPreview');
+
+  if(!emiDurRadio || loanAmt <= 0){
+    if(preview) preview.classList.remove('show');
+    return;
+  }
+
   const months = parseInt(emiDurRadio.dataset.months) || 0;
   const emi = Math.round(loanAmt / months);
-  
-  // Store EMI for reference 
+
+  // Store EMI for reference
   document.getElementById('loanAmt').dataset.emi = emi;
+
+  // Show live preview card
+  if(preview){
+    document.getElementById('emiPreviewAmt').textContent = emi.toLocaleString('en-IN');
+    document.getElementById('emiPreviewSub').textContent =
+      `for ${months} months — Total: ₹${loanAmt.toLocaleString('en-IN')}`;
+    preview.classList.add('show');
+  }
 }
 
 function resetLoanCalculation(){
@@ -1396,7 +1468,21 @@ function resetLoanCalculation(){
 }
 
 function updateStepper(p){ for(let i=1;i<=6;i++){const s=document.getElementById('st'+i);s.classList.remove('active','done');if(i<p)s.classList.add('done');if(i===p)s.classList.add('active');} }
-function showPage(n){ document.querySelectorAll('.form-page').forEach(p=>p.classList.remove('active')); document.getElementById('page'+n).classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); updateStepper(n); }
+function showPage(n){
+  const current = document.querySelector('.form-page.active');
+  if(current){
+    current.classList.add('slide-out');
+    setTimeout(()=>{
+      current.classList.remove('active','slide-out');
+      document.getElementById('page'+n).classList.add('active');
+      window.scrollTo({top:document.querySelector('.stepper-wrap').offsetTop - 80, behavior:'smooth'});
+      updateStepper(n);
+    }, 200);
+  } else {
+    document.getElementById('page'+n).classList.add('active');
+    updateStepper(n);
+  }
+}
 function goNext(from){ if(!validatePage(from)){const e=document.querySelector('#page'+from+' .err-msg.show');if(e)e.scrollIntoView({behavior:'smooth',block:'center'});return;} showPage(from+1); }
 function goPrev(from){ showPage(from-1); }
 function handleUpload(input,boxId,lblId,errId){ if(input.files&&input.files[0]){ document.getElementById(lblId).textContent='✅ '+input.files[0].name; document.getElementById(boxId).classList.add('has-file'); document.getElementById(boxId).classList.remove('error'); if(errId)document.getElementById(errId).classList.remove('show'); } }
@@ -1566,7 +1652,75 @@ async function showApproval(){
 
 function continueToDeviceInfo(){
   document.getElementById('approvalOverlay').classList.remove('show');
-  showPage(6);
+
+  // ── Reset all form inputs (text, number, email, tel, date, select) ──
+  document.querySelectorAll('.form-wrap input:not([type=radio]):not([type=checkbox]):not([type=file])').forEach(el => {
+    el.value = '';
+    el.classList.remove('error');
+    el.disabled = false;
+    el.style.display = '';
+  });
+  document.querySelectorAll('.form-wrap select').forEach(el => {
+    el.value = '';
+    el.classList.remove('error');
+  });
+  document.querySelectorAll('.form-wrap input[type=radio]').forEach(el => { el.checked = false; });
+  document.querySelectorAll('.form-wrap input[type=checkbox]').forEach(el => { el.checked = false; });
+
+  // ── Reset file upload boxes ──
+  const uploadDefaults = {
+    'lbl-panCard':'Upload PAN Card','lbl-custPhoto':'Upload Photo',
+    'lbl-aadhar':'Upload Aadhaar','lbl-salarySlip':'Upload Salary Slip'
+  };
+  Object.entries(uploadDefaults).forEach(([id,txt])=>{
+    const el = document.getElementById(id);
+    if(el) el.textContent = txt;
+  });
+  document.querySelectorAll('.upload-box').forEach(b => b.classList.remove('has-file','error'));
+
+  // ── Reset all error messages ──
+  document.querySelectorAll('.err-msg').forEach(el => el.classList.remove('show'));
+  document.querySelectorAll('.radio-group').forEach(el => el.classList.remove('error'));
+  document.querySelectorAll('.checkbox-row').forEach(el => el.classList.remove('error'));
+
+  // ── Reset loan calculation display ──
+  resetLoanCalculation();
+
+  // ── Reset EMI preview ──
+  const emiPrev = document.getElementById('emiPreview');
+  if(emiPrev) emiPrev.classList.remove('show');
+
+  // ── Reset OTP state ──
+  otpVerified = false;
+  clearInterval(otpTimerHandle);
+  const otpWrap = document.getElementById('otpWrap');
+  if(otpWrap) otpWrap.classList.remove('show');
+  const otpVerMsg = document.getElementById('otpVerifiedMsg');
+  if(otpVerMsg) otpVerMsg.classList.remove('show');
+  const sendOtpBtn = document.getElementById('btnSendOtp');
+  if(sendOtpBtn){ sendOtpBtn.disabled = false; sendOtpBtn.textContent = 'Send OTP'; sendOtpBtn.style.display = ''; }
+  confirmationResult = null;
+  window.recaptchaVerifier = null;
+
+  // ── Reset processing overlay steps ──
+  for(let i=1;i<=5;i++){
+    const ps = document.getElementById('ps'+i);
+    if(ps){ ps.classList.remove('active','done'); }
+  }
+  const procBar = document.getElementById('procBar');
+  if(procBar) procBar.style.width = '0%';
+  const procPct = document.getElementById('procPct');
+  if(procPct) procPct.textContent = '0%';
+
+  // ── Reset current form data ──
+  currentFormData = null;
+
+  // ── Go to page 1 ──
+  document.querySelectorAll('.form-page').forEach(p => p.classList.remove('active','slide-out'));
+  document.getElementById('page1').classList.add('active');
+  updateStepper(1);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  showToast('✅ Form cleared. Ready for new application!');
 }
 
 function animateCount(from,to,dur,elId){
@@ -1578,163 +1732,210 @@ function animateCount(from,to,dur,elId){
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
 
 /* ══════════════════════════════════════════════════
-   📄 PDF GENERATION & DOWNLOAD
+   📄 PDF GENERATION — builds full application PDF
    ══════════════════════════════════════════════════ */
+function buildPDFHTML(d, emi, months){
+  const r = (label, value, highlight) => `
+    <div class="row">
+      <span class="row-label">${label}</span>
+      <span class="row-value${highlight?' hl':''}">${value}</span>
+    </div>`;
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:Arial,sans-serif;padding:0;color:#1a1a2e;background:#fff;font-size:13px;}
+    .header{background:linear-gradient(135deg,#0b3d91,#1565c0);color:white;padding:28px 24px 20px;text-align:center;}
+    .header-logo{font-size:22px;font-weight:700;letter-spacing:-.5px;margin-bottom:4px;}
+    .header-sub{font-size:12px;opacity:.85;}
+    .approved-badge{display:inline-block;background:rgba(46,204,113,.3);border:1px solid rgba(46,204,113,.6);
+      color:#2ecc71;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;margin-top:10px;}
+    .loan-num{background:rgba(255,255,255,.12);border-radius:8px;padding:10px 16px;margin-top:14px;
+      font-size:11px;opacity:.8;}
+    .loan-num strong{font-size:15px;display:block;letter-spacing:1px;opacity:1;}
+    .body{padding:18px 20px;}
+    .section{margin-bottom:16px;break-inside:avoid;}
+    .section-title{background:#f0f5ff;padding:8px 14px;border-left:4px solid #0b3d91;
+      font-weight:700;font-size:12px;color:#0b3d91;letter-spacing:.3px;text-transform:uppercase;margin-bottom:8px;}
+    .row{display:flex;justify-content:space-between;padding:6px 4px;border-bottom:1px solid #f0f3fa;}
+    .row:last-child{border-bottom:none;}
+    .row-label{font-weight:600;color:#64748b;flex:1;}
+    .row-value{text-align:right;font-weight:600;color:#1a1a2e;flex:1;}
+    .row-value.hl{color:#27ae60;font-weight:700;}
+    .emi-highlight{background:linear-gradient(135deg,#0b3d91,#1565c0);color:white;
+      border-radius:10px;padding:14px;text-align:center;margin:10px 0;}
+    .emi-highlight .el{font-size:11px;opacity:.8;letter-spacing:.5px;text-transform:uppercase;}
+    .emi-highlight .ev{font-size:24px;font-weight:700;margin:4px 0;}
+    .emi-highlight .es{font-size:11px;opacity:.75;}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .ref-box{background:#f8faff;border:1px solid #dde6f7;border-radius:8px;padding:12px;}
+    .ref-box .ref-name{font-weight:700;color:#0b3d91;font-size:13px;margin-bottom:4px;}
+    .ref-box .ref-item{font-size:12px;color:#64748b;padding:2px 0;}
+    .footer{background:#f0f5ff;padding:14px 20px;text-align:center;margin-top:4px;}
+    .footer p{font-size:11px;color:#64748b;margin:2px 0;}
+  </style></head><body>
+
+  <div class="header">
+    <div class="header-logo">🏦 RetailBoost</div>
+    <div class="header-sub">Loan Approval Document</div>
+    <div class="approved-badge">✅ AUTO APPROVED</div>
+    <div class="loan-num">Loan Number<strong>${d.loanNumber}</strong></div>
+  </div>
+
+  <div class="body">
+
+    <div class="section">
+      <div class="section-title">👤 Applicant Details</div>
+      ${r('Full Name', d.firstName+' '+d.lastName)}
+      ${r('Date of Birth', d.dob)}
+      ${r('Phone', '+91 '+d.phone)}
+      ${r('Email', d.email)}
+      ${r('PAN / Aadhaar Name', d.aadharName)}
+      ${r('Address', d.address+', '+d.city+', '+d.state+' - '+d.pin)}
+      ${r('Submitted On', d.submittedAt)}
+    </div>
+
+    <div class="section">
+      <div class="section-title">💼 Employment Details</div>
+      ${r('Employer', d.employer)}
+      ${r('Work Type', d.workType)}
+      ${r('Experience', d.empLen)}
+      ${r('Monthly Income', '₹'+parseInt(d.income).toLocaleString('en-IN'))}
+      ${d.otherIncome ? r('Other Income', '₹'+parseInt(d.otherIncome).toLocaleString('en-IN')) : ''}
+    </div>
+
+    <div class="section">
+      <div class="section-title">🤝 References</div>
+      <div class="two-col">
+        <div class="ref-box">
+          <div class="ref-name">${d.ref1Name}</div>
+          <div class="ref-item">📌 ${d.ref1Rel}</div>
+          <div class="ref-item">📞 ${d.ref1Phone}</div>
+        </div>
+        <div class="ref-box">
+          <div class="ref-name">${d.ref2Name}</div>
+          <div class="ref-item">📌 ${d.ref2Rel}</div>
+          <div class="ref-item">📞 ${d.ref2Phone}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">📱 Product & Loan Details</div>
+      ${r('Product / Device', d.product)}
+      ${r('Product Price', '₹'+parseInt(d.productAmt).toLocaleString('en-IN'))}
+      ${r('Down Payment', '₹'+parseInt(d.downPayment).toLocaleString('en-IN'))}
+      ${r('Loan Amount', '₹'+parseInt(d.loanAmt).toLocaleString('en-IN'), true)}
+      ${r('Interest', '₹'+parseInt(d.approvedAmt ? document.getElementById('interestAmt').value : 0).toLocaleString('en-IN'))}
+      ${r('Credit Score', d.creditScore)}
+      <div class="emi-highlight">
+        <div class="el">Monthly EMI</div>
+        <div class="ev">₹${emi.toLocaleString('en-IN')}</div>
+        <div class="es">${months} months × ₹${emi.toLocaleString('en-IN')} = ₹${(emi*months).toLocaleString('en-IN')}</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">🏪 Store & IMEI Details</div>
+      ${r('Store Name', d.storeName)}
+      ${r('Store Phone', d.storePhone)}
+      ${r('Sales Executive', d.salesExec)}
+      ${r('IMEI 1', d.imei1 || 'N/A')}
+      ${r('IMEI 2', d.imei2 || 'N/A')}
+    </div>
+
+  </div>
+
+  <div class="footer">
+    <p>✅ This application has been approved by <strong>RetailBoost</strong></p>
+    <p>Generated: ${new Date().toLocaleString('en-IN')} &nbsp;|&nbsp; RetailBoost © 2026</p>
+    <p style="margin-top:6px;font-size:10px;color:#aaa;">This is a computer-generated document.</p>
+  </div>
+  </body></html>`;
+}
+
 function generateAndDownloadPDF(){
-  const productAmt = parseFloat(document.getElementById('productAmt').value) || 0;
-  const downPayment = parseFloat(document.getElementById('downPayment').value) || 0;
-  const loanAmt = parseFloat(document.getElementById('loanAmt').value) || 0;
-  const interest = parseFloat(document.getElementById('interestAmt').value) || 0;
+  if(!currentFormData){ showToast('❌ No application data found'); return; }
+  const d = currentFormData;
   const emiSel = document.querySelector('input[name="emiDur"]:checked');
   const months = emiSel ? parseInt(emiSel.dataset.months) : 0;
+  const loanAmt = parseFloat(document.getElementById('loanAmt').value) || 0;
   const emi = months > 0 ? Math.round(loanAmt / months) : 0;
-  const loanNum = document.getElementById('loanNumber').textContent;
-  const imei1 = document.getElementById('imei1').value;
-  const imei2 = document.getElementById('imei2').value;
-  const appDate = new Date().toLocaleDateString('en-IN');
-  
-  const htmlContent = `
-    <html>
-    <head>
-      <style>
-        body { font-family: Arial, sans-serif; padding: 20px; color: #222; }
-        .header { background: linear-gradient(135deg, #0b3d91, #1565c0); color: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
-        .header h1 { margin: 0; font-size: 24px; }
-        .header p { margin: 5px 0 0; font-size: 14px; opacity: 0.9; }
-        .section { margin-bottom: 20px; }
-        .section-title { background: #f0f5ff; padding: 10px 15px; border-left: 4px solid #0b3d91; font-weight: bold; margin-bottom: 10px; font-size: 14px; }
-        .row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 13px; }
-        .row-label { font-weight: 600; color: #0b3d91; }
-        .row-value { text-align: right; font-weight: bold; color: #222; }
-        .highlight { background: #e8f5e9; padding: 2px 6px; border-radius: 4px; }
-        .footer { background: #f0f5ff; padding: 15px; border-radius: 8px; text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
-      </style>
-    </head>
-    <body>
-      <div class="header">
-        <h1>🏦 RetailBoost Loan Summary</h1>
-        <p>Single Page Loan Document</p>
-      </div>
-      
-      <div class="section">
-        <div class="section-title">📊 Loan Details</div>
-        <div class="row">
-          <span class="row-label">Loan Number:</span>
-          <span class="row-value">${loanNum}</span>
-        </div>
-        <div class="row">
-          <span class="row-label">Application Date:</span>
-          <span class="row-value">${appDate}</span>
-        </div>
-      </div>
-      
-      <div class="section">
-        <div class="section-title">📱 Mobile Details</div>
-        <div class="row">
-          <span class="row-label">Mobile Price:</span>
-          <span class="row-value">₹${productAmt.toLocaleString('en-IN')}</span>
-        </div>
-        <div class="row">
-          <span class="row-label">Down Payment:</span>
-          <span class="row-value">₹${Math.round(downPayment).toLocaleString('en-IN')}</span>
-        </div>
-      </div>
-      
-      <div class="section">
-        <div class="section-title">💰 Loan Calculation</div>
-        <div class="row">
-          <span class="row-label">Loan Amount:</span>
-          <span class="row-value"><span class="highlight">₹${loanAmt.toLocaleString('en-IN')}</span></span>
-        </div>
-        <div class="row">
-          <span class="row-label">Interest:</span>
-          <span class="row-value">₹${interest.toLocaleString('en-IN')}</span>
-        </div>
-        <div class="row">
-          <span class="row-label">EMI Duration:</span>
-          <span class="row-value">${months} Months</span>
-        </div>
-        <div class="row" style="border: none; background: #fffbea; padding: 10px; border-radius: 4px; margin-top: 5px;">
-          <span class="row-label">Monthly EMI:</span>
-          <span class="row-value" style="color: #d97706; font-size: 16px;">₹${emi.toLocaleString('en-IN')}</span>
-        </div>
-      </div>
-      
-      <div class="section">
-        <div class="section-title">📱 Device IMEI Numbers</div>
-        <div class="row">
-          <span class="row-label">IMEI 1:</span>
-          <span class="row-value">${imei1 || 'N/A'}</span>
-        </div>
-        <div class="row">
-          <span class="row-label">IMEI 2:</span>
-          <span class="row-value">${imei2 || 'N/A'}</span>
-        </div>
-      </div>
-      
-      <div class="footer">
-        <p>✅ This loan has been approved by RetailBoost</p>
-        <p style="margin-top: 10px; font-size: 11px;">Generated on ${new Date().toLocaleString('en-IN')}</p>
-        <p style="margin-top: 5px; font-size: 11px;">RetailBoost © 2026 • Making Finance Simple</p>
-      </div>
-    </body>
-    </html>
-  `;
-  
-  const element = document.createElement('div');
-  element.innerHTML = htmlContent;
-  
+
+  const htmlContent = buildPDFHTML(d, emi, months);
   const opt = {
-    margin: 10,
-    filename: `RetailBoost_Loan_${loanNum}.pdf`,
+    margin: 0,
+    filename: `RetailBoost_Loan_${d.loanNumber}.pdf`,
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true },
+    html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
     jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
   };
-  
-  html2pdf().set(opt).from(htmlContent).save();
-  showToast('✅ PDF downloaded successfully!');
+  showToast('📄 Generating PDF...');
+  return html2pdf().set(opt).from(htmlContent).save().then(()=>{
+    showToast('✅ PDF downloaded: RetailBoost_Loan_'+d.loanNumber+'.pdf');
+  });
 }
 
 /* ══════════════════════════════════════════════════
-   💬 WHATSAPP SHARING WITH LOAN SUMMARY
+   💬 WHATSAPP SHARING — downloads PDF then opens WA
    ══════════════════════════════════════════════════ */
 function shareViaWhatsApp(){
-  const loanNum = document.getElementById('loanNumber').textContent;
-  const productAmt = parseFloat(document.getElementById('productAmt').value) || 0;
-  const downPayment = parseFloat(document.getElementById('downPayment').value) || 0;
-  const loanAmt = parseFloat(document.getElementById('loanAmt').value) || 0;
-  const interest = parseFloat(document.getElementById('interestAmt').value) || 0;
+  if(!currentFormData){ showToast('❌ Application data not found'); return; }
+  const d = currentFormData;
   const emiSel = document.querySelector('input[name="emiDur"]:checked');
   const months = emiSel ? parseInt(emiSel.dataset.months) : 0;
+  const loanAmt = parseFloat(document.getElementById('loanAmt').value) || 0;
   const emi = months > 0 ? Math.round(loanAmt / months) : 0;
-  const imei1 = document.getElementById('imei1').value;
-  const imei2 = document.getElementById('imei2').value;
-  
-  const msg = encodeURIComponent(
-    `🏦 *RetailBoost Loan Approved!* 🎉\n\n` +
-    `📋 *Loan Details*\n` +
-    `🔢 Loan Number: ${loanNum}\n` +
-    `📅 Date: ${new Date().toLocaleDateString('en-IN')}\n\n` +
-    `📱 *Mobile Details*\n` +
-    `💰 Mobile Price: ₹${productAmt.toLocaleString('en-IN')}\n` +
-    `💳 Down Payment: ₹${Math.round(downPayment).toLocaleString('en-IN')}\n\n` +
-    `💵 *Loan Calculation*\n` +
-    `✅ Loan Amount: ₹${loanAmt.toLocaleString('en-IN')}\n` +
-    `📌 Interest: ₹${interest.toLocaleString('en-IN')}\n` +
-    `📅 Duration: ${months} Months\n` +
-    `💳 Monthly EMI: ₹${emi.toLocaleString('en-IN')}\n\n` +
-    `📱 *Device IMEIs*\n` +
-    `🔹 IMEI 1: ${imei1 || 'N/A'}\n` +
-    `🔹 IMEI 2: ${imei2 || 'N/A'}\n\n` +
-    `✨ *Ready to proceed?* Contact our team for next steps!\n` +
-    `RetailBoost • Your Trusted Finance Partner`
-  );
-  
-  const phoneNumber = WHATSAPP_NUMBER || '919187627737';
-  const waLink = `https://wa.me/${phoneNumber}?text=${msg}`;
-  window.open(waLink, '_blank');
-  showToast('💬 Opening WhatsApp...');
+
+  showToast('📄 Generating PDF — WhatsApp will open after download…');
+
+  const htmlContent = buildPDFHTML(d, emi, months);
+  const opt = {
+    margin: 0,
+    filename: `RetailBoost_Loan_${d.loanNumber}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+    jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+  };
+
+  html2pdf().set(opt).from(htmlContent).save().then(()=>{
+    // PDF is now on user's device — open WhatsApp with full message + instruction
+    const msg = encodeURIComponent(
+      `🏦 *RetailBoost Loan Application* ✅\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `🔢 *Loan No:* ${d.loanNumber}\n` +
+      `📅 *Date:* ${d.submittedAt}\n\n` +
+      `👤 *APPLICANT*\n` +
+      `• Name: ${d.firstName} ${d.lastName}\n` +
+      `• DOB: ${d.dob}\n` +
+      `• Phone: +91 ${d.phone}\n` +
+      `• Email: ${d.email}\n` +
+      `• Address: ${d.address}, ${d.city}, ${d.state} - ${d.pin}\n\n` +
+      `💼 *EMPLOYMENT*\n` +
+      `• ${d.workType} at ${d.employer}\n` +
+      `• Income: ₹${parseInt(d.income).toLocaleString('en-IN')}/mo | Exp: ${d.empLen}\n\n` +
+      `🤝 *REFERENCES*\n` +
+      `• Ref 1: ${d.ref1Name} (${d.ref1Rel}) - ${d.ref1Phone}\n` +
+      `• Ref 2: ${d.ref2Name} (${d.ref2Rel}) - ${d.ref2Phone}\n\n` +
+      `📱 *LOAN DETAILS*\n` +
+      `• Product: ${d.product}\n` +
+      `• Price: ₹${parseInt(d.productAmt).toLocaleString('en-IN')}\n` +
+      `• Down Payment: ₹${parseInt(d.downPayment).toLocaleString('en-IN')}\n` +
+      `• Loan Amount: ₹${parseInt(d.loanAmt).toLocaleString('en-IN')}\n` +
+      `• EMI: ₹${emi.toLocaleString('en-IN')} × ${months} months\n` +
+      `• Credit Score: ${d.creditScore}\n\n` +
+      `🏪 *STORE*\n` +
+      `• ${d.storeName} | ${d.storePhone}\n` +
+      `• Sales Exec: ${d.salesExec}\n\n` +
+      `📱 *IMEI*\n` +
+      `• IMEI 1: ${d.imei1 || 'N/A'}\n` +
+      `• IMEI 2: ${d.imei2 || 'N/A'}\n` +
+      `━━━━━━━━━━━━━━━━━━━━\n` +
+      `📎 PDF attached separately (already downloaded to your device).\n` +
+      `Please attach: RetailBoost_Loan_${d.loanNumber}.pdf`
+    );
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
+    showToast('✅ PDF saved! Attach it in WhatsApp to complete sharing.');
+  });
 }
 
 </script>

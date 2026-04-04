@@ -120,6 +120,78 @@
   color:#0b3d91;
 }
 
+/* ── EMI TENURE RADIO ── */
+.emi-tenure-label{
+  display:block;
+  font-size:.85rem;
+  font-weight:600;
+  color:#0b3d91;
+  margin:20px 0 10px;
+}
+.emi-tenure{
+  display:flex;
+  gap:12px;
+}
+.tenure-opt{
+  flex:1;
+  cursor:pointer;
+}
+.tenure-opt input[type=radio]{display:none;}
+.tenure-opt span{
+  display:block;
+  text-align:center;
+  padding:10px 0;
+  border:1.5px solid #dde6f7;
+  border-radius:10px;
+  font-size:.88rem;
+  font-weight:600;
+  color:#64748b;
+  transition:.25s;
+  background:#fafcff;
+}
+.tenure-opt input:checked + span{
+  background:#0b3d91;
+  color:white;
+  border-color:#0b3d91;
+  box-shadow:0 4px 14px rgba(11,61,145,.25);
+}
+.tenure-opt span:hover{
+  border-color:#0b3d91;
+  color:#0b3d91;
+}
+
+/* ── EMI BREAKDOWN ── */
+.emi-breakdown{
+  margin:18px 0 16px;
+  border:1.5px solid #dde6f7;
+  border-radius:12px;
+  overflow:hidden;
+}
+.emi-brow{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px 16px;
+  font-size:.85rem;
+  color:#64748b;
+  border-bottom:1px solid #f0f3fa;
+}
+.emi-brow:last-child{border-bottom:none;}
+.emi-brow span:first-child{font-weight:500;}
+.emi-brow span:last-child{font-weight:700;color:#0b3d91;}
+.emi-brow--result{
+  background:linear-gradient(135deg,#0b3d91,#1565c0);
+  color:white !important;
+  padding:14px 16px;
+}
+.emi-brow--result span{color:rgba(255,255,255,.8) !important;font-weight:500;}
+#emiResult{
+  font-size:1.35rem;
+  font-weight:700;
+  color:white;
+  margin:0;
+}
+
 /* ── CTA PHONE ── */
 .cta-phone{
   margin-top:28px;
@@ -264,20 +336,44 @@ footer strong{color:rgba(255,255,255,.8);}
   <div class="container">
     <h2>EMI Calculator</h2>
     <div class="emi-box">
+
+      <!-- Loan Amount Slider -->
       <div class="emi-label-row">
         <label>Loan Amount</label>
         <span class="emi-val">₹ <span id="loanValue">20000</span></span>
       </div>
       <input type="range" id="loanSlider" min="5000" max="100000" step="1000" value="20000">
 
-      <div class="emi-label-row">
-        <label>Tenure</label>
-        <span class="emi-val"><span id="monthValue">12</span> Months</span>
+      <!-- Tenure — 3 or 6 months only (matches loan application page) -->
+      <label class="emi-tenure-label">EMI Duration</label>
+      <div class="emi-tenure">
+        <label class="tenure-opt">
+          <input type="radio" name="homeTenure" value="3">
+          <span>3 Months</span>
+        </label>
+        <label class="tenure-opt">
+          <input type="radio" name="homeTenure" value="6" checked>
+          <span>6 Months</span>
+        </label>
       </div>
-      <input type="range" id="monthSlider" min="3" max="24" step="1" value="12">
 
-      <h3 id="emiResult"></h3>
-      <a href="loan-application.html" class="btn" style="background:#0b3d91;color:white;margin-top:8px;display:block;text-align:center;">
+      <!-- Breakdown (same structure as loan app summary) -->
+      <div class="emi-breakdown">
+        <div class="emi-brow">
+          <span>Flat Interest</span>
+          <span id="emiInterestAmt">₹3,250</span>
+        </div>
+        <div class="emi-brow">
+          <span>Total Payable</span>
+          <span id="emiTotalAmt">₹0</span>
+        </div>
+        <div class="emi-brow emi-brow--result">
+          <span>Monthly EMI</span>
+          <strong id="emiResult"></strong>
+        </div>
+      </div>
+
+      <a href="loan-application.html" class="btn" style="background:#0b3d91;color:white;display:block;text-align:center;">
         📋 Apply for This Loan →
       </a>
     </div>
