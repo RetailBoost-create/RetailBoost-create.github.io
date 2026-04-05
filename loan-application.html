@@ -170,6 +170,8 @@ body{background:var(--light);color:var(--text);-webkit-font-smoothing:antialiase
 .logo{color:var(--green);font-size:1.4rem;font-weight:800;text-decoration:none;letter-spacing:-.4px;}
 nav a{color:rgba(255,255,255,.82);margin-left:4px;padding:6px 12px;text-decoration:none;font-size:.85rem;font-weight:500;border-radius:8px;transition:var(--t);}
 nav a:hover{color:white;background:rgba(255,255,255,.1);}
+.btn-logout{margin-left:14px !important;background:rgba(231,76,60,.18);border:1px solid rgba(231,76,60,.4);color:rgba(255,210,200,.92) !important;padding:6px 14px !important;border-radius:20px !important;font-weight:600 !important;}
+.btn-logout:hover{background:rgba(231,76,60,.32) !important;color:white !important;border-color:rgba(231,76,60,.7) !important;}
 
 /* LOAN HERO */
 .loan-hero{margin-top:62px;background:linear-gradient(160deg,var(--navy-dark) 0%,var(--navy) 60%,#1a6b4e 100%);padding:56px 20px 36px;text-align:center;color:white;position:relative;overflow:hidden;opacity:1;transition:opacity .3s;pointer-events:auto;}
@@ -380,6 +382,10 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
   .form-nav{padding:14px 20px 20px;}
   .loan-hero{padding:44px 16px 28px;}
   .loan-hero h1{font-size:1.7rem;}
+  /* Navbar scrolls horizontally on tablet/mobile without wrapping */
+  nav{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;scrollbar-width:none;}
+  nav::-webkit-scrollbar{display:none;}
+  nav a{white-space:nowrap;}
 }
 
 @media(max-width:600px){
@@ -410,8 +416,8 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
   .page-icon{font-size:1.6rem;}
   .form-card-header h2{font-size:1.05rem;}
   .form-card-header p{font-size:.75rem;}
-  /* Touch-friendly inputs — min 44px height */
-  .field input,.field select{padding:12px 14px;font-size:.88rem;min-height:44px;}
+  /* Touch-friendly inputs — min 44px height, 16px font prevents iOS auto-zoom */
+  .field input,.field select,.bank-search-input{padding:12px 14px;font-size:1rem;min-height:44px;}
   .upload-box{padding:18px 14px;}
   .upload-box .uicon{font-size:1.6rem;margin-bottom:4px;}
   .upload-box strong{font-size:.78rem;}
@@ -440,6 +446,8 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
   .approval-card{max-width:98vw;}
   .field input,.field select{font-size:.84rem;padding:11px 12px;}
   .form-nav{padding:12px 12px 16px;}
+  .nav-flex{padding:0 10px;}
+  .form-wrap{padding:0 8px 30px;}
 }
 
 /* ══ PAGE 5 LOAN SUMMARY GRID ══ */
@@ -545,7 +553,7 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
       <a href="index.html#works">How it Works</a>
       <a href="index.html#benefits">Benefits</a>
       <a href="index.html#join">Join</a>
-      <a href="#" onclick="logout()" style="color:#ff6b6b;margin-left:35px;border-left:1px solid rgba(255,255,255,.2);padding-left:35px;">Logout</a>
+      <a href="#" onclick="logout()" class="btn-logout">🚪 Logout</a>
     </nav>
   </div>
 </header>
@@ -768,16 +776,12 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
             <span class="err-msg" id="err-empLen">Please select length of employment</span>
           </div>
         </div>
-        <div class="field-group">
+        <div class="field-group single">
           <div class="field">
             <label>Monthly Income (₹) <span class="req">*</span></label>
             <input type="number" id="income" placeholder="Default: ₹25,000" min="0" value="25000" oninput="validateIncome()">
             <span class="err-msg" id="err-income">Monthly income is required and must be greater than 0</span>
             <p class="hint" style="margin-top:4px;">💡 Default value: ₹25,000 (editable)</p>
-          </div>
-          <div class="field">
-            <label>Other Monthly Income (₹) <span class="opt-tag">optional</span></label>
-            <input type="number" id="otherIncome" placeholder="e.g. 5000" min="0">
           </div>
         </div>
         <div class="field-group single">
@@ -876,8 +880,8 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
         <div class="field-group">
           <div class="field">
             <label>CIBIL / Credit Score <span class="req">*</span></label>
-            <input type="number" id="creditScore" placeholder="e.g. 720 (range: 300–900)"
-                   min="300" max="900" inputmode="numeric">
+            <input type="number" id="creditScore" placeholder="e.g. 720 (range: -1–900)"
+                   min="-1" max="900" inputmode="numeric">
             <p class="hint" style="margin-top:4px;">📌 Score 650+ significantly improves your approval chances</p>
             <span class="err-msg" id="err-creditScore">Credit score must be between 300 and 900</span>
           </div>
@@ -2151,7 +2155,7 @@ function collectFormData(loanNum,amt){
     firstName:g('firstName'), lastName:g('lastName'), dob:g('dob'), phone:g('phone'),
     email:g('email'), aadharName:g('aadharName'),
     address:g('addr1')+(g('addr2')?' '+g('addr2'):''), city:g('city'), state:g('state'), pin:g('pin'),
-    employer:g('employer'), workType:g('workType'), empLen:radio('empLen'), income:g('income'), otherIncome:g('otherIncome'),
+    employer:g('employer'), workType:g('workType'), empLen:radio('empLen'), income:g('income'),
     ref1Name:g('ref1First')+' '+g('ref1Last'), ref1Rel:g('ref1Rel'), ref1Phone:g('ref1Phone'),
     ref2Name:g('ref2First')+' '+g('ref2Last'), ref2Rel:g('ref2Rel'), ref2Phone:g('ref2Phone'),
     product:g('product'), productAmt:g('productAmt'), loanAmt:g('loanAmt'), downPayment:g('downPayment'),
@@ -2600,8 +2604,8 @@ function buildPDFHTML(d, emi, months){
   return `<!DOCTYPE html><html><head><meta charset="UTF-8">
   <style>
     *{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:Arial,sans-serif;padding:0;color:#1a1a2e;background:#fff;font-size:13px;}
-    .header{background:linear-gradient(135deg,#0b3d91,#1565c0);color:white;padding:28px 24px 20px;text-align:center;}
+    body{font-family:Arial,sans-serif;padding:0;color:#1a1a2e;background:#fff;font-size:11px;}
+    .header{background:linear-gradient(135deg,#0b3d91,#1565c0);color:white;padding:18px 20px 14px;text-align:center;}
     .header-logo{font-size:22px;font-weight:700;letter-spacing:-.5px;margin-bottom:4px;}
     .header-sub{font-size:12px;opacity:.85;}
     .approved-badge{display:inline-block;background:rgba(46,204,113,.3);border:1px solid rgba(46,204,113,.6);
@@ -2609,11 +2613,11 @@ function buildPDFHTML(d, emi, months){
     .loan-num{background:rgba(255,255,255,.12);border-radius:8px;padding:10px 16px;margin-top:14px;
       font-size:11px;opacity:.8;}
     .loan-num strong{font-size:15px;display:block;letter-spacing:1px;opacity:1;}
-    .body{padding:18px 20px;}
-    .section{margin-bottom:16px;break-inside:avoid;}
-    .section-title{background:#f0f5ff;padding:8px 14px;border-left:4px solid #0b3d91;
-      font-weight:700;font-size:12px;color:#0b3d91;letter-spacing:.3px;text-transform:uppercase;margin-bottom:8px;}
-    .row{display:flex;justify-content:space-between;padding:6px 4px;border-bottom:1px solid #f0f3fa;}
+    .body{padding:12px 16px;}
+    .section{margin-bottom:10px;break-inside:avoid;}
+    .section-title{background:#f0f5ff;padding:6px 12px;border-left:4px solid #0b3d91;
+      font-weight:700;font-size:10px;color:#0b3d91;letter-spacing:.3px;text-transform:uppercase;margin-bottom:6px;}
+    .row{display:flex;justify-content:space-between;padding:4px 4px;border-bottom:1px solid #f0f3fa;}
     .row:last-child{border-bottom:none;}
     .row-label{font-weight:600;color:#64748b;flex:1;}
     .row-value{text-align:right;font-weight:600;color:#1a1a2e;flex:1;}
@@ -2631,8 +2635,13 @@ function buildPDFHTML(d, emi, months){
     .doc-item{text-align:center;}
     .doc-label{font-size:11px;font-weight:600;color:#0b3d91;margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px;}
     .doc-item img{width:100%;max-height:160px;object-fit:cover;border-radius:8px;border:1px solid #dde6f7;}
-    .footer{background:#f0f5ff;padding:14px 20px;text-align:center;margin-top:4px;}
-    .footer p{font-size:11px;color:#64748b;margin:2px 0;}
+    .footer{background:#f0f5ff;padding:10px 16px;text-align:center;margin-top:4px;}
+    .footer p{font-size:10px;color:#64748b;margin:2px 0;}
+    .agree-box{background:#f8f9ff;border:1px solid #c7d2fe;border-radius:6px;padding:10px 12px;font-size:9px;line-height:1.8;white-space:pre-wrap;color:#374151;font-family:'Courier New',monospace;margin-top:6px;word-break:break-word;}
+    .agree-accepted{display:inline-block;background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:2px 10px;border-radius:12px;font-size:9.5px;font-weight:700;margin:4px 0;}
+    .sig-box{margin-top:10px;padding-top:8px;border-top:1.5px solid #e0e7ff;}
+    .sig-label{font-size:10px;font-weight:700;color:#0b3d91;margin-bottom:6px;}
+    .sig-img{max-width:240px;max-height:80px;border:1px solid #dde6f7;border-radius:6px;display:block;}
   </style></head><body>
 
   <div class="header">
@@ -2661,7 +2670,6 @@ function buildPDFHTML(d, emi, months){
       ${r('Work Type', d.workType)}
       ${r('Experience', d.empLen)}
       ${r('Monthly Income', '₹'+parseInt(d.income).toLocaleString('en-IN'))}
-      ${d.otherIncome ? r('Other Income', '₹'+parseInt(d.otherIncome).toLocaleString('en-IN')) : ''}
     </div>
 
     <div class="section">
@@ -2711,6 +2719,69 @@ function buildPDFHTML(d, emi, months){
       ${r('IMEI 1', d.imei1 || 'N/A')}
       ${r('IMEI 2', d.imei2 || 'N/A')}
     </div>
+
+    ${(()=>{
+      const custName = (d.firstName+' '+d.lastName).trim() || d.aadharName || '—';
+      const fullAddr = d.address+', '+d.city+', '+d.state+' - '+d.pin;
+      const imeiLine = d.imei1 + (d.imei2 ? ' / '+d.imei2 : '');
+      const fmtM = v => { const n = parseInt(v||0); return isNaN(n) ? '—' : n.toLocaleString('en-IN'); };
+      const lines = [
+        'RETAILBOOST FULL HIRE-PURCHASE & LOAN AGREEMENT',
+        '',
+        'THIS AGREEMENT is made at Bengaluru on '+d.submittedAt+'.',
+        '',
+        'BETWEEN',
+        'RETAILBOOST',
+        'GST No: 29HWUPP1092Q1Z5',
+        'Address: Ananya Complex, Seetharam Palya Main Road, Basavannagar, Bengaluru - 560048',
+        '(hereinafter referred to as the "Company")',
+        '',
+        'AND',
+        'Customer Name: '+custName,
+        'Mobile: '+d.phone,
+        'Address: '+fullAddr,
+        '(hereinafter referred to as the "Customer")',
+        '',
+        '1. LOAN & PRODUCT DETAILS',
+        'Product: '+d.product+'   IMEI: '+imeiLine,
+        'Product Price: Rs.'+fmtM(d.productAmt)+'   Down Payment: Rs.'+fmtM(d.downPayment),
+        'Loan Amount: Rs.'+fmtM(d.loanAmt)+'   Interest: Rs.'+fmtM(d.interestAmt),
+        'EMI: Rs.'+emi.toLocaleString('en-IN')+' x '+months+' months = Rs.'+(emi*months).toLocaleString('en-IN'),
+        '',
+        '2. OWNERSHIP - Product remains Company property until full payment.',
+        '3. PAYMENT TERMS - EMI due on time; delays attract penalties.',
+        '4. CHARGES & FEES - Processing, late payment, bounce, foreclosure, legal fees, GST.',
+        '5. DISBURSEMENT - Loan disbursed to dealer/customer at Company\'s discretion.',
+        '6. KYC & VERIFICATION - Customer must provide valid PAN, Aadhaar; Company may verify.',
+        '7. CREDIT CHECK (CIBIL) - Company may check/report credit history.',
+        '8. DEVICE CONTROL - Company may install software; lock/block features apply.',
+        '9. GPS & DATA CONSENT - Customer agrees to location tracking and communication alerts.',
+        '10. USAGE RESTRICTIONS - Device shall not be sold, transferred, or misused.',
+        '11. DAMAGE / LOSS - Customer responsible for damage or full loss value.',
+        '12. DEFAULT - If EMI unpaid, false information given, or fraud occurs.',
+        '13. CONSEQUENCES OF DEFAULT - Company may block device, recover it, or take legal action.',
+        '14. RECOVERY RIGHTS - Agents may recover dues and visit customer location.',
+        '15. PREPAYMENT - Early closure allowed with applicable charges.',
+        '16. DATA SHARING - Data may be shared with banks, credit bureaus, and authorities.',
+        '17. INSPECTION RIGHTS - Company may inspect customer details anytime.',
+        '18. INSURANCE & ADD-ONS - Optional services may be charged separately.',
+        '19. TERMINATION - Agreement ends on full payment or breach.',
+        '20. INDEMNITY - Customer liable for losses from misuse or violation.',
+        '21. LIMITATION OF LIABILITY - Company not liable for indirect damages.',
+        '22. ARBITRATION - Disputes resolved through arbitration under Indian law.',
+        '23. JURISDICTION - Courts of Bengaluru shall have jurisdiction.',
+        '24. MISCELLANEOUS - All terms binding; changes may be made with notice.',
+        '25. DECLARATION - Customer confirms all details are true and agrees to terms.'
+      ];
+      const safeText = lines.join('\n').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const statusBadge = d.agreementAccepted
+        ? '<span class="agree-accepted">&#10003; Customer Accepted Agreement</span>'
+        : '<span style="color:#e74c3c;font-size:9.5px;font-weight:700;">&#x26A0; Agreement Not Accepted</span>';
+      const sigHTML = d.signatureImage
+        ? '<div class="sig-box"><div class="sig-label">&#9998; Customer Signature</div><img class="sig-img" src="'+d.signatureImage+'" alt="Customer Signature"></div>'
+        : '';
+      return '<div class="section"><div class="section-title">&#128196; Loan Agreement</div>'+statusBadge+'<div class="agree-box">'+safeText+'</div>'+sigHTML+'</div>';
+    })()}
 
     ${(()=>{
       const imgs = window._uploadedImages || {};
