@@ -3,9 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#1A3FAA">
 <title>RetailBoost | Stock & Finance Growth Partner</title>
+<!-- Performance: preconnect to external origins -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://unpkg.com">
 <link rel="stylesheet" href="style.css">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
 <style>
 /* ── NAVBAR APPLY LOAN BUTTON ── */
@@ -171,11 +176,14 @@ footer strong { color: rgba(255,255,255,.75); }
 <header class="navbar" id="navbar">
   <div class="container nav-flex">
     <h2 class="logo">Retail<span>Boost</span></h2>
-    <nav>
-      <a href="#about">About</a>
-      <a href="#works">How it Works</a>
-      <a href="#benefits">Benefits</a>
-      <a href="#join">Join</a>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="mainNav">
+      <a href="#about" onclick="closeNav()">About</a>
+      <a href="#works" onclick="closeNav()">How it Works</a>
+      <a href="#benefits" onclick="closeNav()">Benefits</a>
+      <a href="#join" onclick="closeNav()">Join</a>
       <a href="loan-application.html" class="btn-loan">📋 Apply Loan</a>
     </nav>
   </div>
@@ -209,11 +217,11 @@ footer strong { color: rgba(255,255,255,.75); }
 </section>
 
 <!-- STATS STRIP -->
-<div class="stats-strip" data-aos="fade-up">
+<div class="stats-strip" id="statsStrip">
   <div class="container">
     <div class="stats-grid">
       <div class="stat-item">
-        <div class="stat-num">500<span>+</span></div>
+        <div class="stat-num"><span class="count-num" data-target="500">0</span><span>+</span></div>
         <div class="stat-label">Retailers Onboarded</div>
       </div>
       <div class="stat-item">
@@ -221,11 +229,11 @@ footer strong { color: rgba(255,255,255,.75); }
         <div class="stat-label">Total EMI Financed</div>
       </div>
       <div class="stat-item">
-        <div class="stat-num">98<span>%</span></div>
+        <div class="stat-num"><span class="count-num" data-target="98">0</span><span>%</span></div>
         <div class="stat-label">Approval Rate</div>
       </div>
       <div class="stat-item">
-        <div class="stat-num">24<span>hr</span></div>
+        <div class="stat-num"><span class="count-num" data-target="24">0</span><span>hr</span></div>
         <div class="stat-label">Avg. Payout Time</div>
       </div>
     </div>

