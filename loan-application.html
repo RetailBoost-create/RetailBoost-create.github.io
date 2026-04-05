@@ -2712,219 +2712,222 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
    📄 PDF GENERATION — builds full application PDF
    ══════════════════════════════════════════════════ */
 function buildPDFHTML(d, emi, months){
-  const r = (label, value, highlight) => `
-    <div class="row">
-      <span class="row-label">${label}</span>
-      <span class="row-value${highlight?' hl':''}">${value}</span>
-    </div>`;
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8">
-  <style>
-    *{margin:0;padding:0;box-sizing:border-box;}
-    body{font-family:Arial,sans-serif;padding:0;color:#1a1a2e;background:#fff;font-size:11px;}
-    .header{background:linear-gradient(135deg,#0b3d91,#1565c0);color:white;padding:18px 20px 14px;text-align:center;}
-    .header-logo{font-size:22px;font-weight:700;letter-spacing:-.5px;margin-bottom:4px;}
-    .header-sub{font-size:12px;opacity:.85;}
-    .approved-badge{display:inline-block;background:rgba(46,204,113,.3);border:1px solid rgba(46,204,113,.6);
-      color:#2ecc71;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;margin-top:10px;}
-    .loan-num{background:rgba(255,255,255,.12);border-radius:8px;padding:10px 16px;margin-top:14px;
-      font-size:11px;opacity:.8;}
-    .loan-num strong{font-size:15px;display:block;letter-spacing:1px;opacity:1;}
-    .body{padding:12px 16px;}
-    .section{margin-bottom:8px;}
-    .section-title{background:#f0f5ff;padding:5px 12px;border-left:4px solid #0b3d91;
-      font-weight:700;font-size:10px;color:#0b3d91;letter-spacing:.3px;text-transform:uppercase;margin-bottom:5px;}
-    .row{display:flex;justify-content:space-between;padding:3px 4px;border-bottom:1px solid #f0f3fa;}
-    .row:last-child{border-bottom:none;}
-    .row-label{font-weight:600;color:#64748b;flex:1;}
-    .row-value{text-align:right;font-weight:600;color:#1a1a2e;flex:1;}
-    .row-value.hl{color:#27ae60;font-weight:700;}
-    .row:nth-child(even){background:#f9fbff;}
-    .emi-highlight{background:linear-gradient(135deg,#0b3d91,#1565c0);color:white;
-      border-radius:10px;padding:10px;text-align:center;margin:8px 0;page-break-inside:avoid;}
-    .emi-highlight .el{font-size:10px;opacity:.8;letter-spacing:.5px;text-transform:uppercase;}
-    .emi-highlight .ev{font-size:20px;font-weight:700;margin:3px 0;}
-    .emi-highlight .es{font-size:10px;opacity:.75;}
-    .two-col{display:table;width:100%;border-spacing:10px;}
-    .two-col .ref-box{display:table-cell;width:50%;vertical-align:top;}
-    .ref-box{background:#f8faff;border:1px solid #dde6f7;border-radius:8px;padding:10px;}
-    .ref-box .ref-name{font-weight:700;color:#0b3d91;font-size:12px;margin-bottom:3px;}
-    .ref-box .ref-item{font-size:11px;color:#64748b;padding:1px 0;}
-    .doc-grid{display:table;width:100%;border-spacing:10px 0;margin-top:6px;}
-    .doc-item{display:table-cell;width:33.3%;text-align:center;background:#f8faff;border:1px solid #dde6f7;border-radius:8px;padding:8px;vertical-align:top;}
-    .doc-label{font-size:9px;font-weight:700;color:#0b3d91;margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px;}
-    .doc-item img{width:100%;height:130px;object-fit:contain;border-radius:4px;background:#fff;display:block;}
-    .cust-photo-wrap{text-align:center;padding:6px 0;}
-    .cust-photo-wrap img{height:150px;width:auto;max-width:180px;object-fit:contain;border-radius:8px;border:1px solid #dde6f7;background:#fff;display:inline-block;}
-    .footer{background:#f0f5ff;padding:8px 16px;text-align:center;margin-top:4px;}
-    .footer p{font-size:9px;color:#64748b;margin:1px 0;}
-    .agree-box{background:#f8f9ff;border:1px solid #c7d2fe;border-radius:6px;padding:8px 10px;font-size:8.5px;line-height:1.55;white-space:pre-wrap;color:#374151;font-family:'Courier New',monospace;margin-top:5px;word-break:break-word;}
-    .agree-accepted{display:inline-block;background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:2px 10px;border-radius:12px;font-size:9px;font-weight:700;margin:3px 0;}
-    .sig-box{margin-top:8px;padding:10px;background:#f8f9ff;border:1.5px solid #c7d2fe;border-radius:8px;page-break-inside:avoid;}
-    .sig-label{font-size:10px;font-weight:700;color:#0b3d91;margin-bottom:6px;}
-    .sig-img{max-width:280px;height:90px;object-fit:contain;border:1.5px solid #6366f1;border-radius:6px;display:block;background:#fff;}
-    .sig-empty{width:280px;height:90px;border:1.5px dashed #94a3b8;border-radius:6px;display:table-cell;vertical-align:middle;text-align:center;color:#94a3b8;font-size:10px;font-style:italic;background:#f8faff;}
-  </style></head><body>
+  const imgs = window._uploadedImages || {};
+  const fmtN = v => { const n = parseInt(v||0); return isNaN(n) ? '—' : n.toLocaleString('en-IN'); };
 
-  <div class="header">
-    <div class="header-logo">🏦 RetailBoost</div>
-    <div class="header-sub">Loan Approval Document</div>
-    <div class="approved-badge">✅ AUTO APPROVED</div>
-    <div class="loan-num">Loan Number<strong>${d.loanNumber}</strong></div>
-  </div>
+  /* data row — uses real <tr><td> */
+  const row = (lbl, val, hl) =>
+    '<tr>'
+    + '<td style="padding:4px 8px;font-weight:600;color:#64748b;width:45%;font-size:10.5px;border-bottom:1px solid #f0f3fa;">' + lbl + '</td>'
+    + '<td style="padding:4px 8px;font-weight:700;color:'+(hl?'#27ae60':'#1a1a2e')+';text-align:right;font-size:10.5px;border-bottom:1px solid #f0f3fa;">' + val + '</td>'
+    + '</tr>';
 
-  <div class="body">
+  /* section heading bar */
+  const H = t => '<div style="background:#f0f5ff;padding:6px 12px;border-left:4px solid #0b3d91;font-weight:700;font-size:10px;color:#0b3d91;text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px;">' + t + '</div>';
 
-    ${(()=>{
-      const imgs = window._uploadedImages || {};
-      const hasImages = imgs.panCard || imgs.aadharFront || imgs.aadharBack;
-      if(!hasImages) return '';
-      const imgItem = (src, label) => src
-        ? '<div class="doc-item"><div class="doc-label">'+label+'</div><img src="'+src+'" alt="'+label+'"></div>'
-        : '';
-      return '<div class="section"><div class="section-title">&#128206; Customer Documents</div><div class="doc-grid">'
-        + imgItem(imgs.aadharFront, 'Aadhaar Front')
-        + imgItem(imgs.aadharBack,  'Aadhaar Back')
-        + imgItem(imgs.panCard,     'PAN Card')
-        + '</div></div>';
-    })()}
+  /* wrap rows in a table */
+  const T = rows => '<table style="width:100%;border-collapse:collapse;">' + rows + '</table>';
 
-    <div class="section">
-      <div class="section-title">👤 Applicant Details</div>
-      ${r('Full Name', d.firstName+' '+d.lastName)}
-      ${r('Date of Birth', d.dob)}
-      ${r('Phone', '+91 '+d.phone)}
-      ${r('Email', d.email)}
-      ${r('PAN / Aadhaar Name', d.aadharName)}
-      ${r('Address', d.address+', '+d.city+', '+d.state+' - '+d.pin)}
-      ${r('Submitted On', d.submittedAt)}
-    </div>
+  /* section block */
+  const S = (heading, content) => '<div style="margin-bottom:10px;">' + H(heading) + content + '</div>';
 
-    <div class="section">
-      <div class="section-title">💼 Employment Details</div>
-      ${r('Employer', d.employer)}
-      ${r('Work Type', d.workType)}
-      ${r('Experience', d.empLen)}
-      ${r('Monthly Income', '₹'+parseInt(d.income).toLocaleString('en-IN'))}
-    </div>
+  /* document image cell */
+  const imgCell = (src, label) =>
+    '<td style="width:33%;padding:5px;vertical-align:top;">'
+    + '<div style="background:#f8faff;border:1px solid #dde6f7;border-radius:8px;padding:8px;text-align:center;">'
+    + '<div style="font-size:9px;font-weight:700;color:#0b3d91;margin-bottom:6px;text-transform:uppercase;">' + label + '</div>'
+    + (src
+        ? '<img src="' + src + '" style="width:100%;height:140px;object-fit:contain;background:#fff;border-radius:4px;display:block;" alt="' + label + '">'
+        : '<div style="height:140px;line-height:140px;text-align:center;color:#aaa;font-size:10px;">Not uploaded</div>')
+    + '</div></td>';
 
-    <div class="section">
-      <div class="section-title">🤝 References</div>
-      <div class="two-col">
-        <div class="ref-box">
-          <div class="ref-name">${d.ref1Name}</div>
-          <div class="ref-item">📌 ${d.ref1Rel}</div>
-          <div class="ref-item">📞 ${d.ref1Phone}</div>
-        </div>
-        <div class="ref-box">
-          <div class="ref-name">${d.ref2Name}</div>
-          <div class="ref-item">📌 ${d.ref2Rel}</div>
-          <div class="ref-item">📞 ${d.ref2Phone}</div>
-        </div>
-      </div>
-    </div>
+  /* signature block */
+  const sigBox = d.signatureImage
+    ? '<img src="' + d.signatureImage + '" style="width:280px;height:90px;object-fit:contain;border:2px solid #6366f1;border-radius:6px;background:#fff;display:block;" alt="Signature">'
+    : '<table style="width:280px;height:90px;border:1.5px dashed #94a3b8;border-radius:6px;background:#f8faff;"><tr><td style="text-align:center;vertical-align:middle;color:#94a3b8;font-size:10px;font-style:italic;">Signature not captured</td></tr></table>';
 
-    <div class="section">
-      <div class="section-title">📱 Product & Loan Details</div>
-      ${r('Product / Device', d.product)}
-      ${r('Product Price', '₹'+parseInt(d.productAmt).toLocaleString('en-IN'))}
-      ${r('Down Payment', '₹'+parseInt(d.downPayment).toLocaleString('en-IN'))}
-      ${r('Loan Basis', '₹'+(parseInt(d.productAmt)-parseInt(d.downPayment)).toLocaleString('en-IN'))}
-      ${r('Interest', '₹'+parseInt(d.interestAmt||0).toLocaleString('en-IN'))}
-      ${r('Total Loan Amount', '₹'+parseInt(d.loanAmt).toLocaleString('en-IN'), true)}
-      ${r('Credit Score', d.creditScore)}
-      <div class="emi-highlight">
-        <div class="el">Monthly EMI</div>
-        <div class="ev">₹${emi.toLocaleString('en-IN')}</div>
-        <div class="es">${months} months × ₹${emi.toLocaleString('en-IN')} = ₹${(emi*months).toLocaleString('en-IN')}</div>
-      </div>
-    </div>
+  /* ── HEADER ── */
+  const header =
+    '<table style="width:100%;background:linear-gradient(135deg,#0b3d91,#1565c0);">'
+    + '<tr><td style="padding:16px 20px;text-align:center;color:white;">'
+    + '<div style="font-size:22px;font-weight:700;">&#127968; RetailBoost</div>'
+    + '<div style="font-size:12px;opacity:.85;margin-top:4px;">Loan Approval Document</div>'
+    + '<div style="display:inline-block;background:rgba(46,204,113,.3);border:1px solid rgba(46,204,113,.6);color:#2ecc71;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;margin-top:8px;">&#10003; AUTO APPROVED</div>'
+    + '<div style="background:rgba(255,255,255,.12);border-radius:8px;padding:8px 16px;margin-top:10px;font-size:11px;color:rgba(255,255,255,.8);">Loan Number<br><strong style="font-size:15px;letter-spacing:1px;">' + d.loanNumber + '</strong></div>'
+    + '</td></tr></table>';
 
-    <div class="section">
-      <div class="section-title">🏦 Bank Account Details</div>
-      ${r('Bank Name', d.bankName || 'N/A')}
-      ${r('Account Number', d.accountNumber || 'N/A')}
-      ${r('IFSC Code', d.ifscCode || 'N/A')}
-    </div>
+  /* ── PAGES 1–2: All details ── */
+  const detailsPage =
+    '<div style="padding:12px 16px;">'
 
-    <div class="section">
-      <div class="section-title">🏪 Store & IMEI Details</div>
-      ${r('Store Name', d.storeName)}
-      ${r('Store Phone', d.storePhone)}
-      ${r('Sales Executive', d.salesExec)}
-      ${r('IMEI 1', d.imei1 || 'N/A')}
-      ${r('IMEI 2', d.imei2 || 'N/A')}
-    </div>
+    + S('&#128100; Applicant Details', T(
+        row('Full Name',          d.firstName + ' ' + d.lastName)
+      + row('Date of Birth',      d.dob)
+      + row('Phone',              '+91 ' + d.phone)
+      + row('Email',              d.email)
+      + row('PAN / Aadhaar Name', d.aadharName)
+      + row('Address',            d.address + ', ' + d.city + ', ' + d.state + ' - ' + d.pin)
+      + row('Submitted On',       d.submittedAt)
+    ))
 
-    ${(()=>{
-      const imgs = window._uploadedImages || {};
-      if(!imgs.custPhoto) return '';
-      return '<div class="section"><div class="section-title">&#128248; Customer Photo</div><div class="cust-photo-wrap"><img src="'+imgs.custPhoto+'" alt="Customer Photo"></div></div>';
-    })()}
+    + S('&#128188; Employment Details', T(
+        row('Employer',       d.employer)
+      + row('Work Type',      d.workType)
+      + row('Experience',     d.empLen)
+      + row('Monthly Income', '\u20b9' + parseInt(d.income||0).toLocaleString('en-IN'))
+    ))
 
-    ${(()=>{
-      const custName = (d.firstName+' '+d.lastName).trim() || d.aadharName || '—';
-      const fullAddr = d.address+', '+d.city+', '+d.state+' - '+d.pin;
-      const imeiLine = d.imei1 + (d.imei2 ? ' / '+d.imei2 : '');
-      const fmtM = v => { const n = parseInt(v||0); return isNaN(n) ? '—' : n.toLocaleString('en-IN'); };
-      const lines = [
-        'RETAILBOOST FULL HIRE-PURCHASE & LOAN AGREEMENT',
-        'Made at Bengaluru on '+d.submittedAt,
-        '',
-        'COMPANY: RETAILBOOST | GST: 29HWUPP1092Q1Z5',
-        'Address: Ananya Complex, Seetharam Palya Main Road, Basavannagar, Bengaluru - 560048',
-        '',
-        'CUSTOMER: '+custName+' | Mobile: '+d.phone,
-        'Address: '+fullAddr,
-        '',
-        '1. LOAN & PRODUCT DETAILS',
-        '   Product: '+d.product+'  |  IMEI: '+imeiLine,
-        '   Product Price: Rs.'+fmtM(d.productAmt)+'  |  Down Payment: Rs.'+fmtM(d.downPayment),
-        '   Loan Amount: Rs.'+fmtM(d.loanAmt)+'  |  Interest: Rs.'+fmtM(d.interestAmt),
-        '   EMI: Rs.'+emi.toLocaleString('en-IN')+' x '+months+' months = Rs.'+(emi*months).toLocaleString('en-IN'),
-        '',
-        '2.  OWNERSHIP       - Product remains Company property until full repayment.',
-        '3.  PAYMENT TERMS   - EMI due on time; late payments attract penalties.',
-        '4.  CHARGES & FEES  - Processing, late, bounce, foreclosure, legal fees + GST apply.',
-        '5.  DISBURSEMENT    - Loan disbursed to dealer/customer at Company discretion.',
-        '6.  KYC             - Valid PAN, Aadhaar required; Company may verify anytime.',
-        '7.  CREDIT CHECK    - Company may check/report credit history (CIBIL).',
-        '8.  DEVICE CONTROL  - Company may install software; lock/block features apply.',
-        '9.  GPS & DATA      - Customer consents to location tracking and alerts.',
-        '10. USAGE           - Device shall not be sold, transferred, or misused.',
-        '11. DAMAGE / LOSS   - Customer liable for damage or full replacement value.',
-        '12. DEFAULT         - Unpaid EMI, false info, or fraud constitutes default.',
-        '13. CONSEQUENCES    - Company may block device, repossess, or pursue legal action.',
-        '14. RECOVERY        - Agents may recover dues and visit customer premises.',
-        '15. PREPAYMENT      - Early closure allowed with applicable charges.',
-        '16. DATA SHARING    - Data shared with banks, credit bureaus, and authorities.',
-        '17. INSPECTION      - Company may audit customer details at any time.',
-        '18. INSURANCE       - Optional add-ons may be included and charged separately.',
-        '19. TERMINATION     - Agreement ends on full repayment or material breach.',
-        '20. INDEMNITY       - Customer liable for Company losses from misuse.',
-        '21. LIABILITY       - Company not liable for indirect or consequential damages.',
-        '22. ARBITRATION     - Disputes resolved by arbitration under Indian Arbitration Act.',
-        '23. JURISDICTION    - Bengaluru courts have exclusive jurisdiction.',
-        '24. MISCELLANEOUS   - All terms binding; amendments with written notice.',
-        '25. DECLARATION     - Customer confirms all details are true and agrees to all terms.'
-      ];
-      const safeText = lines.join('\n').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      const statusBadge = d.agreementAccepted
-        ? '<span class="agree-accepted">&#10003; Customer Accepted Agreement</span>'
-        : '<span style="color:#e74c3c;font-size:9px;font-weight:700;">&#x26A0; Agreement Not Accepted</span>';
-      const sigHTML = d.signatureImage
-        ? '<div class="sig-box"><div class="sig-label">&#9998; Customer Signature</div><img class="sig-img" src="'+d.signatureImage+'" alt="Customer Signature"></div>'
-        : '<div class="sig-box"><div class="sig-label">&#9998; Customer Signature</div><div class="sig-empty">Signature not captured</div></div>';
-      return '<div class="section"><div class="section-title">&#128196; Loan Agreement</div>'+statusBadge+'<div class="agree-box">'+safeText+'</div>'+sigHTML+'</div>';
-    })()}
+    + '<div style="margin-bottom:10px;">'
+    + H('&#129309; References')
+    + '<table style="width:100%;border-collapse:separate;border-spacing:10px 0;">'
+    + '<tr>'
+    + '<td style="width:50%;background:#f8faff;border:1px solid #dde6f7;border-radius:8px;padding:10px;vertical-align:top;">'
+    + '<div style="font-weight:700;color:#0b3d91;font-size:12px;margin-bottom:4px;">' + d.ref1Name + '</div>'
+    + '<div style="font-size:11px;color:#64748b;padding:1px 0;">&#128204; ' + d.ref1Rel + '</div>'
+    + '<div style="font-size:11px;color:#64748b;padding:1px 0;">&#128222; ' + d.ref1Phone + '</div>'
+    + '</td>'
+    + '<td style="width:50%;background:#f8faff;border:1px solid #dde6f7;border-radius:8px;padding:10px;vertical-align:top;">'
+    + '<div style="font-weight:700;color:#0b3d91;font-size:12px;margin-bottom:4px;">' + d.ref2Name + '</div>'
+    + '<div style="font-size:11px;color:#64748b;padding:1px 0;">&#128204; ' + d.ref2Rel + '</div>'
+    + '<div style="font-size:11px;color:#64748b;padding:1px 0;">&#128222; ' + d.ref2Phone + '</div>'
+    + '</td>'
+    + '</tr></table></div>'
 
-  </div>
+    + S('&#128241; Product &amp; Loan Details',
+        T(  row('Product / Device',  d.product)
+          + row('Product Price',     '\u20b9' + fmtN(d.productAmt))
+          + row('Down Payment',      '\u20b9' + fmtN(d.downPayment))
+          + row('Loan Basis',        '\u20b9' + (parseInt(d.productAmt||0) - parseInt(d.downPayment||0)).toLocaleString('en-IN'))
+          + row('Interest',          '\u20b9' + fmtN(d.interestAmt))
+          + row('Total Loan Amount', '\u20b9' + fmtN(d.loanAmt), true)
+          + row('Credit Score',      d.creditScore)
+        )
+        + '<table style="width:100%;background:#0b3d91;border-radius:10px;margin-top:8px;">'
+        + '<tr><td style="padding:12px;text-align:center;color:white;">'
+        + '<div style="font-size:10px;opacity:.8;text-transform:uppercase;letter-spacing:.5px;">Monthly EMI</div>'
+        + '<div style="font-size:22px;font-weight:700;margin:4px 0;">\u20b9' + emi.toLocaleString('en-IN') + '</div>'
+        + '<div style="font-size:10px;opacity:.75;">' + months + ' months &times; \u20b9' + emi.toLocaleString('en-IN') + ' = \u20b9' + (emi * months).toLocaleString('en-IN') + '</div>'
+        + '</td></tr></table>'
+      )
 
-  <div class="footer">
-    <p>✅ This application has been approved by <strong>RetailBoost</strong></p>
-    <p>Generated: ${new Date().toLocaleString('en-IN')} &nbsp;|&nbsp; RetailBoost © 2026</p>
-    <p style="margin-top:6px;font-size:10px;color:#aaa;">This is a computer-generated document.</p>
-  </div>
-  </body></html>`;
+    + S('&#127968; Bank Account Details', T(
+        row('Bank Name',      d.bankName || 'N/A')
+      + row('Account Number', d.accountNumber || 'N/A')
+      + row('IFSC Code',      d.ifscCode || 'N/A')
+    ))
+
+    + S('&#127978; Store &amp; IMEI Details', T(
+        row('Store Name',      d.storeName)
+      + row('Store Phone',     d.storePhone)
+      + row('Sales Executive', d.salesExec)
+      + row('IMEI 1',          d.imei1 || 'N/A')
+      + row('IMEI 2',          d.imei2 || 'N/A')
+    ))
+
+    + '</div>';
+
+  /* ── PAGE 3: All uploaded documents ── */
+  const hasDoc = imgs.aadharFront || imgs.aadharBack || imgs.panCard || imgs.custPhoto;
+  const docsPage =
+    '<div style="page-break-before:always;padding:12px 16px;">'
+    + H('&#128206; Customer Documents')
+
+    + (imgs.aadharFront || imgs.aadharBack || imgs.panCard
+      ? '<div style="margin-top:8px;margin-bottom:16px;">'
+        + '<div style="font-size:10px;font-weight:700;color:#555;margin-bottom:8px;padding-left:4px;">Identity Documents</div>'
+        + '<table style="width:100%;border-collapse:collapse;">'
+        + '<tr>'
+        + imgCell(imgs.aadharFront, 'Aadhaar Front')
+        + imgCell(imgs.aadharBack,  'Aadhaar Back')
+        + imgCell(imgs.panCard,     'PAN Card')
+        + '</tr></table></div>'
+      : '')
+
+    + (imgs.custPhoto
+      ? '<div style="margin-top:14px;">'
+        + H('&#128248; Customer Photo')
+        + '<div style="text-align:center;padding:14px 0;">'
+        + '<img src="' + imgs.custPhoto + '" style="height:200px;width:auto;max-width:220px;object-fit:contain;border-radius:10px;border:1px solid #dde6f7;background:#fff;" alt="Customer Photo">'
+        + '</div></div>'
+      : '')
+
+    + (!hasDoc
+      ? '<div style="text-align:center;padding:80px 0;color:#aaa;font-style:italic;font-size:12px;">No documents uploaded</div>'
+      : '')
+
+    + '</div>';
+
+  /* ── PAGE 4: Loan Agreement + Signature ── */
+  const custName = (d.firstName + ' ' + d.lastName).trim() || d.aadharName || '—';
+  const fullAddr  = d.address + ', ' + d.city + ', ' + d.state + ' - ' + d.pin;
+  const imeiLine  = d.imei1 + (d.imei2 ? ' / ' + d.imei2 : '');
+  const agreeLines = [
+    'RETAILBOOST FULL HIRE-PURCHASE & LOAN AGREEMENT',
+    'Made at Bengaluru on ' + d.submittedAt,
+    '',
+    'COMPANY: RETAILBOOST | GST: 29HWUPP1092Q1Z5',
+    'Address: Ananya Complex, Seetharam Palya Main Road, Basavannagar, Bengaluru - 560048',
+    '',
+    'CUSTOMER: ' + custName + ' | Mobile: ' + d.phone,
+    'Address: ' + fullAddr,
+    '',
+    '1. LOAN & PRODUCT DETAILS',
+    '   Product: ' + d.product + '  |  IMEI: ' + imeiLine,
+    '   Price: Rs.' + fmtN(d.productAmt) + '  |  Down Payment: Rs.' + fmtN(d.downPayment),
+    '   Loan: Rs.' + fmtN(d.loanAmt) + '  |  Interest: Rs.' + fmtN(d.interestAmt),
+    '   EMI: Rs.' + emi.toLocaleString('en-IN') + ' x ' + months + ' months = Rs.' + (emi * months).toLocaleString('en-IN'),
+    '',
+    '2.  OWNERSHIP       - Product remains Company property until full repayment.',
+    '3.  PAYMENT TERMS   - EMI due on time; late payments attract penalties.',
+    '4.  CHARGES & FEES  - Processing, late, bounce, foreclosure, legal fees + GST apply.',
+    '5.  DISBURSEMENT    - Loan disbursed to dealer/customer at Company discretion.',
+    '6.  KYC             - Valid PAN, Aadhaar required; Company may verify anytime.',
+    '7.  CREDIT CHECK    - Company may check/report credit history (CIBIL).',
+    '8.  DEVICE CONTROL  - Company may install software; lock/block features apply.',
+    '9.  GPS & DATA      - Customer consents to location tracking and alerts.',
+    '10. USAGE           - Device shall not be sold, transferred, or misused.',
+    '11. DAMAGE / LOSS   - Customer liable for damage or full replacement value.',
+    '12. DEFAULT         - Unpaid EMI, false info, or fraud constitutes default.',
+    '13. CONSEQUENCES    - Company may block device, repossess, or pursue legal action.',
+    '14. RECOVERY        - Agents may recover dues and visit customer premises.',
+    '15. PREPAYMENT      - Early closure allowed with applicable charges.',
+    '16. DATA SHARING    - Data shared with banks, credit bureaus, and authorities.',
+    '17. INSPECTION      - Company may audit customer details at any time.',
+    '18. INSURANCE       - Optional add-ons may be included and charged separately.',
+    '19. TERMINATION     - Agreement ends on full repayment or material breach.',
+    '20. INDEMNITY       - Customer liable for Company losses from misuse.',
+    '21. LIABILITY       - Company not liable for indirect or consequential damages.',
+    '22. ARBITRATION     - Disputes by arbitration under Indian Arbitration Act.',
+    '23. JURISDICTION    - Bengaluru courts have exclusive jurisdiction.',
+    '24. MISCELLANEOUS   - All terms binding; amendments with written notice.',
+    '25. DECLARATION     - Customer confirms all details are true and agrees to all terms.'
+  ];
+  const safeAgree = agreeLines.join('\n').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const statusBadge = d.agreementAccepted
+    ? '<span style="display:inline-block;background:#f0fdf4;border:1px solid #86efac;color:#166534;padding:2px 10px;border-radius:12px;font-size:9px;font-weight:700;">&#10003; Customer Accepted Agreement</span>'
+    : '<span style="display:inline-block;color:#e74c3c;font-size:9px;font-weight:700;">&#x26A0; Agreement Not Accepted</span>';
+
+  const agreePage =
+    '<div style="page-break-before:always;padding:12px 16px;">'
+    + H('&#128196; Loan Agreement')
+    + '<div style="margin:4px 0 8px;">' + statusBadge + '</div>'
+    + '<div style="background:#f8f9ff;border:1px solid #c7d2fe;border-radius:6px;padding:10px 12px;font-size:8.5px;line-height:1.6;white-space:pre-wrap;color:#374151;font-family:Courier New,monospace;word-break:break-word;">' + safeAgree + '</div>'
+    + '<div style="margin-top:14px;padding:12px 14px;background:#f8f9ff;border:2px solid #c7d2fe;border-radius:10px;">'
+    + '<div style="font-size:11px;font-weight:700;color:#0b3d91;margin-bottom:8px;">&#9998; Customer Signature</div>'
+    + sigBox
+    + '</div>'
+    + '</div>';
+
+  /* ── FOOTER ── */
+  const footer =
+    '<div style="background:#f0f5ff;padding:8px 16px;text-align:center;margin-top:4px;">'
+    + '<div style="font-size:9px;color:#64748b;">&#10003; Approved by <strong>RetailBoost</strong> &nbsp;|&nbsp; ' + new Date().toLocaleString('en-IN') + ' &nbsp;|&nbsp; RetailBoost &copy; 2026</div>'
+    + '<div style="font-size:8px;color:#aaa;margin-top:3px;">Computer-generated document</div>'
+    + '</div>';
+
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#fff;color:#1a1a2e;font-size:11px;}table{border-collapse:collapse;}td{vertical-align:top;}</style></head><body>'
+    + header + detailsPage + docsPage + agreePage + footer
+    + '</body></html>';
 }
 
 function generateAndDownloadPDF(){
@@ -2940,7 +2943,7 @@ function generateAndDownloadPDF(){
     margin: 0,
     filename: `RetailBoost_Loan_${d.loanNumber}.pdf`,
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, scrollY: 0, windowWidth: 794 },
+    html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
     jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
   };
   showToast('📄 Generating PDF...');
@@ -2967,7 +2970,7 @@ function shareViaWhatsApp(){
     margin: 0,
     filename: `RetailBoost_Loan_${d.loanNumber}.pdf`,
     image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, scrollY: 0, windowWidth: 794 },
+    html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
     jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
   };
 
