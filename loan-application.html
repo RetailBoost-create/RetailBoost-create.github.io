@@ -495,6 +495,7 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
 .bank-search-wrap::before{content:'🔍';position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:.8rem;pointer-events:none;z-index:1;}
 .bank-select{border-radius:0 0 11px 11px !important;border-top:none !important;background:white;}
 .bank-select option{padding:8px;}
+.bank-select.bank-collapsed{border-radius:11px !important;border-top:1.5px solid var(--border) !important;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -989,12 +990,14 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
         <div class="field-group single">
           <div class="field">
             <label>Bank Name <span class="req">*</span></label>
-            <div class="bank-search-wrap">
+            <div class="bank-search-wrap" id="bankSearchWrap">
               <input type="text" class="bank-search-input" id="bankSearch"
                      placeholder="Type to search bank..." autocomplete="off"
+                     onfocus="expandBankSelect()"
                      oninput="filterBankOptions(this.value)">
             </div>
             <select id="bankName" class="bank-select" size="5" onchange="handleBankSelection()"
+                    onfocus="expandBankSelect()"
                     style="width:100%;padding:10px 14px;border:1.5px solid var(--border);font-size:.86rem;font-family:Poppins,sans-serif;color:var(--text);outline:none;cursor:pointer;overflow-y:auto;">
               <option value="">— Select a bank —</option>
               <option>State Bank of India (SBI)</option>
@@ -1139,7 +1142,7 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
           <p style="font-size:.78rem;color:var(--muted);line-height:1.8;">
             ✅ Application reviewed by RetailBoost team<br>
             ✅ Confirmation via WhatsApp / phone call<br>
-            ✅ Decision within 24–48 hours
+            ✅ Decision within 1-2 Minutes
           </p>
         </div>
 
@@ -1186,6 +1189,38 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
             ℹ️ This information is kept strictly confidential
           </p>
         </div>
+
+        <!-- LOAN AGREEMENT SECTION -->
+        <div style="margin-top:24px;" id="agreementSection">
+          <div style="background:#f8f9ff;border:1.5px solid #c7d2fe;border-radius:12px;padding:16px;">
+            <h3 style="font-size:.9rem;font-weight:700;color:#3730a3;margin:0 0 12px;">📄 Loan Agreement</h3>
+            <p style="font-size:.75rem;color:#6b7280;margin:0 0 10px;">Please read the agreement carefully before signing.</p>
+            <div id="agreementContent" style="max-height:300px;overflow-y:auto;background:#fff;border:1px solid #e5e7eb;border-radius:8px;padding:16px;font-size:.74rem;line-height:1.85;color:#374151;white-space:pre-wrap;font-family:monospace;"></div>
+          </div>
+
+          <!-- Acceptance Checkbox -->
+          <div style="margin-top:16px;display:flex;align-items:flex-start;gap:12px;padding:14px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;" id="agreement-checkbox-box">
+            <input type="checkbox" id="agreementAccept" style="width:18px;height:18px;cursor:pointer;margin-top:2px;flex-shrink:0;" onchange="onAgreementCheck()">
+            <label for="agreementAccept" style="font-size:.82rem;color:#166534;cursor:pointer;font-weight:600;line-height:1.5;">I have read and accept the Loan Agreement above. I confirm that all details are true and accurate.</label>
+          </div>
+          <span class="err-msg" id="err-agreementAccept">Please read and accept the loan agreement to continue</span>
+
+          <!-- Signature Pad (shown only after checkbox is checked) -->
+          <div id="signaturePadSection" style="display:none;margin-top:16px;">
+            <div style="background:#f8f9ff;border:1.5px solid #c7d2fe;border-radius:12px;padding:16px;">
+              <h3 style="font-size:.88rem;font-weight:700;color:#3730a3;margin:0 0 4px;">✍️ Customer Signature</h3>
+              <p style="font-size:.75rem;color:#6b7280;margin:0 0 12px;">Draw your signature below using mouse or touch.</p>
+              <canvas id="signatureCanvas" width="600" height="160"
+                style="width:100%;height:160px;border:2px solid #c7d2fe;border-radius:8px;background:#fff;cursor:crosshair;touch-action:none;display:block;"></canvas>
+              <span class="err-msg" id="err-signaturePad" style="margin-top:6px;display:block;">Please provide your signature to continue</span>
+              <div style="margin-top:10px;display:flex;gap:10px;justify-content:flex-end;">
+                <button type="button" onclick="clearSignature()" style="padding:8px 18px;font-size:.8rem;border:1.5px solid #e5e7eb;border-radius:8px;background:#fff;cursor:pointer;color:#374151;">🗑️ Clear</button>
+                <button type="button" onclick="resignSignature()" style="padding:8px 18px;font-size:.8rem;border:1.5px solid #6366f1;border-radius:8px;background:#6366f1;color:#fff;cursor:pointer;">✍️ Re-sign</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
       <div class="form-nav">
         <button class="btn-back" onclick="goPrev(6)">← Back</button>
@@ -1547,7 +1582,7 @@ const rules={
      {id:'loanAmt',type:'text'},{id:'emiDur',type:'radio',name:'emiDur'},
      {id:'accountNumber',type:'accountNum'},{id:'ifscCode',type:'ifsc'},{id:'bankName',type:'bankSelect'}],
   5:[{id:'storeName',type:'text'},{id:'storePhone',type:'phone'},{id:'salesExec',type:'name'},{id:'certify',type:'checkbox'}],
-  6:[{id:'imei1',type:'imei'},{id:'imei2',type:'imei-optional'}]
+  6:[{id:'imei1',type:'imei'},{id:'imei2',type:'imei-optional'},{id:'agreementAccept',type:'agreement-checkbox'},{id:'signaturePad',type:'signature'}]
 };
 
 
@@ -1637,6 +1672,16 @@ function validatePage(page){
         if(otherErr) otherErr.classList.toggle('show', !otherOk);
         if(!otherOk) valid = false;
       }
+    }
+    else if(r.type==='agreement-checkbox'){
+      ok = el && el.checked;
+      const box = document.getElementById('agreement-checkbox-box');
+      if(box) box.classList.toggle('error', !ok);
+    }
+    else if(r.type==='signature'){
+      ok = !!signatureDataURL;
+      const canvas = document.getElementById('signatureCanvas');
+      if(canvas) canvas.style.borderColor = ok ? '#c7d2fe' : '#ef4444';
     }
     if(errEl&&r.id!=='phone') errEl.classList.toggle('show',!ok);
     if(!ok) valid=false;
@@ -1771,6 +1816,7 @@ function populateP5Summary(){
    🏦 BANK NAME SEARCHABLE SELECT
    ══════════════════════════════════════════════════ */
 function filterBankOptions(query){
+  expandBankSelect(); // ensure list is visible while searching
   const sel = document.getElementById('bankName');
   if(!sel) return;
   const q = query.trim().toLowerCase();
@@ -1781,6 +1827,15 @@ function filterBankOptions(query){
   // Reset selection when typing
   if(q) sel.value = '';
   handleBankSelection();
+}
+
+function expandBankSelect(){
+  const sel = document.getElementById('bankName');
+  const wrap = document.getElementById('bankSearchWrap');
+  if(!sel) return;
+  sel.size = 5;
+  sel.classList.remove('bank-collapsed');
+  if(wrap) wrap.style.display = '';
 }
 
 function handleBankSelection(){
@@ -1798,6 +1853,16 @@ function handleBankSelection(){
     sel.classList.remove('error');
     const errEl = document.getElementById('err-bankName');
     if(errEl) errEl.classList.remove('show');
+    // Collapse the listbox after selection
+    sel.size = 1;
+    sel.classList.add('bank-collapsed');
+    const wrap = document.getElementById('bankSearchWrap');
+    if(wrap) wrap.style.display = 'none';
+    // Move focus to the next logical field
+    const nextEl = isOther
+      ? document.getElementById('otherBankName')
+      : document.querySelector('#page4 .btn-next');
+    if(nextEl) nextEl.focus();
   }
 }
 
@@ -2008,11 +2073,13 @@ function showPage(n){
       window.scrollTo({top:document.querySelector('.stepper-wrap').offsetTop - 80, behavior:'smooth'});
       updateStepper(n);
       if(n === 5) setTimeout(populateP5Summary, 260); // populate after page-enter animation
+      if(n === 6) setTimeout(populateAgreement, 260);
     }, 200);
   } else {
     document.getElementById('page'+n).classList.add('active');
     updateStepper(n);
     if(n === 5) setTimeout(populateP5Summary, 260);
+    if(n === 6) setTimeout(populateAgreement, 260);
   }
 }
 function goNext(from){
@@ -2094,6 +2161,8 @@ function collectFormData(loanNum,amt){
     accountNumber:g('accountNumber'), ifscCode:g('ifscCode'),
     bankName:(()=>{ const sel=document.getElementById('bankName'); const v=sel?sel.value:''; return v==='Other'?g('otherBankName'):v; })(),
     imei1:g('imei1'), imei2:g('imei2'),
+    agreementAccepted:!!(document.getElementById('agreementAccept')&&document.getElementById('agreementAccept').checked),
+    signatureImage:signatureDataURL||'',
   };
 }
 
@@ -2174,6 +2243,205 @@ function buildWhatsAppMessage(d){
 function confirmOnWhatsApp(){
   if(currentFormData)
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${buildWhatsAppMessage(currentFormData)}`, '_blank');
+}
+
+/* ── AGREEMENT & SIGNATURE PAD ── */
+let signatureDataURL = null;
+let _sigDrawing = false;
+
+function populateAgreement(){
+  const g = id => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
+  const fmtMoney = v => { const n = parseFloat(v); return isNaN(n) ? '—' : n.toLocaleString('en-IN'); };
+
+  const today = new Date();
+  const agreementDate = today.toLocaleDateString('en-IN', {day:'2-digit', month:'long', year:'numeric'});
+  const firstName = g('firstName');
+  const lastName = g('lastName');
+  const customerName = (firstName + ' ' + lastName).trim() || g('aadharName') || '—';
+  const addr2 = g('addr2');
+  const addr = g('addr1') + (addr2 ? ' ' + addr2 : '') + ', ' + g('city') + ', ' + g('state') + ' - ' + g('pin');
+  const emiDurEl = document.querySelector('input[name="emiDur"]:checked');
+  const tenureMonths = emiDurEl ? (emiDurEl.dataset.months || '—') : '—';
+  const loanAmtVal = parseFloat(g('loanAmt')) || 0;
+  const emiAmt = (emiDurEl && loanAmtVal && parseInt(tenureMonths) > 0)
+    ? Math.round(loanAmtVal / parseInt(tenureMonths)).toLocaleString('en-IN')
+    : '—';
+  const imei2 = g('imei2');
+
+  const text =
+`RETAILBOOST FULL HIRE-PURCHASE & LOAN AGREEMENT
+
+THIS AGREEMENT is made at Bengaluru on ${agreementDate}.
+
+BETWEEN
+
+RETAILBOOST
+GST No: 29HWUPP1092Q1Z5
+Address: Ananya Complex, Seetharam Palya Main Road, Basavannagar, Bengaluru – 560048
+(hereinafter referred to as the "Company")
+
+AND
+
+Customer Name: ${customerName}
+Mobile: ${g('phone') || '—'}
+Address: ${addr}
+(hereinafter referred to as the "Customer")
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. LOAN & PRODUCT DETAILS
+
+Product: ${g('product') || '—'}
+IMEI: ${g('imei1') || '—'}${imei2 ? ' / ' + imei2 : ''}
+Product Price: ₹${fmtMoney(g('productAmt'))}
+Down Payment: ₹${fmtMoney(g('downPayment'))}
+Loan Amount: ₹${fmtMoney(g('loanAmt'))}
+Interest Rate: ₹${fmtMoney(g('interestAmt'))} (fixed)
+Total Payable Amount: ₹${fmtMoney(g('loanAmt'))}
+EMI: ₹${emiAmt} per month
+Tenure: ${tenureMonths} months
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+2. OWNERSHIP
+   The product remains the exclusive property of the Company until full payment is completed.
+
+3. PAYMENT TERMS
+   Customer must pay EMI on or before due date without reminder. Delay attracts penalties.
+
+4. CHARGES & FEES
+   Customer agrees to pay: Processing Fee, Late Payment Charges, Bounce Charges, Foreclosure Charges, Legal & Recovery Charges, GST and other taxes.
+
+5. DISBURSEMENT
+   Loan may be disbursed to dealer or customer as decided by Company.
+
+6. KYC & VERIFICATION
+   Customer shall provide valid PAN, Aadhaar, and other documents. Company may verify anytime.
+
+7. CREDIT CHECK (CIBIL)
+   Customer agrees Company may check and report credit history to authorized agencies.
+
+8. DEVICE CONTROL
+   Company may install software and control device usage including lock/block features.
+
+9. GPS & DATA CONSENT
+   Customer agrees to location tracking, SIM data usage, and communication alerts.
+
+10. USAGE RESTRICTIONS
+    Customer shall not sell, transfer, or misuse the device.
+
+11. DAMAGE / LOSS
+    Customer responsible for damage or full loss value.
+
+12. DEFAULT EVENTS
+    Default occurs if EMI not paid, false information, or fraud/misuse.
+
+13. CONSEQUENCES OF DEFAULT
+    Company may block device, recover product, or take legal action.
+
+14. RECOVERY RIGHTS
+    Company may appoint agents to recover dues and visit customer location.
+
+15. PREPAYMENT
+    Customer may close loan early with applicable charges.
+
+16. DATA SHARING
+    Company may share customer data with banks, credit bureaus, and authorities.
+
+17. INSPECTION RIGHTS
+    Company may inspect customer details anytime.
+
+18. INSURANCE & ADD-ONS
+    Optional services may be included and charged separately.
+
+19. TERMINATION
+    Agreement ends after full payment or breach.
+
+20. INDEMNITY
+    Customer liable for losses due to misuse or violation.
+
+21. LIMITATION OF LIABILITY
+    Company not liable for indirect damages.
+
+22. ARBITRATION
+    Disputes resolved through arbitration under Indian law.
+
+23. JURISDICTION
+    Courts of Bengaluru shall have jurisdiction.
+
+24. MISCELLANEOUS
+    All terms binding. Changes may be made with notice.
+
+25. DECLARATION
+    Customer confirms all details are true and agrees to terms.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+SIGNATURE SECTION
+
+Customer Signature: [See handwritten signature below]
+Date: ${agreementDate}`;
+
+  const el = document.getElementById('agreementContent');
+  if(el) el.textContent = text;
+  _initSignaturePad();
+}
+
+function _initSignaturePad(){
+  const canvas = document.getElementById('signatureCanvas');
+  if(!canvas || canvas._sigInit) return;
+  canvas._sigInit = true;
+  const ctx = canvas.getContext('2d');
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 2.5;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  function getPos(e){
+    const r = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / r.width;
+    const scaleY = canvas.height / r.height;
+    if(e.touches){ return {x:(e.touches[0].clientX-r.left)*scaleX, y:(e.touches[0].clientY-r.top)*scaleY}; }
+    return {x:(e.clientX-r.left)*scaleX, y:(e.clientY-r.top)*scaleY};
+  }
+  function start(e){ e.preventDefault(); _sigDrawing=true; const p=getPos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); }
+  function move(e){ e.preventDefault(); if(!_sigDrawing) return; const p=getPos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); }
+  function end(e){ e.preventDefault(); if(!_sigDrawing) return; _sigDrawing=false; signatureDataURL=canvas.toDataURL('image/png'); const errEl=document.getElementById('err-signaturePad'); if(errEl)errEl.classList.remove('show'); canvas.style.borderColor='#6366f1'; }
+
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', move);
+  canvas.addEventListener('mouseup', end);
+  canvas.addEventListener('mouseleave', end);
+  canvas.addEventListener('touchstart', start, {passive:false});
+  canvas.addEventListener('touchmove', move, {passive:false});
+  canvas.addEventListener('touchend', end, {passive:false});
+}
+
+function onAgreementCheck(){
+  const cb = document.getElementById('agreementAccept');
+  const sec = document.getElementById('signaturePadSection');
+  if(cb && sec) sec.style.display = cb.checked ? 'block' : 'none';
+  if(cb && cb.checked){
+    const box = document.getElementById('agreement-checkbox-box');
+    if(box) box.classList.remove('error');
+    const err = document.getElementById('err-agreementAccept');
+    if(err) err.classList.remove('show');
+  }
+}
+
+function clearSignature(){
+  const canvas = document.getElementById('signatureCanvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  signatureDataURL = null;
+  canvas.style.borderColor = '#c7d2fe';
+}
+
+function resignSignature(){
+  clearSignature();
+  const canvas = document.getElementById('signatureCanvas');
+  if(canvas) canvas.style.borderColor = '#6366f1';
 }
 
 /* ── SUBMIT & APPROVAL ── */
