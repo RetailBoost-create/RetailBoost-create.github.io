@@ -238,6 +238,8 @@ nav a:hover{color:white;background:rgba(255,255,255,.1);}
 .otp-input-row{display:flex;gap:10px;align-items:center;margin-top:6px;}
 .otp-input-row input{flex:1;text-align:center;letter-spacing:4px;font-size:1.1rem;font-weight:700;}
 .btn-verify-otp{background:linear-gradient(135deg,var(--green),var(--green-dark));color:white;border:none;border-radius:10px;padding:11px 16px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:Poppins,sans-serif;}
+.btn-cancel-otp{background:#f0f0f0;color:#555;border:1.5px solid #ccc;border-radius:10px;padding:11px 14px;font-size:.8rem;font-weight:600;cursor:pointer;font-family:Poppins,sans-serif;transition:var(--t);}
+.btn-cancel-otp:hover{background:#e0e0e0;color:#333;}
 .otp-verified{display:none;align-items:center;gap:6px;color:var(--green-dark);font-size:.82rem;font-weight:600;margin-top:8px;}
 .otp-verified.show{display:flex;}
 .otp-timer{font-size:.75rem;color:var(--muted);margin-top:4px;}
@@ -620,6 +622,7 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
                 <input type="text" id="otpInput" placeholder="Enter 6-digit OTP" maxlength="6"
                        oninput="this.value=this.value.replace(/\D/g,'').slice(0,6)">
                 <button class="btn-verify-otp" onclick="verifyOTP()">Verify</button>
+                <button class="btn-cancel-otp" onclick="cancelOTP()">Cancel</button>
               </div>
               <div class="otp-timer" id="otpTimer">Resend in <span id="otpCountdown">60</span>s</div>
               <span class="resend-link" id="resendLink" onclick="resendOTP()">Resend OTP</span>
@@ -1287,9 +1290,9 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
     </div>
     <div class="elig-card-body">
       <div class="elig-amt-label">YOUR MAXIMUM LOAN ELIGIBILITY</div>
-      <div class="elig-amt"><span class="sym">₹</span>18,000</div>
+      <div class="elig-amt"><span class="sym">₹</span><span id="eligAmtDisplay">18,000</span></div>
       <div class="elig-note">
-        ✅ Based on your CIBIL score and loan details, you are eligible for a loan of up to <strong>₹18,000</strong>.<br><br>
+        ✅ Based on your CIBIL score and loan details, you are eligible for a loan of up to <strong id="eligAmtStrong">₹18,000</strong>.<br><br>
         📌 Click <strong>"Proceed to Bank Details"</strong> to continue your application.
       </div>
       <button class="btn-elig-confirm" onclick="confirmEligibility()">
@@ -1596,6 +1599,40 @@ function resendOTP(){
   sendOTP();
 }
 
+function cancelOTP(){
+  // Stop the countdown timer
+  clearInterval(otpTimerHandle);
+
+  // Hide OTP wrap and reset its fields
+  const otpWrap = document.getElementById('otpWrap');
+  if(otpWrap) otpWrap.classList.remove('show');
+  const otpInput = document.getElementById('otpInput');
+  if(otpInput) otpInput.value = '';
+  const otpTimer = document.getElementById('otpTimer');
+  if(otpTimer) otpTimer.style.display = 'none';
+  const resendLink = document.getElementById('resendLink');
+  if(resendLink) resendLink.classList.remove('show');
+
+  // Re-enable Send OTP button so user can retry immediately
+  const btn = document.getElementById('btnSendOtp');
+  if(btn){ btn.disabled = false; btn.textContent = 'Send OTP'; }
+
+  // Re-enable phone field
+  const phoneEl = document.getElementById('phone');
+  if(phoneEl) phoneEl.disabled = false;
+
+  // Clear the pending confirmation so a fresh OTP flow can start
+  confirmationResult = null;
+
+  // Destroy recaptcha verifier so a new one can be created on next Send OTP
+  if(window.recaptchaVerifier){
+    try { window.recaptchaVerifier.clear(); } catch(e) {}
+    window.recaptchaVerifier = null;
+  }
+  const container = document.getElementById('recaptcha-container');
+  if(container) container.innerHTML = '';
+}
+
 async function verifyOTP(){
   const code = document.getElementById('otpInput').value.trim();
   if(!confirmationResult){ showToast('Please send OTP first'); return; }
@@ -1816,6 +1853,13 @@ function checkEligibility(){
     if(_isLowCibil){
       document.getElementById('eligRejectModal').style.display = 'flex';
     } else {
+      const _dynAmt = Math.floor(Math.random() * 3001) + 15000;
+      const _dynAmtFmt = _dynAmt.toLocaleString('en-IN');
+      const eligAmtEl = document.getElementById('eligAmtDisplay');
+      if (eligAmtEl) eligAmtEl.textContent = _dynAmtFmt;
+      const eligAmtStrongEl = document.getElementById('eligAmtStrong');
+      if (eligAmtStrongEl) eligAmtStrongEl.textContent = '₹' + _dynAmtFmt;
+      window._approvedLoanAmount = _dynAmt;
       document.getElementById('eligModal').classList.add('show');
     }
   }, 5000);
@@ -1936,21 +1980,22 @@ let lockedInterest = null;
 let lastProductAmt = 0;
 let lastValidDP    = 0;
 
-const MAX_LOAN = 18000;
-// MIN_LOAN removed — no minimum loan is enforced.
-// Only MAX_LOAN (₹18,000) is capped.
+// MAX_LOAN is dynamic — set to the approved amount from eligibility check (₹15k–₹18k).
+// Falls back to ₹18,000 if eligibility hasn't run yet.
+function getMaxLoan(){ return window._approvedLoanAmount || 18000; }
 
 /* Returns the lowest down-payment the user is allowed to enter.
    Two rules apply (the higher of the two wins):
-   1. Loan basis (productAmt − dp) must NOT exceed MAX_LOAN
+   1. Loan basis (productAmt − dp) must NOT exceed approved loan amount
         ⟹  dp ≥ productAmt − MAX_LOAN
    2. Down payment must be at least 40% of product price
         ⟹  dp ≥ productAmt × 0.40
    Rule 2 ensures max loan basis = 60% of product price.
-   Rule 1 ensures max loan basis = ₹18,000 regardless. */
+   Rule 1 ensures max loan basis = approved amount regardless. */
 function _calcEffectiveMinDP(productAmt){
+  const MAX_LOAN    = getMaxLoan();
   const minFor40Pct = Math.ceil(productAmt * 0.40);       // 40% floor
-  const minForCap   = Math.max(0, Math.ceil(productAmt - MAX_LOAN)); // ₹18k cap
+  const minForCap   = Math.max(0, Math.ceil(productAmt - MAX_LOAN)); // approved cap
   return Math.max(minFor40Pct, minForCap);
 }
 
@@ -2023,7 +2068,7 @@ function validateDownPayment(){
           `Minimum 40% down payment required: ₹${min40Pct.toLocaleString('en-IN')} for ₹${Math.round(productAmt).toLocaleString('en-IN')} product`;
       } else {
         errEl.textContent =
-          `Down payment too low — loan basis cannot exceed ₹${MAX_LOAN.toLocaleString('en-IN')}. Min DP: ₹${effectiveMin.toLocaleString('en-IN')}`;
+          `Down payment too low — loan basis cannot exceed ₹${getMaxLoan().toLocaleString('en-IN')}. Min DP: ₹${effectiveMin.toLocaleString('en-IN')}`;
       }
       errEl.classList.add('show');
       return;
@@ -2645,6 +2690,7 @@ function continueToDeviceInfo(){
   // ── Reset current form data & uploaded images ──
   currentFormData = null;
   window._uploadedImages = {};
+  window._approvedLoanAmount = null;
 
   // ── Go to page 1 ──
   document.querySelectorAll('.form-page').forEach(p => p.classList.remove('active','slide-out'));
@@ -2727,7 +2773,7 @@ function buildPDFHTML(d, emi, months){
 
     ${(()=>{
       const imgs = window._uploadedImages || {};
-      const hasImages = imgs.panCard || imgs.custPhoto || imgs.aadharFront || imgs.aadharBack;
+      const hasImages = imgs.panCard || imgs.aadharFront || imgs.aadharBack;
       if(!hasImages) return '';
       const imgItem = (src, label) => src
         ? '<div class="doc-item"><div class="doc-label">'+label+'</div><img src="'+src+'" alt="'+label+'"></div>'
@@ -2736,7 +2782,6 @@ function buildPDFHTML(d, emi, months){
         + imgItem(imgs.aadharFront, 'Aadhaar Front')
         + imgItem(imgs.aadharBack,  'Aadhaar Back')
         + imgItem(imgs.panCard,     'PAN Card')
-        + imgItem(imgs.custPhoto,   'Customer Photo')
         + '</div></div>';
     })()}
 
@@ -2808,6 +2853,14 @@ function buildPDFHTML(d, emi, months){
     </div>
 
     ${(()=>{
+      const imgs = window._uploadedImages || {};
+      if(!imgs.custPhoto) return '';
+      return '<div class="section"><div class="section-title">&#128248; Customer Photo</div><div style="display:flex;justify-content:center;padding:10px 0;">'
+        + '<div class="doc-item" style="max-width:180px;"><div class="doc-label">Customer Photo</div><img src="'+imgs.custPhoto+'" alt="Customer Photo" style="width:100%;max-height:200px;object-fit:contain;border-radius:8px;background:#fff;"></div>'
+        + '</div></div>';
+    })()}
+
+    ${(()=>{
       const custName = (d.firstName+' '+d.lastName).trim() || d.aadharName || '—';
       const fullAddr = d.address+', '+d.city+', '+d.state+' - '+d.pin;
       const imeiLine = d.imei1 + (d.imei2 ? ' / '+d.imei2 : '');
@@ -2866,7 +2919,7 @@ function buildPDFHTML(d, emi, months){
         : '<span style="color:#e74c3c;font-size:9.5px;font-weight:700;">&#x26A0; Agreement Not Accepted</span>';
       const sigHTML = d.signatureImage
         ? '<div class="sig-box"><div class="sig-label">&#9998; Customer Signature</div><img class="sig-img" src="'+d.signatureImage+'" alt="Customer Signature"></div>'
-        : '';
+        : '<div class="sig-box"><div class="sig-label">&#9998; Customer Signature</div><div style="width:240px;height:80px;border:1.5px dashed #aaa;border-radius:6px;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:11px;font-style:italic;">Signature not captured</div></div>';
       return '<div class="section"><div class="section-title">&#128196; Loan Agreement</div>'+statusBadge+'<div class="agree-box">'+safeText+'</div>'+sigHTML+'</div>';
     })()}
 
