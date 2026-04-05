@@ -442,6 +442,15 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
   .form-nav{padding:12px 12px 16px;}
 }
 
+/* ══ PAGE 5 LOAN SUMMARY GRID ══ */
+.p5-summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;}
+.p5-sum-item{background:#F7FAFF;border:1.5px solid var(--border);border-radius:12px;padding:12px 14px;}
+.p5-sum-item.p5-sum-highlight{background:linear-gradient(135deg,#EDF2FD,#E6FFF8);border-color:rgba(16,196,140,.4);}
+.p5-sum-label{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+.p5-sum-value{font-size:.92rem;font-weight:700;color:var(--navy);}
+.p5-sum-highlight .p5-sum-value{color:#059669;font-size:1rem;}
+@media(max-width:600px){.p5-summary-grid{grid-template-columns:1fr;}}
+
 /* ══ ELIGIBILITY CHECK OVERLAY ══ */
 #eligOverlay{display:none;position:fixed;inset:0;background:linear-gradient(160deg,var(--navy-dark),var(--navy));z-index:99999;align-items:center;justify-content:center;flex-direction:column;color:white;text-align:center;padding:30px;}
 #eligOverlay.show{display:flex;}
@@ -860,11 +869,32 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
             <span class="err-msg" id="err-ref2Phone">Valid 10-digit number required</span>
           </div>
         </div>
+
+        <!-- CIBIL / Credit Score -->
+        <p class="section-divider">Credit Eligibility</p>
+        <div class="field-group">
+          <div class="field">
+            <label>CIBIL / Credit Score <span class="req">*</span></label>
+            <input type="number" id="creditScore" placeholder="e.g. 720 (range: 300–900)"
+                   min="300" max="900" inputmode="numeric">
+            <p class="hint" style="margin-top:4px;">📌 Score 650+ significantly improves your approval chances</p>
+            <span class="err-msg" id="err-creditScore">Credit score must be between 300 and 900</span>
+          </div>
+          <div class="field" style="background:#f0fff8;border-radius:10px;padding:14px;border:1.5px solid rgba(16,196,140,.3);display:flex;flex-direction:column;justify-content:center;">
+            <p style="font-size:.76rem;color:var(--muted);line-height:1.9;">
+              🟢 <strong>750–900</strong> — Excellent (fast approval)<br>
+              🟡 <strong>650–749</strong> — Good (standard process)<br>
+              🟠 <strong>550–649</strong> — Fair (manual review)<br>
+              🔴 <strong>300–549</strong> — Poor (may be rejected)
+            </p>
+          </div>
+        </div>
+
       </div>
       <div class="form-nav">
         <button class="btn-back" onclick="goPrev(3)">← Back</button>
         <span class="page-indicator">Step 3 of 6</span>
-        <button class="btn-next" onclick="goNext(3)">Continue →</button>
+        <button class="btn-next" onclick="checkEligibility()">🔍 Check Loan Eligibility</button>
       </div>
     </div>
   </div>
@@ -933,78 +963,8 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
             </div>
           </div>
         </div>
-        <div class="field-group single">
-          <div class="field">
-            <label>Credit Score <span class="req">*</span></label>
-            <input type="number" id="creditScore" placeholder="e.g. 720 (300–900 range)" min="300" max="900">
-            <p class="hint" style="margin-top:4px;">📌 Credit score 650+ improves approval chances</p>
-            <span class="err-msg" id="err-creditScore">Credit score is required (300–900)</span>
-          </div>
-        </div>
-      </div>
-      <div class="form-nav">
-        <button class="btn-back" onclick="goPrev(4)">← Back</button>
-        <span class="page-indicator">Step 4 of 6</span>
-        <button class="btn-next" onclick="checkEligibility()">🔍 Check Loan Eligibility</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- PAGE 5 -->
-  <div class="form-page" id="page5">
-    <div class="form-card">
-      <div class="form-card-header">
-        <div class="page-icon">🏪</div>
-        <h2>Store Details</h2>
-        <p>Almost there! Add retailer info and certify your application</p>
-      </div>
-      <div class="form-body">
-        <div class="field-group">
-          <div class="field">
-            <label>Store Name <span class="req">*</span></label>
-            <input type="text" id="storeName" placeholder="e.g. Raj Mobile Store">
-            <span class="err-msg" id="err-storeName">Store name is required</span>
-          </div>
-          <div class="field">
-            <label>Store Phone <span class="req">*</span></label>
-            <input type="tel" id="storePhone" placeholder="10-digit mobile number" maxlength="10"
-                   oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)">
-            <span class="err-msg" id="err-storePhone">Valid 10-digit number required</span>
-          </div>
-        </div>
-        <div class="field-group single">
-          <div class="field">
-            <label>Sales Executive Name <span class="req">*</span></label>
-            <input type="text" id="salesExec" placeholder="Name of the sales executive" oninput="enforceNameInput(this)">
-            <span class="err-msg" id="err-salesExec">Sales executive name is required</span>
-          </div>
-        </div>
-        <div style="margin-bottom:20px;">
-          <div class="checkbox-row" id="certify-box">
-            <input type="checkbox" id="certify">
-            <div>
-              <label for="certify">I/we certify that all information provided in this application is true and complete to the best of my/our knowledge.</label>
-              <p class="hint">I/we authorize RetailBoost to verify any information and obtain credit reports deemed necessary to process this application.</p>
-            </div>
-          </div>
-          <span class="err-msg" id="err-certify" style="margin-top:6px;">You must check the declaration before submitting</span>
-        </div>
-        <div style="background:linear-gradient(135deg,#f0f5ff,#e8f5e9);border-radius:12px;padding:16px;border:1px solid var(--border);">
-          <p style="font-size:.78rem;color:var(--muted);line-height:1.8;">
-            ✅ Application reviewed by RetailBoost team<br>
-            ✅ Confirmation via WhatsApp / phone call<br>
-            ✅ Decision within 24–48 hours
-          </p>
-        </div>
-
         <!-- ══ BANK DETAILS SECTION ══ -->
-        <div class="bank-section-header">
-          <div class="bsh-icon">🏦</div>
-          <div>
-            <h3>Bank Account Details</h3>
-            <p>For EMI disbursement — all details are securely encrypted</p>
-          </div>
-        </div>
+        <p class="section-divider" style="margin-top:10px;">🏦 Bank Account Details</p>
 
         <div class="field-group">
           <div class="field">
@@ -1021,7 +981,7 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
                    autocomplete="off"
                    oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,11)"
                    onblur="realtimeValidate('ifscCode','ifsc')">
-            <p class="hint" style="margin-top:4px;">📌 Format: 4 letters + 0 + 6 alphanumeric (e.g. SBIN0001234)</p>
+            <p class="hint" style="margin-top:4px;">📌 Format: 4 letters + 0 + 6 chars (e.g. SBIN0001234)</p>
             <span class="err-msg" id="err-ifscCode">Invalid IFSC — format: SBIN0001234 (4 letters, 0, 6 chars)</span>
           </div>
         </div>
@@ -1077,6 +1037,110 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
             <input type="text" id="otherBankName" placeholder="Enter your bank name">
             <span class="err-msg" id="err-otherBankName">Please enter your bank name</span>
           </div>
+        </div>
+
+      </div>
+      <div class="form-nav">
+        <button class="btn-back" onclick="goPrev(4)">← Back</button>
+        <span class="page-indicator">Step 4 of 6</span>
+        <button class="btn-next" onclick="goNext(4)">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 5 -->
+  <div class="form-page" id="page5">
+    <div class="form-card">
+      <div class="form-card-header">
+        <div class="page-icon">🏪</div>
+        <h2>Store Details &amp; Summary</h2>
+        <p>Review your loan details and complete the application</p>
+      </div>
+      <div class="form-body">
+
+        <!-- ══ LOAN SUMMARY (read-only, populated from page 4) ══ -->
+        <p class="section-divider">📊 Loan Summary</p>
+        <div class="p5-summary-grid">
+          <div class="p5-sum-item">
+            <div class="p5-sum-label">Product</div>
+            <div class="p5-sum-value" id="s5-product">—</div>
+          </div>
+          <div class="p5-sum-item">
+            <div class="p5-sum-label">Product Price</div>
+            <div class="p5-sum-value" id="s5-productAmt">—</div>
+          </div>
+          <div class="p5-sum-item">
+            <div class="p5-sum-label">Down Payment</div>
+            <div class="p5-sum-value" id="s5-downPayment">—</div>
+          </div>
+          <div class="p5-sum-item">
+            <div class="p5-sum-label">Loan Basis</div>
+            <div class="p5-sum-value" id="s5-loanBasis">—</div>
+          </div>
+          <div class="p5-sum-item">
+            <div class="p5-sum-label">Interest</div>
+            <div class="p5-sum-value" id="s5-interest">—</div>
+          </div>
+          <div class="p5-sum-item p5-sum-highlight">
+            <div class="p5-sum-label">Total Loan Amount</div>
+            <div class="p5-sum-value" id="s5-totalLoan">—</div>
+          </div>
+          <div class="p5-sum-item p5-sum-highlight">
+            <div class="p5-sum-label">Monthly EMI</div>
+            <div class="p5-sum-value" id="s5-emi">—</div>
+          </div>
+          <div class="p5-sum-item">
+            <div class="p5-sum-label">Bank</div>
+            <div class="p5-sum-value" id="s5-bank">—</div>
+          </div>
+          <div class="p5-sum-item">
+            <div class="p5-sum-label">Account (last 4)</div>
+            <div class="p5-sum-value" id="s5-account">—</div>
+          </div>
+          <div class="p5-sum-item">
+            <div class="p5-sum-label">IFSC Code</div>
+            <div class="p5-sum-value" id="s5-ifsc">—</div>
+          </div>
+        </div>
+
+        <!-- ══ STORE DETAILS ══ -->
+        <p class="section-divider">🏪 Store Information</p>
+        <div class="field-group">
+          <div class="field">
+            <label>Store Name <span class="req">*</span></label>
+            <input type="text" id="storeName" placeholder="e.g. Raj Mobile Store">
+            <span class="err-msg" id="err-storeName">Store name is required</span>
+          </div>
+          <div class="field">
+            <label>Store Phone <span class="req">*</span></label>
+            <input type="tel" id="storePhone" placeholder="10-digit mobile number" maxlength="10"
+                   oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)">
+            <span class="err-msg" id="err-storePhone">Valid 10-digit number required</span>
+          </div>
+        </div>
+        <div class="field-group single">
+          <div class="field">
+            <label>Sales Executive Name <span class="req">*</span></label>
+            <input type="text" id="salesExec" placeholder="Name of the sales executive" oninput="enforceNameInput(this)">
+            <span class="err-msg" id="err-salesExec">Sales executive name is required</span>
+          </div>
+        </div>
+        <div style="margin-bottom:20px;">
+          <div class="checkbox-row" id="certify-box">
+            <input type="checkbox" id="certify">
+            <div>
+              <label for="certify">I/we certify that all information provided in this application is true and complete to the best of my/our knowledge.</label>
+              <p class="hint">I/we authorize RetailBoost to verify any information and obtain credit reports deemed necessary to process this application.</p>
+            </div>
+          </div>
+          <span class="err-msg" id="err-certify" style="margin-top:6px;">You must check the declaration before submitting</span>
+        </div>
+        <div style="background:linear-gradient(135deg,#f0f5ff,#e8f5e9);border-radius:12px;padding:16px;border:1px solid var(--border);">
+          <p style="font-size:.78rem;color:var(--muted);line-height:1.8;">
+            ✅ Application reviewed by RetailBoost team<br>
+            ✅ Confirmation via WhatsApp / phone call<br>
+            ✅ Decision within 24–48 hours
+          </p>
         </div>
 
       </div>
@@ -1249,7 +1313,7 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
       <p>Your loan application has been approved by RetailBoost</p>
     </div>
     <div class="appr-body">
-      <div class="appr-amt-label">YOUR APPROVED LOAN AMOUNT</div>
+      <div class="appr-amt-label">YOUR TOTAL LOAN AMOUNT (Principal + Interest)</div>
       <div class="appr-amt"><span class="sym">₹</span><span id="amtNum">0</span></div>
       <div class="appr-grid">
         <div class="appr-box"><div class="dl">STATUS</div><div class="dv" style="color:#059669;">✅ Approved</div></div>
@@ -1477,11 +1541,12 @@ const rules={
      {id:'pin',type:'pin'},{id:'panCard',type:'pan'},{id:'custPhoto',type:'file'},{id:'aadhar',type:'file'}],
   2:[{id:'employer',type:'employer'},{id:'workType',type:'select'},{id:'empLen',type:'radio',name:'empLen'},{id:'income',type:'income'}],
   3:[{id:'ref1First',type:'name'},{id:'ref1Last',type:'name'},{id:'ref1Rel',type:'select'},{id:'ref1Phone',type:'phone'},
-     {id:'ref2First',type:'name'},{id:'ref2Last',type:'name'},{id:'ref2Rel',type:'select'},{id:'ref2Phone',type:'phone'}],
+     {id:'ref2First',type:'name'},{id:'ref2Last',type:'name'},{id:'ref2Rel',type:'select'},{id:'ref2Phone',type:'phone'},
+     {id:'creditScore',type:'creditScore'}],
   4:[{id:'product',type:'text'},{id:'productAmt',type:'text'},{id:'downPayment',type:'text'},
-     {id:'loanAmt',type:'text'},{id:'emiDur',type:'radio',name:'emiDur'},{id:'creditScore',type:'text'}],
-  5:[{id:'storeName',type:'text'},{id:'storePhone',type:'phone'},{id:'salesExec',type:'name'},{id:'certify',type:'checkbox'},
+     {id:'loanAmt',type:'text'},{id:'emiDur',type:'radio',name:'emiDur'},
      {id:'accountNumber',type:'accountNum'},{id:'ifscCode',type:'ifsc'},{id:'bankName',type:'bankSelect'}],
+  5:[{id:'storeName',type:'text'},{id:'storePhone',type:'phone'},{id:'salesExec',type:'name'},{id:'certify',type:'checkbox'}],
   6:[{id:'imei1',type:'imei'},{id:'imei2',type:'imei-optional'}]
 };
 
@@ -1546,6 +1611,12 @@ function validatePage(page){
       ok = val === '' || /^\d{15}$/.test(val);
       if(el)el.classList.toggle('error',!ok);
     }
+    else if(r.type==='creditScore'){
+      const score = parseInt(el ? el.value : 0);
+      ok = !isNaN(score) && score >= 300 && score <= 900;
+      if(el) el.classList.toggle('error', !ok);
+      if(errEl && !ok) errEl.textContent = 'Credit score must be between 300 and 900';
+    }
     else if(r.type==='accountNum'){
       ok = el && /^\d{9,18}$/.test(el.value.trim());
       if(el)el.classList.toggle('error',!ok);
@@ -1591,12 +1662,12 @@ function validateIncome(){
 }
 
 /* ══════════════════════════════════════════════════
-   🔍 ELIGIBILITY CHECK FLOW (Page 4 → Page 5)
+   🔍 ELIGIBILITY CHECK FLOW (Page 3 → Page 4)
    ══════════════════════════════════════════════════ */
 function checkEligibility(){
-  // Step 1: Validate page 4 first
-  if(!validatePage(4)){
-    const e = document.querySelector('#page4 .err-msg.show');
+  // Step 1: Validate page 3 first (refs + CIBIL)
+  if(!validatePage(3)){
+    const e = document.querySelector('#page3 .err-msg.show');
     if(e) e.scrollIntoView({behavior:'smooth', block:'center'});
     return;
   }
@@ -1653,7 +1724,47 @@ function checkEligibility(){
 
 function confirmEligibility(){
   document.getElementById('eligModal').classList.remove('show');
-  showPage(5);
+  showPage(4);
+}
+
+/* ── Populate Page 5 read-only summary from Page 4 values ── */
+function populateP5Summary(){
+  try {
+    const g   = id => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+    const s   = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+    const fmt = n => isNaN(n) || n === '' ? '—' : '₹' + Math.round(parseFloat(n)).toLocaleString('en-IN');
+
+    s('s5-product',    g('product') || '—');
+    s('s5-productAmt', fmt(g('productAmt')));
+    s('s5-downPayment',fmt(g('downPayment')));
+
+    // Pull directly from calculation display spans (most accurate)
+    const dspBasis    = document.getElementById('dsp-loanBasis');
+    const dspInterest = document.getElementById('dsp-interest');
+    s('s5-loanBasis', dspBasis    ? dspBasis.textContent    : '—');
+    s('s5-interest',  dspInterest ? dspInterest.textContent : '—');
+    s('s5-totalLoan', fmt(g('loanAmt')));
+
+    const emiDurRadio = document.querySelector('input[name="emiDur"]:checked');
+    const loanAmt = parseFloat(g('loanAmt')) || 0;
+    if(emiDurRadio && loanAmt > 0){
+      const months = parseInt(emiDurRadio.dataset.months) || 0;
+      const emi    = months > 0 ? Math.round(loanAmt / months) : 0;
+      s('s5-emi', '₹' + emi.toLocaleString('en-IN') + ' × ' + months + ' months');
+    } else {
+      s('s5-emi', '—');
+    }
+
+    const bankSel = document.getElementById('bankName');
+    const bankVal = bankSel
+      ? (bankSel.value === 'Other' ? g('otherBankName') : bankSel.value)
+      : '—';
+    s('s5-bank', bankVal || '—');
+
+    const acct = g('accountNumber');
+    s('s5-account', acct.length >= 4 ? '••••' + acct.slice(-4) : (acct || '—'));
+    s('s5-ifsc', g('ifscCode') || '—');
+  } catch(e){ console.error('populateP5Summary error:', e); }
 }
 
 /* ══════════════════════════════════════════════════
@@ -1711,14 +1822,17 @@ const MAX_LOAN = 18000;
 // Only MAX_LOAN (₹18,000) is capped.
 
 /* Returns the lowest down-payment the user is allowed to enter.
-   Only one rule applies:
-   - Loan basis (productAmt − dp) must NOT exceed MAX_LOAN
-     ⟹  dp ≥ productAmt − MAX_LOAN
-   The old 40% floor has been removed because it was incorrectly
-   forcing a minimum loan amount rather than only capping the maximum. */
+   Two rules apply (the higher of the two wins):
+   1. Loan basis (productAmt − dp) must NOT exceed MAX_LOAN
+        ⟹  dp ≥ productAmt − MAX_LOAN
+   2. Down payment must be at least 40% of product price
+        ⟹  dp ≥ productAmt × 0.40
+   Rule 2 ensures max loan basis = 60% of product price.
+   Rule 1 ensures max loan basis = ₹18,000 regardless. */
 function _calcEffectiveMinDP(productAmt){
-  // DP must be large enough so that loan basis ≤ MAX_LOAN
-  return Math.max(0, Math.ceil(productAmt - MAX_LOAN));
+  const minFor40Pct = Math.ceil(productAmt * 0.40);       // 40% floor
+  const minForCap   = Math.max(0, Math.ceil(productAmt - MAX_LOAN)); // ₹18k cap
+  return Math.max(minFor40Pct, minForCap);
 }
 
 function calculateLoan(){
@@ -1745,11 +1859,10 @@ function calculateLoan(){
     const dspProduct = document.getElementById('dsp-productAmt');
     if(dspProduct) dspProduct.textContent = '₹' + productAmt.toLocaleString('en-IN');
 
-    // Auto-populate down payment only when the field is empty / zero
+    // Auto-populate down payment at the 40% minimum when the field is empty / zero
     const dpField = document.getElementById('downPayment');
     if(dpField && (!dpField.value || parseFloat(dpField.value) === 0)){
-      const pct = 0.40 + Math.random() * 0.02;
-      dpField.value = Math.round(productAmt * pct);
+      dpField.value = Math.round(productAmt * 0.40); // start at 40% minimum
     }
 
     validateDownPayment();
@@ -1778,14 +1891,21 @@ function validateDownPayment(){
       lastProductAmt = productAmt;
     }
 
-    // ── BLOCK only when loan basis would exceed MAX_LOAN ──────────────
+    // ── BLOCK when down payment is below the effective minimum ────────
     const loanBasis    = productAmt - downPayment;
     const effectiveMin = _calcEffectiveMinDP(productAmt);
+    const min40Pct     = Math.ceil(productAmt * 0.40);
 
-    if(loanBasis > MAX_LOAN){
+    if(downPayment < effectiveMin){
       dpField.classList.add('error');
-      errEl.textContent =
-        `Minimum down payment required is ₹${effectiveMin.toLocaleString('en-IN')} (loan basis cannot exceed ₹${MAX_LOAN.toLocaleString('en-IN')})`;
+      // Show the most specific error reason
+      if(downPayment < min40Pct){
+        errEl.textContent =
+          `Minimum 40% down payment required: ₹${min40Pct.toLocaleString('en-IN')} for ₹${Math.round(productAmt).toLocaleString('en-IN')} product`;
+      } else {
+        errEl.textContent =
+          `Down payment too low — loan basis cannot exceed ₹${MAX_LOAN.toLocaleString('en-IN')}. Min DP: ₹${effectiveMin.toLocaleString('en-IN')}`;
+      }
       errEl.classList.add('show');
       return;
     }
@@ -1827,11 +1947,10 @@ function enforceDownPaymentMin(){
 
   if(productAmt <= 0 || !lockedInterest) return;
 
-  // Only restore when the loan basis EXCEEDS the cap — no min-loan enforcement
-  const loanBasis   = productAmt - downPayment;
-  if(loanBasis > MAX_LOAN){
-    const effectiveMin = _calcEffectiveMinDP(productAmt);
-    const restoreTo    = lastValidDP > 0 ? lastValidDP : effectiveMin;
+  // Restore when DP is below the effective minimum (40% floor or MAX_LOAN cap)
+  const effectiveMin = _calcEffectiveMinDP(productAmt);
+  if(downPayment < effectiveMin){
+    const restoreTo = lastValidDP >= effectiveMin ? lastValidDP : effectiveMin;
     dpField.value = restoreTo;
     validateDownPayment();
     showToast(`⚠️ Down payment restored to ₹${restoreTo.toLocaleString('en-IN')}`);
@@ -1888,10 +2007,12 @@ function showPage(n){
       document.getElementById('page'+n).classList.add('active');
       window.scrollTo({top:document.querySelector('.stepper-wrap').offsetTop - 80, behavior:'smooth'});
       updateStepper(n);
+      if(n === 5) setTimeout(populateP5Summary, 260); // populate after page-enter animation
     }, 200);
   } else {
     document.getElementById('page'+n).classList.add('active');
     updateStepper(n);
+    if(n === 5) setTimeout(populateP5Summary, 260);
   }
 }
 function goNext(from){
@@ -1909,7 +2030,22 @@ function goNext(from){
   }
 }
 function goPrev(from){ showPage(from - 1); }
-function handleUpload(input,boxId,lblId,errId){ if(input.files&&input.files[0]){ document.getElementById(lblId).textContent='✅ '+input.files[0].name; document.getElementById(boxId).classList.add('has-file'); document.getElementById(boxId).classList.remove('error'); if(errId)document.getElementById(errId).classList.remove('show'); } }
+// Stores base64-encoded images for PDF inclusion
+window._uploadedImages = {};
+
+function handleUpload(input,boxId,lblId,errId){
+  if(input.files && input.files[0]){
+    const file = input.files[0];
+    document.getElementById(lblId).textContent = '✅ ' + file.name;
+    document.getElementById(boxId).classList.add('has-file');
+    document.getElementById(boxId).classList.remove('error');
+    if(errId) document.getElementById(errId).classList.remove('show');
+    // Store as base64 for PDF
+    const reader = new FileReader();
+    reader.onload = e => { window._uploadedImages[input.id] = e.target.result; };
+    reader.readAsDataURL(file);
+  }
+}
 
 /* ── PROCESSING ── */
 function startProcessing(){
@@ -1952,6 +2088,7 @@ function collectFormData(loanNum,amt){
     ref1Name:g('ref1First')+' '+g('ref1Last'), ref1Rel:g('ref1Rel'), ref1Phone:g('ref1Phone'),
     ref2Name:g('ref2First')+' '+g('ref2Last'), ref2Rel:g('ref2Rel'), ref2Phone:g('ref2Phone'),
     product:g('product'), productAmt:g('productAmt'), loanAmt:g('loanAmt'), downPayment:g('downPayment'),
+    interestAmt:g('interestAmt'),
     emiDuration:radio('emiDur'), creditScore:g('creditScore'), approvedAmt:amt,
     storeName:g('storeName'), storePhone:g('storePhone'), salesExec:g('salesExec'),
     accountNumber:g('accountNumber'), ifscCode:g('ifscCode'),
@@ -2051,9 +2188,11 @@ function completeLoanApplication(){
 
 async function showApproval(){
   document.getElementById('processingOverlay').classList.remove('show');
-  const loanNum = generateLoanNumber();
-  const amount  = Math.floor(Math.random()*(21000-18000+1))+18000;
-  const emiSel  = document.querySelector('input[name="emiDur"]:checked');
+  const loanNum    = generateLoanNumber();
+  // Use the actual calculated total loan (loanBasis + interest) — no random value
+  const loanAmtEl  = document.getElementById('loanAmt');
+  const amount     = parseFloat(loanAmtEl ? loanAmtEl.value : 0) || 0;
+  const emiSel     = document.querySelector('input[name="emiDur"]:checked');
 
   currentFormData = collectFormData(loanNum, amount.toLocaleString('en-IN'));
 
@@ -2161,8 +2300,9 @@ function continueToDeviceInfo(){
   const procPct = document.getElementById('procPct');
   if(procPct) procPct.textContent = '0%';
 
-  // ── Reset current form data ──
+  // ── Reset current form data & uploaded images ──
   currentFormData = null;
+  window._uploadedImages = {};
 
   // ── Go to page 1 ──
   document.querySelectorAll('.form-page').forEach(p => p.classList.remove('active','slide-out'));
@@ -2219,6 +2359,10 @@ function buildPDFHTML(d, emi, months){
     .ref-box{background:#f8faff;border:1px solid #dde6f7;border-radius:8px;padding:12px;}
     .ref-box .ref-name{font-weight:700;color:#0b3d91;font-size:13px;margin-bottom:4px;}
     .ref-box .ref-item{font-size:12px;color:#64748b;padding:2px 0;}
+    .doc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:8px;}
+    .doc-item{text-align:center;}
+    .doc-label{font-size:11px;font-weight:600;color:#0b3d91;margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px;}
+    .doc-item img{width:100%;max-height:160px;object-fit:cover;border-radius:8px;border:1px solid #dde6f7;}
     .footer{background:#f0f5ff;padding:14px 20px;text-align:center;margin-top:4px;}
     .footer p{font-size:11px;color:#64748b;margin:2px 0;}
   </style></head><body>
@@ -2273,8 +2417,9 @@ function buildPDFHTML(d, emi, months){
       ${r('Product / Device', d.product)}
       ${r('Product Price', '₹'+parseInt(d.productAmt).toLocaleString('en-IN'))}
       ${r('Down Payment', '₹'+parseInt(d.downPayment).toLocaleString('en-IN'))}
-      ${r('Loan Amount', '₹'+parseInt(d.loanAmt).toLocaleString('en-IN'), true)}
-      ${r('Interest', '₹'+parseInt(d.approvedAmt ? document.getElementById('interestAmt').value : 0).toLocaleString('en-IN'))}
+      ${r('Loan Basis', '₹'+(parseInt(d.productAmt)-parseInt(d.downPayment)).toLocaleString('en-IN'))}
+      ${r('Interest', '₹'+parseInt(d.interestAmt||0).toLocaleString('en-IN'))}
+      ${r('Total Loan Amount', '₹'+parseInt(d.loanAmt).toLocaleString('en-IN'), true)}
       ${r('Credit Score', d.creditScore)}
       <div class="emi-highlight">
         <div class="el">Monthly EMI</div>
@@ -2298,6 +2443,20 @@ function buildPDFHTML(d, emi, months){
       ${r('IMEI 1', d.imei1 || 'N/A')}
       ${r('IMEI 2', d.imei2 || 'N/A')}
     </div>
+
+    ${(()=>{
+      const imgs = window._uploadedImages || {};
+      const hasImages = imgs.panCard || imgs.custPhoto || imgs.aadhar;
+      if(!hasImages) return '';
+      return `<div class="section" style="break-inside:avoid;">
+        <div class="section-title">📎 Uploaded Documents</div>
+        <div class="doc-grid">
+          ${imgs.panCard  ? `<div class="doc-item"><div class="doc-label">PAN Card</div><img src="${imgs.panCard}" alt="PAN Card"></div>` : '<div></div>'}
+          ${imgs.custPhoto? `<div class="doc-item"><div class="doc-label">Customer Photo</div><img src="${imgs.custPhoto}" alt="Photo"></div>` : '<div></div>'}
+          ${imgs.aadhar   ? `<div class="doc-item"><div class="doc-label">Aadhaar / ID</div><img src="${imgs.aadhar}" alt="Aadhaar"></div>` : '<div></div>'}
+        </div>
+      </div>`;
+    })()}
 
   </div>
 
