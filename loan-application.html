@@ -704,7 +704,7 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
           <div class="field">
             <label>📷 Customer Photo <span class="req">*</span></label>
             <div class="upload-box" id="box-custPhoto">
-              <input type="file" accept="image/*" id="custPhoto"
+              <input type="file" accept="image/*" capture="user" id="custPhoto"
                      onchange="handleUpload(this,'box-custPhoto','lbl-custPhoto','err-custPhoto')">
               <div class="uicon">🤳</div>
               <strong id="lbl-custPhoto">Upload Photo</strong>
@@ -1316,8 +1316,12 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
         💡 <strong>How to improve:</strong> Maintain timely bill payments, reduce outstanding debt, and avoid multiple loan enquiries to raise your CIBIL score above 700.
       </div>
       <button onclick="document.getElementById('eligRejectModal').style.display='none'"
-              style="width:100%;padding:13px;background:linear-gradient(135deg,#1A3FAA,#2D63FF);color:white;border:none;border-radius:12px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:Poppins,sans-serif;letter-spacing:.2px;">
+              style="width:100%;padding:11px;background:#f1f5f9;color:#374151;border:1.5px solid #e5e7eb;border-radius:12px;font-size:.88rem;font-weight:600;cursor:pointer;font-family:Poppins,sans-serif;margin-bottom:10px;">
         ✓ Got It, I Understand
+      </button>
+      <button onclick="document.getElementById('eligRejectModal').style.display='none'; continueToDeviceInfo();"
+              style="width:100%;padding:13px;background:linear-gradient(135deg,#1A3FAA,#2D63FF);color:white;border:none;border-radius:12px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:Poppins,sans-serif;letter-spacing:.2px;">
+        🔄 Start New Application
       </button>
     </div>
   </div>
@@ -1512,21 +1516,16 @@ function isAtLeast18(dob){
 /* ── FIREBASE OTP ── */
 function initRecaptcha(){
   if (window.recaptchaVerifier) return;
+  // Clear any stale widget markup left over from a previous render/reset
+  const container = document.getElementById('recaptcha-container');
+  if (container) container.innerHTML = '';
 
   const auth = window._firebaseAuth;
-
   window.recaptchaVerifier = new window._RecaptchaVerifier(
     auth,
     'recaptcha-container',
-    {
-      size: 'invisible',
-      callback: () => {
-        console.log("Recaptcha verified");
-      }
-    }
+    { size: 'invisible', callback: () => { console.log('reCAPTCHA verified'); } }
   );
-
-
   window.recaptchaVerifier.render();
 }
 
@@ -1556,15 +1555,23 @@ async function sendOTP(){
     startOTPTimer(60);
   } catch(err){
     console.error('OTP error:', err);
-    showToast('❌ Failed to send OTP. Check Firebase setup.');
+    // Map Firebase error codes to user-friendly messages
+    const code = err && err.code ? err.code : '';
+    let msg = 'Failed to send OTP. Please try again.';
+    if (code === 'auth/invalid-phone-number')       msg = 'Invalid phone number. Check and retry.';
+    else if (code === 'auth/too-many-requests')     msg = 'Too many attempts. Please wait a few minutes.';
+    else if (code === 'auth/network-request-failed')msg = 'Network error. Check your connection.';
+    else if (code === 'auth/quota-exceeded')        msg = 'SMS quota exceeded. Try again later.';
+    showToast('❌ ' + msg);
     btn.disabled = false;
     btn.textContent = 'Send OTP';
-    // Reset recaptcha so user can retry
-  
-   if (window.recaptchaVerifier) {
-  window.recaptchaVerifier.clear();
-  window.recaptchaVerifier = null;
-}
+    // Always destroy the verifier and clear its DOM node so a fresh one can be created
+    if (window.recaptchaVerifier) {
+      try { window.recaptchaVerifier.clear(); } catch(e) { /* ignore */ }
+      window.recaptchaVerifier = null;
+    }
+    const container = document.getElementById('recaptcha-container');
+    if (container) container.innerHTML = '';
   }
 }
 
@@ -2555,7 +2562,8 @@ function continueToDeviceInfo(){
   // ── Reset file upload boxes ──
   const uploadDefaults = {
     'lbl-panCard':'Upload PAN Card','lbl-custPhoto':'Upload Photo',
-    'lbl-aadhar':'Upload Aadhaar','lbl-salarySlip':'Upload Salary Slip'
+    'lbl-aadharFront':'Upload Front','lbl-aadharBack':'Upload Back',
+    'lbl-salarySlip':'Upload Salary Slip'
   };
   Object.entries(uploadDefaults).forEach(([id,txt])=>{
     const el = document.getElementById(id);
@@ -2585,7 +2593,13 @@ function continueToDeviceInfo(){
   const sendOtpBtn = document.getElementById('btnSendOtp');
   if(sendOtpBtn){ sendOtpBtn.disabled = false; sendOtpBtn.textContent = 'Send OTP'; sendOtpBtn.style.display = ''; }
   confirmationResult = null;
-  window.recaptchaVerifier = null;
+  // Properly destroy the reCAPTCHA verifier so it can be re-created cleanly
+  if (window.recaptchaVerifier) {
+    try { window.recaptchaVerifier.clear(); } catch(e) { /* ignore */ }
+    window.recaptchaVerifier = null;
+  }
+  const rcContainer = document.getElementById('recaptcha-container');
+  if (rcContainer) rcContainer.innerHTML = '';
 
   // ── Reset bank dropdown ──
   const bankSel = document.getElementById('bankName');
@@ -2604,6 +2618,8 @@ function continueToDeviceInfo(){
   }
   document.getElementById('eligOverlay').classList.remove('show');
   document.getElementById('eligModal').classList.remove('show');
+  const rejectModal = document.getElementById('eligRejectModal');
+  if (rejectModal) rejectModal.style.display = 'none';
 
   // ── Reset processing overlay steps ──
   for(let i=1;i<=5;i++){
@@ -2614,6 +2630,17 @@ function continueToDeviceInfo(){
   if(procBar) procBar.style.width = '0%';
   const procPct = document.getElementById('procPct');
   if(procPct) procPct.textContent = '0%';
+
+  // ── Reset signature pad ──
+  if (typeof signatureDataURL !== 'undefined') signatureDataURL = null;
+  const sigCanvas = document.getElementById('signatureCanvas');
+  if (sigCanvas) {
+    try { sigCanvas.getContext('2d').clearRect(0, 0, sigCanvas.width, sigCanvas.height); } catch(e) {}
+    sigCanvas._sigInit = false; // allow re-initialization next time page 6 is reached
+    sigCanvas.style.borderColor = '#c7d2fe';
+  }
+  const sigPadSec = document.getElementById('signaturePadSection');
+  if (sigPadSec) sigPadSec.style.display = 'none';
 
   // ── Reset current form data & uploaded images ──
   currentFormData = null;
@@ -2677,9 +2704,9 @@ function buildPDFHTML(d, emi, months){
     .ref-box .ref-name{font-weight:700;color:#0b3d91;font-size:13px;margin-bottom:4px;}
     .ref-box .ref-item{font-size:12px;color:#64748b;padding:2px 0;}
     .doc-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;}
-    .doc-item{text-align:center;background:#f8faff;border:1px solid #dde6f7;border-radius:8px;padding:8px;break-inside:avoid;}
-    .doc-label{font-size:10px;font-weight:700;color:#0b3d91;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;}
-    .doc-item img{width:100%;max-height:180px;object-fit:contain;border-radius:6px;background:#fff;display:block;}
+    .doc-item{text-align:center;background:#f8faff;border:1px solid #dde6f7;border-radius:8px;padding:10px;break-inside:avoid;}
+    .doc-label{font-size:10px;font-weight:700;color:#0b3d91;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px;}
+    .doc-item img{width:100%;height:auto;max-height:200px;object-fit:contain;border-radius:6px;background:#fff;display:block;box-shadow:0 1px 4px rgba(0,0,0,.06);}
     .footer{background:#f0f5ff;padding:10px 16px;text-align:center;margin-top:4px;}
     .footer p{font-size:10px;color:#64748b;margin:2px 0;}
     .agree-box{background:#f8f9ff;border:1px solid #c7d2fe;border-radius:6px;padding:10px 12px;font-size:9px;line-height:1.8;white-space:pre-wrap;color:#374151;font-family:'Courier New',monospace;margin-top:6px;word-break:break-word;}
@@ -2697,6 +2724,21 @@ function buildPDFHTML(d, emi, months){
   </div>
 
   <div class="body">
+
+    ${(()=>{
+      const imgs = window._uploadedImages || {};
+      const hasImages = imgs.panCard || imgs.custPhoto || imgs.aadharFront || imgs.aadharBack;
+      if(!hasImages) return '';
+      const imgItem = (src, label) => src
+        ? '<div class="doc-item"><div class="doc-label">'+label+'</div><img src="'+src+'" alt="'+label+'"></div>'
+        : '';
+      return '<div class="section"><div class="section-title">&#128206; Customer Documents</div><div class="doc-grid">'
+        + imgItem(imgs.aadharFront, 'Aadhaar Front')
+        + imgItem(imgs.aadharBack,  'Aadhaar Back')
+        + imgItem(imgs.panCard,     'PAN Card')
+        + imgItem(imgs.custPhoto,   'Customer Photo')
+        + '</div></div>';
+    })()}
 
     <div class="section">
       <div class="section-title">👤 Applicant Details</div>
@@ -2826,24 +2868,6 @@ function buildPDFHTML(d, emi, months){
         ? '<div class="sig-box"><div class="sig-label">&#9998; Customer Signature</div><img class="sig-img" src="'+d.signatureImage+'" alt="Customer Signature"></div>'
         : '';
       return '<div class="section"><div class="section-title">&#128196; Loan Agreement</div>'+statusBadge+'<div class="agree-box">'+safeText+'</div>'+sigHTML+'</div>';
-    })()}
-
-    ${(()=>{
-      const imgs = window._uploadedImages || {};
-      const hasImages = imgs.panCard || imgs.custPhoto || imgs.aadharFront || imgs.aadharBack;
-      if(!hasImages) return '';
-      const imgItem = (src, label) => src
-        ? `<div class="doc-item"><div class="doc-label">${label}</div><img src="${src}" alt="${label}"></div>`
-        : '<div></div>';
-      return `<div class="section">
-        <div class="section-title">&#128206; Uploaded Documents</div>
-        <div class="doc-grid">
-          ${imgItem(imgs.panCard,      'PAN Card')}
-          ${imgItem(imgs.custPhoto,    'Customer Photo')}
-          ${imgItem(imgs.aadharFront,  'Aadhaar Front')}
-          ${imgItem(imgs.aadharBack,   'Aadhaar Back')}
-        </div>
-      </div>`;
     })()}
 
   </div>
