@@ -713,22 +713,33 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
             <span class="err-msg" id="err-custPhoto">Customer photo is required</span>
           </div>
         </div>
-        <div class="field-group">
+        <div class="field-group triple">
           <div class="field">
-            <label>🪪 Aadhaar / Govt ID <span class="req">*</span></label>
-            <div class="upload-box" id="box-aadhar">
-              <input type="file" accept="image/*" id="aadhar"
-                     onchange="handleUpload(this,'box-aadhar','lbl-aadhar','err-aadhar')">
+            <label>🪪 Aadhaar Front Side <span class="req">*</span></label>
+            <div class="upload-box" id="box-aadharFront">
+              <input type="file" accept="image/*,.pdf" id="aadharFront"
+                     onchange="handleUpload(this,'box-aadharFront','lbl-aadharFront','err-aadharFront')">
               <div class="uicon">📋</div>
-              <strong id="lbl-aadhar">Upload Aadhaar</strong>
-              <p>Click to select image</p>
+              <strong id="lbl-aadharFront">Upload Front</strong>
+              <p>Front side of Aadhaar</p>
             </div>
-            <span class="err-msg" id="err-aadhar">Aadhaar / ID is required</span>
+            <span class="err-msg" id="err-aadharFront">Aadhaar front side is required</span>
+          </div>
+          <div class="field">
+            <label>🪪 Aadhaar Back Side <span class="req">*</span></label>
+            <div class="upload-box" id="box-aadharBack">
+              <input type="file" accept="image/*,.pdf" id="aadharBack"
+                     onchange="handleUpload(this,'box-aadharBack','lbl-aadharBack','err-aadharBack')">
+              <div class="uicon">📋</div>
+              <strong id="lbl-aadharBack">Upload Back</strong>
+              <p>Back side of Aadhaar</p>
+            </div>
+            <span class="err-msg" id="err-aadharBack">Aadhaar back side is required</span>
           </div>
           <div class="field">
             <label>&nbsp;</label>
             <div style="background:#f0f5ff;border-radius:10px;padding:16px;height:100%;display:flex;flex-direction:column;justify-content:center;">
-              <p style="font-size:.76rem;color:var(--muted);line-height:1.8;">📌 Accepted: JPG, PNG<br>📌 Max size: 5MB per file<br>📌 Documents must be clear<br>📌 All uploads are mandatory</p>
+              <p style="font-size:.76rem;color:var(--muted);line-height:1.8;">📌 Accepted: JPG, PNG<br>📌 Max size: 5MB per file<br>📌 Upload both sides clearly<br>📌 All uploads are mandatory</p>
             </div>
           </div>
         </div>
@@ -880,17 +891,17 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
         <div class="field-group">
           <div class="field">
             <label>CIBIL / Credit Score <span class="req">*</span></label>
-            <input type="number" id="creditScore" placeholder="e.g. 720 (range: -1–900)"
+            <input type="number" id="creditScore" placeholder="e.g. 720 (range: -1 to 900)"
                    min="-1" max="900" inputmode="numeric">
-            <p class="hint" style="margin-top:4px;">📌 Score 650+ significantly improves your approval chances</p>
-            <span class="err-msg" id="err-creditScore">Credit score must be between 300 and 900</span>
+            <p class="hint" style="margin-top:4px;">📌 Enter <strong>-1</strong> if no CIBIL history. Score 700+ required for approval.</p>
+            <span class="err-msg" id="err-creditScore">Credit score must be between -1 and 900</span>
           </div>
           <div class="field" style="background:#f0fff8;border-radius:10px;padding:14px;border:1.5px solid rgba(16,196,140,.3);display:flex;flex-direction:column;justify-content:center;">
             <p style="font-size:.76rem;color:var(--muted);line-height:1.9;">
-              🟢 <strong>750–900</strong> — Excellent (fast approval)<br>
-              🟡 <strong>650–749</strong> — Good (standard process)<br>
-              🟠 <strong>550–649</strong> — Fair (manual review)<br>
-              🔴 <strong>300–549</strong> — Poor (may be rejected)
+              ⚪ <strong>-1</strong> — No CIBIL history (acceptable)<br>
+              🟢 <strong>700–900</strong> — Good (approved)<br>
+              🟠 <strong>1–699</strong> — Low (not approved)<br>
+              🔴 <strong>0</strong> — Invalid entry
             </p>
           </div>
         </div>
@@ -1288,6 +1299,30 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
   </div>
 </div>
 
+<!-- CIBIL REJECTION MODAL -->
+<div id="eligRejectModal" style="display:none;position:fixed;inset:0;z-index:99998;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);">
+  <div style="background:white;border-radius:20px;max-width:380px;width:90%;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:pageEnter .4s cubic-bezier(.22,.68,0,1.1) both;">
+    <div style="background:linear-gradient(135deg,#b91c1c,#dc2626);padding:26px 20px 20px;text-align:center;color:white;">
+      <div style="font-size:2.8rem;margin-bottom:8px;">❌</div>
+      <h3 style="font-size:1.1rem;font-weight:800;margin:0 0 4px;">Loan Not Approved</h3>
+      <p style="font-size:.82rem;opacity:.85;margin:0;">Based on your current credit score</p>
+    </div>
+    <div style="padding:22px 20px;">
+      <p style="font-size:.9rem;color:#1a1a2e;line-height:1.75;text-align:center;margin-bottom:14px;">
+        Sorry, your loan application could not be approved at this time.<br><br>
+        <strong>Please try again after 90 days.</strong>
+      </p>
+      <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:.8rem;color:#92400e;line-height:1.6;">
+        💡 <strong>How to improve:</strong> Maintain timely bill payments, reduce outstanding debt, and avoid multiple loan enquiries to raise your CIBIL score above 700.
+      </div>
+      <button onclick="document.getElementById('eligRejectModal').style.display='none'"
+              style="width:100%;padding:13px;background:linear-gradient(135deg,#1A3FAA,#2D63FF);color:white;border:none;border-radius:12px;font-size:.9rem;font-weight:700;cursor:pointer;font-family:Poppins,sans-serif;letter-spacing:.2px;">
+        ✓ Got It, I Understand
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- PROCESSING OVERLAY -->
 <div id="processingOverlay">
   <div class="proc-logo">RetailBoost<span class="proc-logo-dot">.</span></div>
@@ -1577,7 +1612,7 @@ const rules={
   1:[{id:'firstName',type:'name'},{id:'lastName',type:'name'},{id:'dob',type:'dob18'},
      {id:'phone',type:'phone'},{id:'email',type:'email'},{id:'panNumber',type:'pan'},
      {id:'aadharName',type:'name'},{id:'addr1',type:'addr10'},{id:'city',type:'text'},{id:'state',type:'text'},
-     {id:'pin',type:'pin'},{id:'panCard',type:'pan'},{id:'custPhoto',type:'file'},{id:'aadhar',type:'file'}],
+     {id:'pin',type:'pin'},{id:'panCard',type:'pan'},{id:'custPhoto',type:'file'},{id:'aadharFront',type:'file'},{id:'aadharBack',type:'file'}],
   2:[{id:'employer',type:'employer'},{id:'workType',type:'select'},{id:'empLen',type:'radio',name:'empLen'},{id:'income',type:'income'}],
   3:[{id:'ref1First',type:'name'},{id:'ref1Last',type:'name'},{id:'ref1Rel',type:'select'},{id:'ref1Phone',type:'phone'},
      {id:'ref2First',type:'name'},{id:'ref2Last',type:'name'},{id:'ref2Rel',type:'select'},{id:'ref2Phone',type:'phone'},
@@ -1651,10 +1686,10 @@ function validatePage(page){
       if(el)el.classList.toggle('error',!ok);
     }
     else if(r.type==='creditScore'){
-      const score = parseInt(el ? el.value : 0);
-      ok = !isNaN(score) && score >= 300 && score <= 900;
+      const score = parseInt(el ? el.value : '');
+      ok = !isNaN(score) && score >= -1 && score <= 900 && score !== 0;
       if(el) el.classList.toggle('error', !ok);
-      if(errEl && !ok) errEl.textContent = 'Credit score must be between 300 and 900';
+      if(errEl && !ok) errEl.textContent = 'Enter a score from -1 to 900 (-1 = no CIBIL history, 0 is not valid)';
     }
     else if(r.type==='accountNum'){
       ok = el && /^\d{9,18}$/.test(el.value.trim());
@@ -1759,6 +1794,10 @@ function checkEligibility(){
     }, t.delay);
   });
 
+  // Capture score before async delays so the value is locked at check time
+  const _cibilScore = parseInt(document.getElementById('creditScore').value) || 0;
+  const _isLowCibil = _cibilScore >= 1 && _cibilScore <= 699;
+
   // After ~4.5 sec: mark last step done, hide overlay, show result modal
   setTimeout(() => {
     const last = document.getElementById('es4');
@@ -1767,7 +1806,11 @@ function checkEligibility(){
 
   setTimeout(() => {
     overlay.classList.remove('show');
-    document.getElementById('eligModal').classList.add('show');
+    if(_isLowCibil){
+      document.getElementById('eligRejectModal').style.display = 'flex';
+    } else {
+      document.getElementById('eligModal').classList.add('show');
+    }
   }, 5000);
 }
 
@@ -2622,6 +2665,8 @@ function buildPDFHTML(d, emi, months){
     .row-label{font-weight:600;color:#64748b;flex:1;}
     .row-value{text-align:right;font-weight:600;color:#1a1a2e;flex:1;}
     .row-value.hl{color:#27ae60;font-weight:700;}
+    .row:nth-child(even){background:#f9fbff;}
+    .row:hover{background:#eef2ff;}
     .emi-highlight{background:linear-gradient(135deg,#0b3d91,#1565c0);color:white;
       border-radius:10px;padding:14px;text-align:center;margin:10px 0;}
     .emi-highlight .el{font-size:11px;opacity:.8;letter-spacing:.5px;text-transform:uppercase;}
@@ -2631,10 +2676,10 @@ function buildPDFHTML(d, emi, months){
     .ref-box{background:#f8faff;border:1px solid #dde6f7;border-radius:8px;padding:12px;}
     .ref-box .ref-name{font-weight:700;color:#0b3d91;font-size:13px;margin-bottom:4px;}
     .ref-box .ref-item{font-size:12px;color:#64748b;padding:2px 0;}
-    .doc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:8px;}
-    .doc-item{text-align:center;}
-    .doc-label{font-size:11px;font-weight:600;color:#0b3d91;margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px;}
-    .doc-item img{width:100%;max-height:160px;object-fit:cover;border-radius:8px;border:1px solid #dde6f7;}
+    .doc-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px;}
+    .doc-item{text-align:center;background:#f8faff;border:1px solid #dde6f7;border-radius:8px;padding:8px;break-inside:avoid;}
+    .doc-label{font-size:10px;font-weight:700;color:#0b3d91;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;}
+    .doc-item img{width:100%;max-height:180px;object-fit:contain;border-radius:6px;background:#fff;display:block;}
     .footer{background:#f0f5ff;padding:10px 16px;text-align:center;margin-top:4px;}
     .footer p{font-size:10px;color:#64748b;margin:2px 0;}
     .agree-box{background:#f8f9ff;border:1px solid #c7d2fe;border-radius:6px;padding:10px 12px;font-size:9px;line-height:1.8;white-space:pre-wrap;color:#374151;font-family:'Courier New',monospace;margin-top:6px;word-break:break-word;}
@@ -2785,14 +2830,18 @@ function buildPDFHTML(d, emi, months){
 
     ${(()=>{
       const imgs = window._uploadedImages || {};
-      const hasImages = imgs.panCard || imgs.custPhoto || imgs.aadhar;
+      const hasImages = imgs.panCard || imgs.custPhoto || imgs.aadharFront || imgs.aadharBack;
       if(!hasImages) return '';
-      return `<div class="section" style="break-inside:avoid;">
-        <div class="section-title">📎 Uploaded Documents</div>
+      const imgItem = (src, label) => src
+        ? `<div class="doc-item"><div class="doc-label">${label}</div><img src="${src}" alt="${label}"></div>`
+        : '<div></div>';
+      return `<div class="section">
+        <div class="section-title">&#128206; Uploaded Documents</div>
         <div class="doc-grid">
-          ${imgs.panCard  ? `<div class="doc-item"><div class="doc-label">PAN Card</div><img src="${imgs.panCard}" alt="PAN Card"></div>` : '<div></div>'}
-          ${imgs.custPhoto? `<div class="doc-item"><div class="doc-label">Customer Photo</div><img src="${imgs.custPhoto}" alt="Photo"></div>` : '<div></div>'}
-          ${imgs.aadhar   ? `<div class="doc-item"><div class="doc-label">Aadhaar / ID</div><img src="${imgs.aadhar}" alt="Aadhaar"></div>` : '<div></div>'}
+          ${imgItem(imgs.panCard,      'PAN Card')}
+          ${imgItem(imgs.custPhoto,    'Customer Photo')}
+          ${imgItem(imgs.aadharFront,  'Aadhaar Front')}
+          ${imgItem(imgs.aadharBack,   'Aadhaar Back')}
         </div>
       </div>`;
     })()}
