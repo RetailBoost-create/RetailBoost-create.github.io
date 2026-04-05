@@ -42,34 +42,46 @@
 <script>
 /* ══════════════════════════════════════════════════
    LOGIN AUTHENTICATION
+   Credentials stored as SHA-256 hashes only.
    ══════════════════════════════════════════════════ */
-const HARDCODED_CREDENTIALS = {
-  username: 'rb.finance.n562913@retailboost.in',
-  password: 'Rb#Secure@1873'
+const _CH = {
+  u: '226b68f9e396a75b4443b8f91bdb81370bb308e6defb360b1bd36fa18adf50f0',
+  p: 'afa4784aff61a21e04a3b9b8c62af5d843019bb25f3ab34a7cd19e745d6c6a6d'
 };
 
-function handleLogin(event) {
+async function _sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+async function handleLogin(event) {
   event.preventDefault();
-  
+
   const username = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value;
-  const errorEl = document.getElementById('loginError');
-  
-  // Clear previous errors
+  const errorEl  = document.getElementById('loginError');
+  const btn      = event.target.querySelector('button[type=submit]');
+
   errorEl.classList.remove('show');
   errorEl.textContent = '';
-  
-  // Validate credentials
-  if (username === HARDCODED_CREDENTIALS.username && password === HARDCODED_CREDENTIALS.password) {
-    // Success - hide login and show form
-    localStorage.setItem('retailboost_login', 'true');
-    hideLoginPage();
-    showToast('✅ Login successful!');
-  } else {
-    // Failed — generic message, do not reveal which field is wrong
-    errorEl.textContent = 'Invalid ID or Password';
+  if (btn) { btn.disabled = true; btn.textContent = 'Verifying…'; }
+
+  try {
+    const [uh, ph] = await Promise.all([_sha256(username), _sha256(password)]);
+    if (uh === _CH.u && ph === _CH.p) {
+      localStorage.setItem('retailboost_login', 'true');
+      hideLoginPage();
+      showToast('✅ Login successful!');
+    } else {
+      errorEl.textContent = 'Invalid ID or Password';
+      errorEl.classList.add('show');
+      document.getElementById('password').value = '';
+    }
+  } catch(e) {
+    errorEl.textContent = 'Login error. Please try again.';
     errorEl.classList.add('show');
-    document.getElementById('password').value = '';
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Login'; }
   }
 }
 
