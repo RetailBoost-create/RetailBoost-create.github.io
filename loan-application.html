@@ -120,6 +120,7 @@ function hideLoginPage() {
     showMainForm();
   } else {
     document.getElementById('preVerifyPage').classList.add('active');
+    _preWarmRecaptcha();
   }
 }
 
@@ -1845,6 +1846,12 @@ function isAtLeast18(dob){
 /* Widget ID returned by render() — used to reset without destroying */
 let _rcWidgetId = null;
 
+/* Pre-warm reCAPTCHA in background as soon as pre-verify page is shown,
+   so it's already ready when user clicks Send OTP */
+function _preWarmRecaptcha(){
+  if(!window.recaptchaVerifier) _ensureRecaptcha().catch(e => console.warn('reCAPTCHA pre-warm failed:', e));
+}
+
 /* Full teardown — only call on cancel / page reset, NOT on resend */
 function _destroyRecaptcha(){
   if(window.recaptchaVerifier){
@@ -2669,8 +2676,16 @@ async function generatePDFBlob(formData, emi, months){
   const opt = {
     margin: 0,
     filename: `RetailBoost_Loan_${formData.loanNumber}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+    image: { type: 'png' },
+    html2canvas: {
+      scale: 3,
+      useCORS: true,
+      scrollY: 0,
+      letterRendering: true,
+      allowTaint: false,
+      imageTimeout: 20000,
+      logging: false
+    },
     jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
   };
   return await html2pdf().set(opt).from(htmlContent).outputPdf('blob');
@@ -3389,6 +3404,7 @@ function continueToDeviceInfo(){
     showMainForm();
   } else {
     document.getElementById('preVerifyPage').classList.add('active');
+    _preWarmRecaptcha();
   }
   window.scrollTo({ top: 0, behavior: 'smooth' });
   showToast('✅ Form cleared. Ready for new application!');
@@ -3432,12 +3448,12 @@ function buildPDFHTML(d, emi, months){
 
   /* document image cell */
   const imgCell = (src, label) =>
-    '<td style="width:33%;padding:5px;vertical-align:top;">'
+    '<td style="width:33%;padding:6px;vertical-align:top;">'
     + '<div style="background:#f8faff;border:1px solid #dde6f7;border-radius:8px;padding:8px;text-align:center;">'
     + '<div style="font-size:9px;font-weight:700;color:#0b3d91;margin-bottom:6px;text-transform:uppercase;">' + label + '</div>'
     + (src
-        ? '<img src="' + src + '" style="width:100%;height:140px;object-fit:contain;background:#fff;border-radius:4px;display:block;" alt="' + label + '">'
-        : '<div style="height:140px;line-height:140px;text-align:center;color:#aaa;font-size:10px;">Not uploaded</div>')
+        ? '<img src="' + src + '" style="width:100%;height:200px;object-fit:contain;background:#fff;border-radius:4px;display:block;" alt="' + label + '">'
+        : '<div style="height:200px;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:10px;">Not uploaded</div>')
     + '</div></td>';
 
   /* signature block */
@@ -3546,7 +3562,7 @@ function buildPDFHTML(d, emi, months){
       ? '<div style="margin-top:14px;">'
         + H('&#128248; Customer Photo')
         + '<div style="text-align:center;padding:14px 0;">'
-        + '<img src="' + imgs.custPhoto + '" style="height:200px;width:auto;max-width:220px;object-fit:contain;border-radius:10px;border:1px solid #dde6f7;background:#fff;" alt="Customer Photo">'
+        + '<img src="' + imgs.custPhoto + '" style="height:300px;width:auto;max-width:320px;object-fit:contain;border-radius:10px;border:1px solid #dde6f7;background:#fff;" alt="Customer Photo">'
         + '</div></div>'
       : '')
 
