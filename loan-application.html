@@ -8,6 +8,8 @@
 
 <!-- PDF Generation Library -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<!-- EmailJS SDK — for sending email with PDF link (no backend needed) -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
 <!-- ══════════════════════════════════════════════════
      FIREBASE SDK  — loaded from CDN (no backend needed)
@@ -83,7 +85,7 @@ async function handleLogin(event) {
   /* DEV_MODE: skip Firebase — use mock retailer */
   if (DEV_MODE) {
     currentRetailer = MOCK_RETAILER;
-    localStorage.setItem('retailboost_login', 'true');
+
     hideLoginPage();
     showToast('\u2705 Dev mode \u2014 logged in as ' + MOCK_RETAILER.email);
     return;
@@ -93,7 +95,7 @@ async function handleLogin(event) {
   try {
     const cred = await window._signInWithEmailAndPassword(window._firebaseAuth, email, password);
     currentRetailer = { uid: cred.user.uid, email: cred.user.email };
-    localStorage.setItem('retailboost_login', 'true');
+
     hideLoginPage();
     showToast('\u2705 Login successful!');
   } catch(e) {
@@ -110,18 +112,36 @@ function hideLoginPage() {
   loginPage.classList.remove('active-login');
   loginPage.classList.add('hidden-login');
   document.getElementById('loginForm').reset();
-  document.querySelector('.loan-hero').classList.remove('hidden-content');
-  document.querySelector('.stepper-wrap').classList.remove('hidden-content');
-  document.querySelector('.form-wrap').classList.remove('hidden-content');
+
+  if (typeof DEV_MODE !== 'undefined' && DEV_MODE) {
+    /* DEV_MODE: skip pre-verify entirely, go straight to form */
+    window.verifiedCustomerPhone = '9999999999';
+    otpVerified = true;
+    showMainForm();
+  } else {
+    document.getElementById('preVerifyPage').classList.add('active');
+  }
 }
 
 function showLoginPage() {
   const loginPage = document.getElementById('loginPage');
   loginPage.classList.add('active-login');
   loginPage.classList.remove('hidden-login');
+  document.getElementById('preVerifyPage').classList.remove('active');
   document.querySelector('.loan-hero').classList.add('hidden-content');
   document.querySelector('.stepper-wrap').classList.add('hidden-content');
   document.querySelector('.form-wrap').classList.add('hidden-content');
+}
+
+/* Called after pre-verify succeeds — hides pre-verify screen and opens the main form */
+function showMainForm() {
+  document.getElementById('preVerifyPage').classList.remove('active');
+  document.querySelector('.loan-hero').classList.remove('hidden-content');
+  document.querySelector('.stepper-wrap').classList.remove('hidden-content');
+  document.querySelector('.form-wrap').classList.remove('hidden-content');
+  /* Auto-fill the locked phone display on Page 1 */
+  const displayEl = document.getElementById('phoneDisplayNum');
+  if (displayEl) displayEl.textContent = window.verifiedCustomerPhone || '';
 }
 
 window.addEventListener('DOMContentLoaded', function() {
@@ -135,17 +155,15 @@ window.addEventListener('DOMContentLoaded', function() {
     document.body.prepend(banner);
     return;
   }
-  const cached = localStorage.getItem('retailboost_login') === 'true';
-  if (cached) hideLoginPage(); else showLoginPage();
+  /* Always show login on page load — let onAuthStateChanged decide */
+  showLoginPage();
   if (window._onAuthStateChanged && window._firebaseAuth) {
     window._onAuthStateChanged(window._firebaseAuth, function(user) {
       if (user) {
         currentRetailer = { uid: user.uid, email: user.email };
-        localStorage.setItem('retailboost_login', 'true');
         hideLoginPage();
       } else {
         currentRetailer = null;
-        localStorage.removeItem('retailboost_login');
         showLoginPage();
       }
     });
@@ -157,7 +175,6 @@ async function logout() {
     try { await window._firebaseSignOut(window._firebaseAuth); } catch(e) {}
   }
   currentRetailer = null;
-  localStorage.removeItem('retailboost_login');
   location.reload();
 }
 </script>
@@ -362,9 +379,9 @@ nav a:hover{color:white;background:rgba(255,255,255,.1);}
 .proc-status{font-size:.76rem;opacity:.65;min-height:1.2em;}
 
 /* APPROVAL OVERLAY */
-#approvalOverlay{display:none;position:fixed;inset:0;background:rgba(6,15,46,.97);z-index:99999;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
+#approvalOverlay{display:none;position:fixed;inset:0;background:rgba(6,15,46,.97);z-index:99999;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;}
 #approvalOverlay.show{display:flex;}
-.approval-card{background:white;border-radius:24px;max-width:470px;width:100%;overflow:hidden;animation:popIn .5s cubic-bezier(.175,.885,.32,1.275);}
+.approval-card{background:white;border-radius:24px;max-width:470px;width:100%;overflow-y:auto;animation:popIn .5s cubic-bezier(.175,.885,.32,1.275);margin:auto;}
 @keyframes popIn{from{transform:scale(.7);opacity:0;}to{transform:scale(1);opacity:1;}}
 .appr-top{background:linear-gradient(160deg,var(--navy-dark),var(--navy));padding:28px 30px 22px;text-align:center;color:white;position:relative;overflow:hidden;}
 .appr-top::before{content:'';position:absolute;top:-40px;right:-40px;width:130px;height:130px;border-radius:50%;background:radial-gradient(circle,rgba(16,196,140,.2) 0%,transparent 70%);}
@@ -397,6 +414,39 @@ nav a:hover{color:white;background:rgba(255,255,255,.1);}
 .callmebot-status.show{display:flex;align-items:center;gap:8px;}
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:#0C1A4E;color:white;padding:12px 24px;border-radius:30px;font-size:.84rem;font-weight:500;z-index:999999;transition:.4s;opacity:0;white-space:nowrap;max-width:90vw;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.3);}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+/* ══════════════════════════════════════════════════
+   PRE-VERIFY SCREEN (customer mobile OTP before form)
+   ══════════════════════════════════════════════════ */
+.pre-verify-container{position:fixed;inset:0;background:linear-gradient(160deg,var(--navy-dark),var(--navy));display:none;align-items:center;justify-content:center;z-index:10000;padding:20px;}
+.pre-verify-container.active{display:flex;}
+.pre-verify-box{background:white;border-radius:24px;box-shadow:0 32px 80px rgba(0,0,0,.28);max-width:460px;width:100%;padding:44px 40px;}
+.pre-verify-header{text-align:center;margin-bottom:28px;}
+.pre-verify-icon{font-size:2.8rem;margin-bottom:14px;}
+.pre-verify-header h2{font-size:1.4rem;font-weight:800;color:var(--navy);margin-bottom:6px;letter-spacing:-.4px;}
+.pre-verify-header p{font-size:.88rem;color:var(--muted);line-height:1.6;}
+.pre-verify-field label{font-size:.82rem;font-weight:700;color:var(--navy);margin-bottom:6px;display:block;letter-spacing:.2px;}
+.pre-verify-field input[type=tel]{width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:11px;font-size:.88rem;font-family:Poppins,sans-serif;color:var(--text);background:#FAFCFF;outline:none;transition:var(--t);}
+.pre-verify-field input[type=tel]:focus{border-color:var(--navy);box-shadow:0 0 0 4px rgba(26,63,170,.1);background:white;}
+.pre-verify-field input[type=tel]:disabled{background:#f5f5f5;color:#888;cursor:not-allowed;}
+.pre-verify-trust{display:flex;justify-content:center;gap:20px;margin-top:20px;font-size:.72rem;color:#888;}
+@media(max-width:520px){.pre-verify-box{padding:30px 22px;}.pre-verify-trust{flex-wrap:wrap;gap:10px;}}
+
+/* ══ PHOTO VERIFICATION SECTION (approval screen step 2) ══ */
+.photo-verify-header{text-align:center;padding:18px 0 14px;border-top:2px dashed var(--border);margin-top:4px;}
+.photo-verify-header .pv-step{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,var(--navy-dark),var(--navy));color:white;padding:5px 14px;border-radius:20px;font-size:.72rem;font-weight:700;margin-bottom:10px;letter-spacing:.3px;}
+.photo-verify-header h3{font-size:.98rem;font-weight:800;color:var(--navy);margin-bottom:5px;letter-spacing:-.2px;}
+.photo-verify-header p{font-size:.77rem;color:var(--muted);line-height:1.55;}
+.photo-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+.photo-label{font-size:.71rem;font-weight:700;color:var(--navy);letter-spacing:.3px;text-transform:uppercase;margin-bottom:5px;}
+.photo-preview{width:100%;max-height:72px;object-fit:cover;border-radius:8px;margin-top:6px;display:none;}
+.photo-preview.show{display:block;}
+.btn-photo-submit{display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#0f766e,#10b981);color:white;padding:14px 20px;border-radius:12px;font-weight:700;font-size:.9rem;cursor:pointer;border:none;width:100%;font-family:Poppins,sans-serif;transition:var(--t);box-shadow:0 6px 20px rgba(16,185,129,.35);letter-spacing:.2px;}
+.btn-photo-submit:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(16,185,129,.45);}
+.btn-photo-submit:disabled{background:#aaa;box-shadow:none;transform:none;cursor:not-allowed;}
+.photo-status{display:none;background:#f0f5ff;border:1.5px solid var(--border);border-radius:12px;padding:14px 16px;text-align:center;margin-bottom:12px;}
+.photo-status .ps-icon{font-size:1.4rem;margin-bottom:5px;}
+.photo-status .ps-msg{font-size:.8rem;font-weight:600;color:var(--navy);line-height:1.6;}
 
 /* FOOTER & WA */
 footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:28px;font-size:.82rem;border-top:1px solid rgba(255,255,255,.05);}
@@ -596,6 +646,49 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
   </div>
 </div>
 
+<!-- ══════════════════════════════════════════════════
+     PRE-VERIFY SCREEN — customer mobile OTP before form loads
+     All OTP element IDs stay identical so sendOTP/verifyOTP work unchanged.
+     ══════════════════════════════════════════════════ -->
+<div id="preVerifyPage" class="pre-verify-container">
+  <div class="pre-verify-box">
+    <div class="pre-verify-header">
+      <div class="pre-verify-icon">📱</div>
+      <h2>Verify Customer Mobile</h2>
+      <p>Enter the customer's 10-digit mobile number to check eligibility and send OTP</p>
+    </div>
+    <div class="pre-verify-field">
+      <label>Customer Mobile Number <span class="req">*</span></label>
+      <div class="phone-row" style="margin-bottom:0;">
+        <input type="tel" id="phone" placeholder="10-digit mobile number" maxlength="10"
+               inputmode="numeric" autocomplete="tel-national"
+               oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)">
+        <button class="btn-send-otp" id="btnSendOtp" onclick="sendOTP()">Send OTP</button>
+      </div>
+      <!-- Firebase invisible reCAPTCHA mounts here -->
+      <div id="recaptcha-container"></div>
+      <div class="otp-wrap" id="otpWrap">
+        <div class="otp-input-row">
+          <input type="text" id="otpInput" placeholder="Enter 6-digit OTP" maxlength="6"
+                 oninput="this.value=this.value.replace(/\D/g,'').slice(0,6)">
+          <button class="btn-verify-otp" onclick="verifyOTP()">Verify</button>
+          <button class="btn-cancel-otp" onclick="cancelOTP()">Cancel</button>
+        </div>
+        <div class="otp-timer" id="otpTimer">Resend in <span id="otpCountdown">60</span>s</div>
+        <span class="resend-link" id="resendLink" onclick="resendOTP()">Resend OTP</span>
+      </div>
+      <div class="otp-verified" id="otpVerifiedMsg">✅ Mobile number verified! Loading form…</div>
+      <span class="err-msg" id="err-phone">Enter a valid 10-digit mobile number</span>
+      <span class="err-msg" id="err-otp">Please verify your mobile number with OTP</span>
+    </div>
+    <div class="pre-verify-trust">
+      <span>🔒 256-bit Secure</span>
+      <span>✅ Data Encrypted</span>
+      <span>📱 Instant OTP</span>
+    </div>
+  </div>
+</div>
+
 <header class="navbar">
   <div class="nav-flex">
     <a href="index.html" class="logo">RetailBoost</a>
@@ -658,27 +751,12 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
           </div>
           <div class="field">
             <label>Phone Number <span class="req">*</span></label>
-            <div class="phone-row">
-              <input type="tel" id="phone" placeholder="10-digit mobile number" maxlength="10"
-                     inputmode="numeric" autocomplete="tel-national" enterkeyhint="next"
-                     oninput="this.value=this.value.replace(/\D/g,'').slice(0,10)">
-              <button class="btn-send-otp" id="btnSendOtp" onclick="sendOTP()">Send OTP</button>
+            <!-- Phone is pre-verified before form loads — locked display only -->
+            <div style="display:flex;align-items:center;gap:10px;background:#f0fff8;border:1.5px solid var(--green-dark);border-radius:11px;padding:12px 16px;">
+              <span style="font-size:1.1rem;flex-shrink:0;">📱</span>
+              <span id="phoneDisplayNum" style="font-size:.95rem;font-weight:700;color:var(--navy);flex:1;letter-spacing:.5px;">—</span>
+              <span style="font-size:.74rem;color:var(--green-dark);font-weight:700;background:#d1fae5;padding:3px 10px;border-radius:20px;white-space:nowrap;">✅ OTP Verified</span>
             </div>
-            <!-- Firebase invisible reCAPTCHA mounts here -->
-            <div id="recaptcha-container"></div>
-            <div class="otp-wrap" id="otpWrap">
-              <div class="otp-input-row">
-                <input type="text" id="otpInput" placeholder="Enter 6-digit OTP" maxlength="6"
-                       oninput="this.value=this.value.replace(/\D/g,'').slice(0,6)">
-                <button class="btn-verify-otp" onclick="verifyOTP()">Verify</button>
-                <button class="btn-cancel-otp" onclick="cancelOTP()">Cancel</button>
-              </div>
-              <div class="otp-timer" id="otpTimer">Resend in <span id="otpCountdown">60</span>s</div>
-              <span class="resend-link" id="resendLink" onclick="resendOTP()">Resend OTP</span>
-            </div>
-            <div class="otp-verified" id="otpVerifiedMsg">✅ Mobile number verified!</div>
-            <span class="err-msg" id="err-phone">Enter a valid 10-digit mobile number</span>
-            <span class="err-msg" id="err-otp">Please verify your mobile number with OTP</span>
           </div>
         </div>
         <div class="field-group">
@@ -1466,25 +1544,73 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
         <div class="rc" id="loanNumber">RB-2026-000000</div>
       </div>
 
-      <!-- CallMeBot background-send status -->
-      <div class="callmebot-status" id="cmBotStatus">
-        📲 Application details sent to RetailBoost WhatsApp!
+      <!-- Submission status — updated by finalizeSubmission() -->
+      <div id="submitStatus" style="background:#f0fff8;border:1.5px solid var(--green-dark);border-radius:12px;padding:16px 18px;text-align:center;margin-bottom:16px;">
+        <div id="submitStatusIcon" style="font-size:1.5rem;margin-bottom:6px;">⏳</div>
+        <div id="submitStatusMsg" style="font-size:.83rem;font-weight:600;color:#065f46;line-height:1.65;">
+          Generating PDF and sending to finance team…
+        </div>
       </div>
 
-      <div class="appr-actions">
-        <!-- PDF Download Button -->
-        <button class="btn-download" onclick="generateAndDownloadPDF()">
-          📄 Download Full PDF Report
-        </button>
-        <!-- WhatsApp Button — downloads PDF first, then opens WA -->
-        <button class="btn-wa" onclick="shareViaWhatsApp()">
-          💬 Share Application on WhatsApp
-        </button>
-        <!-- Continue Button — resets form and goes back to Step 1 -->
+      <!-- ═══ STEP 2: PHOTO VERIFICATION — revealed after loan submission ✅ ═══ -->
+      <div id="photoVerifySection" style="display:none;">
+
+        <div class="photo-verify-header">
+          <div class="pv-step">📸 Step 2 of 2</div>
+          <h3>Physical Verification</h3>
+          <p>Upload box opening photo with customer<br>and the purchase invoice to complete</p>
+        </div>
+
+        <div class="photo-grid">
+          <!-- Box Opening Photo -->
+          <div>
+            <div class="photo-label">📦 Box Opening</div>
+            <div class="upload-box" id="box-boxPhoto">
+              <input type="file" id="input-boxPhoto" accept="image/*" capture="environment"
+                     onchange="handleVerificationUpload(this,'box-boxPhoto','lbl-boxPhoto','prev-boxPhoto')">
+              <div class="uicon" style="font-size:1.6rem;margin-bottom:5px;">📦</div>
+              <strong id="lbl-boxPhoto" style="font-size:.76rem;">Customer + Mobile</strong>
+              <p style="font-size:.68rem;">Tap to capture</p>
+              <img id="prev-boxPhoto" class="photo-preview" alt="Box photo preview">
+            </div>
+          </div>
+          <!-- Invoice Photo -->
+          <div>
+            <div class="photo-label">🧾 Invoice</div>
+            <div class="upload-box" id="box-invoicePhoto">
+              <input type="file" id="input-invoicePhoto" accept="image/*" capture="environment"
+                     onchange="handleVerificationUpload(this,'box-invoicePhoto','lbl-invoicePhoto','prev-invoicePhoto')">
+              <div class="uicon" style="font-size:1.6rem;margin-bottom:5px;">🧾</div>
+              <strong id="lbl-invoicePhoto" style="font-size:.76rem;">Purchase Invoice</strong>
+              <p style="font-size:.68rem;">Tap to capture</p>
+              <img id="prev-invoicePhoto" class="photo-preview" alt="Invoice preview">
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Photos Button — appears when both photos selected -->
+        <div id="photoSubmitWrap" style="display:none;margin-bottom:10px;">
+          <button id="btnSubmitPhotos" class="btn-photo-submit" onclick="submitVerificationPhotos()">
+            📤 Submit Verification Photos
+          </button>
+        </div>
+
+        <!-- Photo submission status box -->
+        <div class="photo-status" id="photoStatus">
+          <div class="ps-icon" id="photoStatusIcon">⏳</div>
+          <div class="ps-msg" id="photoStatusMsg">Uploading photos…</div>
+        </div>
+
+      </div>
+      <!-- ════════════════════════════════════════════════════════════ -->
+
+      <!-- Start New Application — only revealed after photos submitted -->
+      <div id="newAppWrap" style="display:none;padding-top:4px;">
         <button class="btn-continue" onclick="continueToDeviceInfo()">
           🔄 Start New Application
         </button>
       </div>
+
     </div>
   </div>
 </div>
@@ -1495,21 +1621,21 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
 
 <script>
 /* ══════════════════════════════════════════════════
-   🔧 STEP 2 — Configure these two values
+   🔧 EMAIL CONFIG — EmailJS (free, no backend needed)
    ══════════════════════════════════════════════════
-
-   WHATSAPP_NUMBER  → Your WhatsApp number WITH country code, no +
-                      e.g. '919187627737'  (91 = India, then 10-digit number)
-
-   CALLMEBOT_KEY    → Your CallMeBot API key.
-   HOW TO GET IT (one-time, free):
-     1. Open WhatsApp → send a message to +34 644 59 19 05
-        with this exact text: I allow callmebot to send me messages
-     2. CallMeBot will reply with your API key (e.g. 1234567)
-     3. Paste it below
+   HOW TO SET UP (one-time, free at emailjs.com):
+     1. Create account at https://www.emailjs.com
+     2. Add Email Service: connect your Gmail/SMTP → copy Service ID
+     3. Create Email Template with variables:
+          {{to_email}}, {{subject}}, {{loan_number}},
+          {{customer_name}}, {{phone}}, {{pdf_url}}, {{summary}}
+     4. Copy Template ID and Public Key from account dashboard
+     5. Paste all three values below
    ═══════════════════════════════════════════════ */
-const WHATSAPP_NUMBER = '919187627737';   // ← your number
-const CALLMEBOT_KEY   = 'YOUR_CALLMEBOT_API_KEY'; // ← paste key here
+const EMAILJS_SERVICE_ID  = 'service_575z3vq';
+const EMAILJS_TEMPLATE_ID = 'template_4mq65ib';
+const EMAILJS_PUBLIC_KEY  = 'uuqFprCaGUb5DdU7R';
+const FINANCE_EMAIL       = 'info@retailboost.in';
 
 /* ══════════════════════════════════════════════════
    FILE CONSTANTS
@@ -1715,33 +1841,52 @@ function isAtLeast18(dob){
 }
 
 /* ── FIREBASE OTP ── */
-function initRecaptcha(){
-  if (window.recaptchaVerifier) return;
-  // Clear any stale widget markup left over from a previous render/reset
-  const container = document.getElementById('recaptcha-container');
-  if (container) container.innerHTML = '';
 
-  const auth = window._firebaseAuth;
+/* Widget ID returned by render() — used to reset without destroying */
+let _rcWidgetId = null;
+
+/* Full teardown — only call on cancel / page reset, NOT on resend */
+function _destroyRecaptcha(){
+  if(window.recaptchaVerifier){
+    try { window.recaptchaVerifier.clear(); } catch(e) {}
+    window.recaptchaVerifier = null;
+  }
+  _rcWidgetId = null;
+  const c = document.getElementById('recaptcha-container');
+  if(c) c.innerHTML = '';
+}
+
+/* Ensure verifier is ready before signInWithPhoneNumber.
+   If widget already rendered, reset it (no destroy needed — avoids null-ref crash). */
+async function _ensureRecaptcha(){
+  if(window.recaptchaVerifier && _rcWidgetId !== null){
+    try { if(typeof grecaptcha !== 'undefined') grecaptcha.reset(_rcWidgetId); } catch(e) {}
+    return;
+  }
+  /* Fresh create */
+  const c = document.getElementById('recaptcha-container');
+  if(c) c.innerHTML = '';
   window.recaptchaVerifier = new window._RecaptchaVerifier(
-    auth,
-    'recaptcha-container',
-    { size: 'invisible', callback: () => { console.log('reCAPTCHA verified'); } }
+    window._firebaseAuth, 'recaptcha-container',
+    { size:'invisible', callback: ()=>{ console.log('reCAPTCHA verified'); } }
   );
-  window.recaptchaVerifier.render();
+  _rcWidgetId = await window.recaptchaVerifier.render();
 }
 
 async function sendOTP(){
-  const ph = document.getElementById('phone').value;
+  const ph = document.getElementById('phone').value.trim();
 
-  /* DEV_MODE: instant mock verification — no real OTP needed */
+  /* DEV_MODE: instant mock verification */
   if(typeof DEV_MODE !== 'undefined' && DEV_MODE){
     otpVerified = true;
+    window.verifiedCustomerPhone = ph || '9999999999';
     document.getElementById('otpWrap').classList.remove('show');
     document.getElementById('otpVerifiedMsg').classList.add('show');
     document.getElementById('phone').disabled = true;
     document.getElementById('btnSendOtp').style.display = 'none';
     document.getElementById('err-otp').classList.remove('show');
-    showToast('\u2705 [DEV MODE] Phone auto-verified');
+    showToast('✅ [DEV MODE] Phone auto-verified');
+    setTimeout(showMainForm, 900);
     return;
   }
 
@@ -1751,6 +1896,7 @@ async function sendOTP(){
     return;
   }
   document.getElementById('err-phone').classList.remove('show');
+  document.getElementById('err-otp').classList.remove('show');
   document.getElementById('phone').classList.remove('error');
 
   const btn = document.getElementById('btnSendOtp');
@@ -1758,63 +1904,65 @@ async function sendOTP(){
   btn.textContent = 'Sending…';
 
   try {
-    initRecaptcha();
-    const phoneNumber = '+91' + ph;
+    await _ensureRecaptcha(); /* await so widget is ready before SMS call */
     confirmationResult = await window._signInWithPhoneNumber(
-  window._firebaseAuth, phoneNumber, window.recaptchaVerifier
-);
+      window._firebaseAuth, '+91' + ph, window.recaptchaVerifier
+    );
     showToast('✅ OTP sent to +91 ' + ph);
+    document.getElementById('otpInput').value = '';
     document.getElementById('otpWrap').classList.add('show');
     btn.textContent = 'Sent ✓';
     startOTPTimer(60);
   } catch(err){
-    console.error('OTP error:', err);
-    // Map Firebase error codes to user-friendly messages
+    console.error('OTP send error:', err);
     const code = err && err.code ? err.code : '';
     let msg = 'Failed to send OTP. Please try again.';
-    if (code === 'auth/invalid-phone-number')       msg = 'Invalid phone number. Check and retry.';
-    else if (code === 'auth/too-many-requests')     msg = 'Too many attempts. Please wait a few minutes.';
-    else if (code === 'auth/network-request-failed')msg = 'Network error. Check your connection.';
-    else if (code === 'auth/quota-exceeded')        msg = 'SMS quota exceeded. Try again later.';
+    if(code === 'auth/invalid-phone-number')        msg = 'Invalid phone number. Check and retry.';
+    else if(code === 'auth/too-many-requests')      msg = 'Too many attempts. Please wait a few minutes.';
+    else if(code === 'auth/network-request-failed') msg = 'Network error. Check your connection.';
+    else if(code === 'auth/quota-exceeded')         msg = 'SMS quota exceeded. Try again later.';
     showToast('❌ ' + msg);
     btn.disabled = false;
     btn.textContent = 'Send OTP';
-    // Always destroy the verifier and clear its DOM node so a fresh one can be created
-    if (window.recaptchaVerifier) {
-      try { window.recaptchaVerifier.clear(); } catch(e) { /* ignore */ }
-      window.recaptchaVerifier = null;
-    }
-    const container = document.getElementById('recaptcha-container');
-    if (container) container.innerHTML = '';
+    _destroyRecaptcha(); /* must destroy so next attempt gets a fresh widget */
   }
 }
 
 function startOTPTimer(sec){
   clearInterval(otpTimerHandle);
-  document.getElementById('otpTimer').style.display='block';
+  document.getElementById('otpTimer').style.display = 'block';
   document.getElementById('resendLink').classList.remove('show');
-  let r=sec; document.getElementById('otpCountdown').textContent=r;
-  otpTimerHandle=setInterval(()=>{
-    r--; document.getElementById('otpCountdown').textContent=r;
-    if(r<=0){
+  let r = sec;
+  document.getElementById('otpCountdown').textContent = r;
+  otpTimerHandle = setInterval(()=>{
+    r--;
+    document.getElementById('otpCountdown').textContent = r;
+    if(r <= 0){
       clearInterval(otpTimerHandle);
-      document.getElementById('otpTimer').style.display='none';
+      document.getElementById('otpTimer').style.display = 'none';
       document.getElementById('resendLink').classList.add('show');
     }
-  },1000);
+  }, 1000);
 }
 
 function resendOTP(){
-  window.recaptchaVerifier = null; // force fresh recaptcha
-  document.getElementById('btnSendOtp').disabled = false;
+  clearInterval(otpTimerHandle);
+  /* Do NOT destroy — _ensureRecaptcha() will grecaptcha.reset() the existing widget.
+     Destroying causes null-ref crash in reCAPTCHA's internal async callbacks. */
+  confirmationResult = null;
+  document.getElementById('otpInput').value = '';
+  document.getElementById('err-otp').classList.remove('show');
+  const btn = document.getElementById('btnSendOtp');
+  if(btn){ btn.disabled = false; btn.textContent = 'Send OTP'; btn.style.display = ''; }
   sendOTP();
 }
 
 function cancelOTP(){
-  // Stop the countdown timer
   clearInterval(otpTimerHandle);
+  _destroyRecaptcha();
+  confirmationResult = null;
 
-  // Hide OTP wrap and reset its fields
+  /* Hide OTP section and clear all its state */
   const otpWrap = document.getElementById('otpWrap');
   if(otpWrap) otpWrap.classList.remove('show');
   const otpInput = document.getElementById('otpInput');
@@ -1824,24 +1972,15 @@ function cancelOTP(){
   const resendLink = document.getElementById('resendLink');
   if(resendLink) resendLink.classList.remove('show');
 
-  // Re-enable Send OTP button so user can retry immediately
-  const btn = document.getElementById('btnSendOtp');
-  if(btn){ btn.disabled = false; btn.textContent = 'Send OTP'; }
+  /* Clear error messages */
+  document.getElementById('err-phone').classList.remove('show');
+  document.getElementById('err-otp').classList.remove('show');
 
-  // Re-enable phone field
+  /* Unlock phone field and button for fresh attempt */
   const phoneEl = document.getElementById('phone');
-  if(phoneEl) phoneEl.disabled = false;
-
-  // Clear the pending confirmation so a fresh OTP flow can start
-  confirmationResult = null;
-
-  // Destroy recaptcha verifier so a new one can be created on next Send OTP
-  if(window.recaptchaVerifier){
-    try { window.recaptchaVerifier.clear(); } catch(e) {}
-    window.recaptchaVerifier = null;
-  }
-  const container = document.getElementById('recaptcha-container');
-  if(container) container.innerHTML = '';
+  if(phoneEl){ phoneEl.disabled = false; phoneEl.classList.remove('error'); }
+  const btn = document.getElementById('btnSendOtp');
+  if(btn){ btn.disabled = false; btn.textContent = 'Send OTP'; btn.style.display = ''; }
 }
 
 async function checkPhoneAlreadyApplied(phone) {
@@ -1881,6 +2020,7 @@ async function verifyOTP(){
     }
 
     otpVerified = true;
+    window.verifiedCustomerPhone = phone;   /* store globally for Page 1 display */
     document.getElementById('otpWrap').classList.remove('show');
     document.getElementById('otpVerifiedMsg').classList.add('show');
     document.getElementById('phone').disabled = true;
@@ -1888,6 +2028,8 @@ async function verifyOTP(){
     document.getElementById('err-otp').classList.remove('show');
     clearInterval(otpTimerHandle);
     showToast('✅ Mobile verified!');
+    /* Brief delay so user sees "verified" message before form slides in */
+    setTimeout(showMainForm, 900);
   } catch(err){
     showToast('❌ Wrong OTP. Please try again.');
   }
@@ -2461,7 +2603,7 @@ function startProcessing(){
   document.getElementById('processingOverlay').classList.add('show');
   const bar=document.getElementById('procBar'), pct=document.getElementById('procPct'), status=document.getElementById('procStatus');
   const timeline=[
-    {id:'ps1', delay:0,     pct:15,  txt:'Sending data to RetailBoost WhatsApp…'},
+    {id:'ps1', delay:0,     pct:15,  txt:'Preparing application data…'},
     {id:'ps2', delay:3000,  pct:35,  txt:'Verifying identity documents…'},
     {id:'ps3', delay:6500,  pct:58,  txt:'Running credit eligibility check…'},
     {id:'ps4', delay:10000, pct:80,  txt:'Calculating loan approval limit…'},
@@ -2509,83 +2651,343 @@ function collectFormData(loanNum,amt){
 }
 
 /* ══════════════════════════════════════════════════
-   📲 CALLMEBOT — sends to YOUR WhatsApp in background
+   📄 FINAL SUBMISSION — PDF → Storage → Firestore → Email
    ══════════════════════════════════════════════════ */
-async function sendViaCallMeBot(d){
-  if(!CALLMEBOT_KEY || CALLMEBOT_KEY === 'YOUR_CALLMEBOT_API_KEY'){
-    console.warn('CallMeBot key not configured — skipping background send');
+
+function _setSubmitStatus(icon, msg, color){
+  const iconEl = document.getElementById('submitStatusIcon');
+  const msgEl  = document.getElementById('submitStatusMsg');
+  const boxEl  = document.getElementById('submitStatus');
+  if(iconEl) iconEl.textContent = icon;
+  if(msgEl)  msgEl.textContent  = msg;
+  if(boxEl && color) boxEl.style.borderColor = color;
+}
+
+/* Generate PDF as a Blob (no download) */
+async function generatePDFBlob(formData, emi, months){
+  const htmlContent = buildPDFHTML(formData, emi, months);
+  const opt = {
+    margin: 0,
+    filename: `RetailBoost_Loan_${formData.loanNumber}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+    jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+  };
+  return await html2pdf().set(opt).from(htmlContent).outputPdf('blob');
+}
+
+/* Minimal Firestore write: phone → { phone, customerName, loanNumber, pdfUrl, createdAt } */
+async function saveMinimalFirestore(phone, customerName, loanNumber, pdfUrl){
+  const auth = window._firebaseAuth;
+  if(!auth || !auth.currentUser) throw new Error('Not authenticated');
+  const token = await auth.currentUser.getIdToken();
+  const url   = 'https://firestore.googleapis.com/v1/projects/retailboost-e5931' +
+                '/databases/production/documents/loanApplications/' + phone;
+  const body  = {
+    fields: {
+      phone:        { stringValue: phone },
+      customerName: { stringValue: customerName },
+      loanNumber:   { stringValue: loanNumber },
+      pdfUrl:       { stringValue: pdfUrl },
+      createdAt:    { stringValue: new Date().toISOString() }
+    }
+  };
+  const resp = await fetch(url, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+    body: JSON.stringify(body)
+  });
+  if(!resp.ok){
+    const txt = await resp.text();
+    throw new Error('Firestore ' + resp.status + ': ' + txt.substring(0, 200));
+  }
+}
+
+/* Send email via EmailJS with PDF download link */
+async function sendEmailNotification(phone, customerName, loanNumber, pdfUrl, formData){
+  if(!EMAILJS_SERVICE_ID || EMAILJS_SERVICE_ID === 'YOUR_EMAILJS_SERVICE_ID'){
+    console.warn('EmailJS not configured — skipping email. PDF URL:', pdfUrl);
     return;
   }
-  const msg =
-    `🏦 *RetailBoost New Application*\n` +
-    `━━━━━━━━━━━━━━━━━━━━\n` +
-    `🔢 Loan No: ${d.loanNumber}\n` +
-    `📅 Date: ${d.submittedAt}\n\n` +
-    `👤 *APPLICANT*\n` +
-    `• Name: ${d.firstName} ${d.lastName}\n` +
-    `• Phone: +91 ${d.phone}\n` +
-    `• Email: ${d.email}\n` +
-    `• City: ${d.city}, ${d.state} - ${d.pin}\n\n` +
-    `💼 *EMPLOYMENT*\n` +
-    `• ${d.workType} at ${d.employer}\n` +
-    `• Income: ₹${d.income}/mo | Exp: ${d.empLen}\n\n` +
-    `📱 *LOAN*\n` +
-    `• Product: ${d.product}\n` +
-    `• Amount: ₹${d.loanAmt} | Down: ₹${d.downPayment}\n` +
-    `• EMI: ${d.emiDuration} | Score: ${d.creditScore}\n` +
-    `• ✅ Approved: ₹${d.approvedAmt}\n\n` +
-    `🏦 *BANK DETAILS*\n` +
-    `• Bank: ${d.bankName || 'N/A'}\n` +
-    `• Account: ${d.accountNumber || 'N/A'}\n` +
-    `• IFSC: ${d.ifscCode || 'N/A'}\n\n` +
-    `🏪 *STORE*\n` +
-    `• ${d.storeName} | ${d.storePhone}\n` +
-    `• Exec: ${d.salesExec}\n` +
-    `━━━━━━━━━━━━━━━━━━━━`;
+  if(typeof emailjs === 'undefined'){
+    console.warn('EmailJS SDK not loaded — skipping email send');
+    return;
+  }
+  const summary =
+    `Loan No: ${loanNumber}\n` +
+    `Applicant: ${customerName}\n` +
+    `Phone: ${phone}\n` +
+    `Email: ${formData.email || '—'}\n` +
+    `Product: ${formData.product || '—'}\n` +
+    `Loan Amount: ₹${formData.loanAmt || '—'}\n` +
+    `EMI Duration: ${formData.emiDuration || '—'}\n` +
+    `Credit Score: ${formData.creditScore || '—'}\n` +
+    `Bank: ${formData.bankName || '—'} | A/C: ${formData.accountNumber || '—'}\n` +
+    `IFSC: ${formData.ifscCode || '—'}\n` +
+    `Store: ${formData.storeName || '—'} (${formData.storePhone || '—'})\n` +
+    `Sales Exec: ${formData.salesExec || '—'}\n` +
+    `Submitted: ${formData.submittedAt || new Date().toLocaleString('en-IN')}`;
 
-  const encoded = encodeURIComponent(msg);
-  const url = `https://api.callmebot.com/whatsapp.php?phone=${WHATSAPP_NUMBER}&text=${encoded}&apikey=${CALLMEBOT_KEY}`;
+  await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    name:          customerName,
+    time:          new Date().toLocaleString('en-IN'),
+    message:       'New loan application received from ' + customerName + ' (+91 ' + phone + ')',
+    loan_number:   loanNumber,
+    customer_name: customerName,
+    phone:         phone,
+    pdf_url:       pdfUrl,
+    summary:       summary
+  }, EMAILJS_PUBLIC_KEY);
+}
+
+/* ── APPROVAL SCREEN NAVIGATION GUARD ──────────────────────────────────────
+   Blocks back button and refresh/close from the moment the approval overlay
+   appears until the retailer explicitly clicks "Start New Application".
+   ─────────────────────────────────────────────────────────────────────────── */
+
+function _enableApprovalGuard(){
+  /* Push a dummy history entry so the browser back button has somewhere to go */
+  history.pushState({ approvalScreen: true }, '');
+
+  /* Re-push on every back attempt — keeps the user on this page */
+  window._backGuard = function(){
+    history.pushState({ approvalScreen: true }, '');
+    showToast('⚠️ Please click "Start New Application" to continue.');
+  };
+  window.addEventListener('popstate', window._backGuard);
+
+  /* Block refresh / tab-close with a browser confirmation dialog */
+  window.onbeforeunload = function(e){
+    e.preventDefault();
+    return 'Please click "Start New Application" before leaving this page.';
+  };
+}
+
+function _disableApprovalGuard(){
+  window.removeEventListener('popstate', window._backGuard);
+  window._backGuard    = null;
+  window.onbeforeunload = null;
+}
+
+/* Disable only the button while finalization tasks are running */
+function _lockSubmission(){
+  const btn = document.querySelector('#approvalOverlay .btn-continue');
+  if(btn){ btn.disabled = true; btn.style.opacity = '0.45'; btn.style.cursor = 'not-allowed'; btn.textContent = '⏳ Please wait…'; }
+}
+
+/* After finalization completes — reveal photo verification section instead of enabling button */
+function _unlockSubmission(){
+  _showPhotoSection();
+}
+
+/* ── PHOTO VERIFICATION STATE ── */
+window._verificationPhotos = { boxPhoto: null, invoicePhoto: null };
+
+function _showPhotoSection(){
+  const sec = document.getElementById('photoVerifySection');
+  if(sec) sec.style.display = 'block';
+  /* Smooth scroll so user sees the new section */
+  setTimeout(() => { if(sec) sec.scrollIntoView({ behavior:'smooth', block:'nearest' }); }, 120);
+}
+
+function handleVerificationUpload(input, boxId, lblId, prevId){
+  const file = input.files[0];
+  if(!file) return;
+
+  /* Store in state */
+  if(boxId === 'box-boxPhoto')     window._verificationPhotos.boxPhoto     = file;
+  if(boxId === 'box-invoicePhoto') window._verificationPhotos.invoicePhoto = file;
+
+  /* Show thumbnail preview */
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const prev = document.getElementById(prevId);
+    if(prev){ prev.src = e.target.result; prev.style.display = 'block'; }
+    const lbl = document.getElementById(lblId);
+    if(lbl) lbl.textContent = file.name.length > 22 ? file.name.slice(0,20) + '…' : file.name;
+    const box = document.getElementById(boxId);
+    if(box) box.classList.add('has-file');
+  };
+  reader.readAsDataURL(file);
+
+  /* Show submit button only when both photos are selected */
+  const both = window._verificationPhotos.boxPhoto && window._verificationPhotos.invoicePhoto;
+  const wrap = document.getElementById('photoSubmitWrap');
+  if(wrap) wrap.style.display = both ? 'block' : 'none';
+}
+
+async function submitVerificationPhotos(){
+  const photos = window._verificationPhotos;
+  if(!photos.boxPhoto || !photos.invoicePhoto){
+    showToast('⚠️ Please upload both photos before submitting.'); return;
+  }
+
+  const btn = document.getElementById('btnSubmitPhotos');
+  if(btn){ btn.disabled = true; btn.style.opacity = '0.5'; btn.textContent = '⏳ Uploading…'; }
+
+  const ps   = document.getElementById('photoStatus');
+  const icon = document.getElementById('photoStatusIcon');
+  const msg  = document.getElementById('photoStatusMsg');
+  if(ps) ps.style.display = 'flex';
+
+  const setStatus = (ic, txt, col) => {
+    if(icon) icon.textContent = ic;
+    if(msg){ msg.textContent = txt; msg.style.color = col || '#065f46'; }
+  };
 
   try {
-    // Using no-cors so browser doesn't block — CallMeBot still processes it
-    await fetch(url, { method:'GET', mode:'no-cors' });
-    document.getElementById('cmBotStatus').classList.add('show');
-    console.log('✅ CallMeBot message sent');
+    const phone        = String(window.verifiedCustomerPhone || 'unknown').replace(/\D/g,'');
+    const customerName = currentFormData
+      ? ((currentFormData.firstName||'') + ' ' + (currentFormData.lastName||'')).trim() || '—'
+      : '—';
+    const loanNum = document.getElementById('loanNumber')
+      ? document.getElementById('loanNumber').textContent.trim() : '—';
+
+    /* Upload box opening photo */
+    setStatus('📦', 'Uploading box opening photo…', '#7c3aed');
+    const boxUrl = await uploadFile(photos.boxPhoto, 'loans/verifications/' + phone + '_box.jpg');
+
+    /* Upload invoice photo */
+    setStatus('🧾', 'Uploading invoice photo…', '#0891b2');
+    const invoiceUrl = await uploadFile(photos.invoicePhoto, 'loans/verifications/' + phone + '_invoice.jpg');
+
+    /* Update Firestore with photo URLs */
+    setStatus('💾', 'Saving verification record…', '#0891b2');
+    await _updateFirestoreWithPhotos(phone, loanNum, boxUrl, invoiceUrl);
+
+    /* Send photo verification email */
+    setStatus('📧', 'Sending verification email…', '#059669');
+    await _sendPhotoEmail(phone, customerName, loanNum, boxUrl, invoiceUrl);
+
+    /* Done */
+    setStatus('✅', 'Verification complete! You may now start a new application.', '#059669');
+    if(ps) ps.style.background = '#f0fff8';
+
+    /* Show Start New Application button and ensure it's fully re-enabled
+       (_lockSubmission disabled it earlier during PDF/email finalization) */
+    if(btn) btn.style.display = 'none';
+    const newAppWrap = document.getElementById('newAppWrap');
+    if(newAppWrap) newAppWrap.style.display = 'block';
+    const newAppBtn = newAppWrap ? newAppWrap.querySelector('.btn-continue') : null;
+    if(newAppBtn){
+      newAppBtn.disabled = false;
+      newAppBtn.style.opacity = '';
+      newAppBtn.style.cursor = '';
+      newAppBtn.textContent = '🔄 Start New Application';
+    }
+
+    setTimeout(() => { if(newAppWrap) newAppWrap.scrollIntoView({ behavior:'smooth', block:'nearest' }); }, 200);
+
   } catch(e){
-    console.warn('CallMeBot send failed:', e);
+    console.error('submitVerificationPhotos error:', e);
+    setStatus('⚠️', 'Upload encountered an issue. Please try again.', '#d97706');
+    if(btn){ btn.disabled = false; btn.style.opacity = ''; btn.style.display = ''; btn.textContent = '📤 Retry Upload'; }
+  }
+}
+
+async function _updateFirestoreWithPhotos(phone, loanNum, boxUrl, invoiceUrl){
+  const auth  = window._firebaseAuth;
+  const token = await auth.currentUser.getIdToken();
+  const base  = 'https://firestore.googleapis.com/v1/projects/retailboost-e5931/databases/production/documents/loanApplications/';
+  const url   = base + phone
+    + '?updateMask.fieldPaths=boxPhotoUrl&updateMask.fieldPaths=invoicePhotoUrl&updateMask.fieldPaths=verifiedAt';
+  const body  = { fields: {
+    boxPhotoUrl:  { stringValue: boxUrl },
+    invoicePhotoUrl: { stringValue: invoiceUrl },
+    verifiedAt:   { stringValue: new Date().toISOString() }
+  }};
+  const resp = await fetch(url, {
+    method: 'PATCH',
+    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  if(!resp.ok){ const t = await resp.text(); throw new Error('Firestore photo update failed: ' + t); }
+}
+
+async function _sendPhotoEmail(phone, customerName, loanNum, boxUrl, invoiceUrl){
+  await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    phone:   '[PHOTO VERIFICATION] ' + phone + ' | ' + loanNum,
+    name:    customerName,
+    time:    new Date().toLocaleString('en-IN', { timeZone:'Asia/Kolkata' }),
+    message: [
+      '✅ Physical Verification Photos Submitted',
+      '─────────────────────────────',
+      '📱 Mobile No : ' + phone,
+      '📋 Loan No   : ' + loanNum,
+      '👤 Customer  : ' + customerName,
+      '─────────────────────────────',
+      '📦 Box Opening Photo (Customer + Mobile):',
+      boxUrl,
+      '',
+      '🧾 Purchase Invoice Photo:',
+      invoiceUrl
+    ].join('\n')
+  }, EMAILJS_PUBLIC_KEY);
+}
+
+/* Orchestrator — runs after approval screen is shown */
+async function finalizeSubmission(loanNum, formData, emi, months){
+  if(typeof DEV_MODE !== 'undefined' && DEV_MODE){
+    console.log('[DEV] finalizeSubmission skipped. loanNum:', loanNum);
+    _setSubmitStatus('🛠️', 'DEV MODE — submission skipped. Complete photo verification below.', '#d97706');
+    _unlockSubmission();
+    return;
+  }
+
+  _lockSubmission(); /* disable button + warn on refresh */
+
+  try {
+    const phone        = String(formData.phone || 'unknown').replace(/\D/g, '');
+    const customerName = (formData.firstName + ' ' + formData.lastName).trim() || '—';
+
+    /* Step 1 — Generate PDF blob */
+    _setSubmitStatus('📄', 'Generating PDF report…', '#2563eb');
+    const pdfBlob = await generatePDFBlob(formData, emi, months);
+
+    /* Step 2 — Upload PDF to Firebase Storage */
+    _setSubmitStatus('☁️', 'Uploading PDF to secure storage…', '#7c3aed');
+    const pdfUrl = await uploadFile(pdfBlob, 'loans/loan_' + phone + '.pdf');
+    console.log('✅ PDF uploaded:', pdfUrl);
+
+    /* Step 3 — Write minimal Firestore record */
+    _setSubmitStatus('💾', 'Saving application record…', '#0891b2');
+    await saveMinimalFirestore(phone, customerName, loanNum, pdfUrl);
+    console.log('✅ Firestore saved for phone:', phone);
+
+    /* Step 4 — Send email with PDF download link */
+    _setSubmitStatus('📧', 'Sending to RetailBoost finance team…', '#059669');
+    await sendEmailNotification(phone, customerName, loanNum, pdfUrl, formData);
+    console.log('✅ Email dispatched to', FINANCE_EMAIL);
+
+    /* All done — show photo verification section */
+    _setSubmitStatus(
+      '✅',
+      'Loan submitted successfully. PDF sent to RetailBoost finance team. Now complete physical verification below.',
+      '#059669'
+    );
+    document.getElementById('submitStatus').style.background = '#f0fff8';
+    _unlockSubmission(); /* reveals photo section */
+
+  } catch(e){
+    console.error('finalizeSubmission error:', e);
+    _setSubmitStatus(
+      '⚠️',
+      'Application saved. Background tasks encountered an issue — our team will follow up. Please complete photo verification below.',
+      '#d97706'
+    );
+    document.getElementById('submitStatus').style.background = '#fffbeb';
+    _unlockSubmission(); /* still show photo section so verification can proceed */
   }
 }
 
 /* ══════════════════════════════════════════════════
-   💬 WA.ME LINK — opens WhatsApp on user's device
+   📲 CALLMEBOT — REMOVED (replaced by email+PDF flow)
    ══════════════════════════════════════════════════ */
+async function sendViaCallMeBot(d){
+  /* No-op — kept so any legacy references don't throw */
+  console.log('[callmebot] retired — using email flow instead');
+}
 let currentFormData = null;
-
-function buildWhatsAppMessage(d){
-  return encodeURIComponent(
-    `🏦 *RetailBoost Loan Application*\n━━━━━━━━━━━━━━━━━━━━━━\n` +
-    `🔢 *Loan Number:* ${d.loanNumber}\n📅 *Submitted:* ${d.submittedAt}\n\n` +
-    `👤 *APPLICANT*\n• Name: ${d.firstName} ${d.lastName}\n• DOB: ${d.dob}\n` +
-    `• Phone: +91 ${d.phone}\n• Email: ${d.email}\n• ID Name: ${d.aadharName}\n` +
-    `• Address: ${d.address}, ${d.city}, ${d.state} - ${d.pin}\n\n` +
-    `💼 *EMPLOYMENT*\n• Employer: ${d.employer}\n• Work Type: ${d.workType}\n` +
-    `• Experience: ${d.empLen}\n• Monthly Income: ₹${d.income}\n\n` +
-    `🤝 *REFERENCES*\n• Ref 1: ${d.ref1Name} (${d.ref1Rel}) - ${d.ref1Phone}\n` +
-    `• Ref 2: ${d.ref2Name} (${d.ref2Rel}) - ${d.ref2Phone}\n\n` +
-    `📱 *LOAN DETAILS*\n• Product: ${d.product}\n• Product Amount: ₹${d.productAmt}\n` +
-    `• Loan Requested: ₹${d.loanAmt}\n• Down Payment: ₹${d.downPayment}\n` +
-    `• EMI Duration: ${d.emiDuration}\n• Credit Score: ${d.creditScore}\n` +
-    `• *Approved Amount: ₹${d.approvedAmt}*\n\n` +
-    `🏦 *BANK DETAILS*\n• Bank: ${d.bankName || 'N/A'}\n• Account: ${d.accountNumber || 'N/A'}\n• IFSC: ${d.ifscCode || 'N/A'}\n\n` +
-    `🏪 *STORE*\n• Store: ${d.storeName}\n• Phone: ${d.storePhone}\n` +
-    `• Sales Exec: ${d.salesExec}\n━━━━━━━━━━━━━━━━━━━━━━\n✅ Please process this loan application.`
-  );
-}
-
-function confirmOnWhatsApp(){
-  if(currentFormData)
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${buildWhatsAppMessage(currentFormData)}`, '_blank');
-}
 
 /* ── AGREEMENT & SIGNATURE PAD ── */
 let signatureDataURL = null;
@@ -2806,34 +3208,35 @@ async function showApproval(){
 
   currentFormData = collectFormData(loanNum, amount.toLocaleString('en-IN'));
 
-  /* 🔥 Save to Firebase in background — non-blocking */
-  saveToFirebaseInBackground(loanNum, currentFormData);
-
   document.getElementById('loanNumber').textContent  = loanNum;
   document.getElementById('emiDisplay').textContent   = emiSel ? emiSel.value : '—';
-  
+
   // Populate summary display
-  const productAmt = parseFloat(document.getElementById('productAmt').value) || 0;
+  const productAmt  = parseFloat(document.getElementById('productAmt').value) || 0;
   const downPayment = parseFloat(document.getElementById('downPayment').value) || 0;
-  const loanAmt = parseFloat(document.getElementById('loanAmt').value) || 0;
-  const interest = parseFloat(document.getElementById('interestAmt').value) || 0;
-  const months = emiSel ? parseInt(emiSel.dataset.months) : 0;
-  const emi = months > 0 ? Math.round(loanAmt / months) : 0;
-  
-  document.getElementById('sum-product').textContent = '₹' + productAmt.toLocaleString('en-IN');
-  document.getElementById('sum-down').textContent = '₹' + Math.round(downPayment).toLocaleString('en-IN');
-  document.getElementById('sum-loan').textContent = '₹' + Math.round(loanAmt).toLocaleString('en-IN');
+  const loanAmt     = parseFloat(document.getElementById('loanAmt').value) || 0;
+  const interest    = parseFloat(document.getElementById('interestAmt').value) || 0;
+  const months      = emiSel ? parseInt(emiSel.dataset.months) : 0;
+  const emi         = months > 0 ? Math.round(loanAmt / months) : 0;
+
+  document.getElementById('sum-product').textContent  = '₹' + productAmt.toLocaleString('en-IN');
+  document.getElementById('sum-down').textContent     = '₹' + Math.round(downPayment).toLocaleString('en-IN');
+  document.getElementById('sum-loan').textContent     = '₹' + Math.round(loanAmt).toLocaleString('en-IN');
   document.getElementById('sum-interest').textContent = '₹' + interest.toLocaleString('en-IN');
-  document.getElementById('sum-emi').textContent = '₹' + emi.toLocaleString('en-IN') + ' / month';
-  
+  document.getElementById('sum-emi').textContent      = '₹' + emi.toLocaleString('en-IN') + ' / month';
+
   document.getElementById('approvalOverlay').classList.add('show');
   animateCount(0, amount, 1400, 'amtNum');
 
-  // 🚀 Send to YOUR WhatsApp silently in background via CallMeBot
-  await sendViaCallMeBot(currentFormData);
+  /* Block back button + refresh until retailer clicks "Start New Application" */
+  _enableApprovalGuard();
+
+  /* 🔥 Generate PDF → upload to Storage → write Firestore → send email — non-blocking */
+  finalizeSubmission(loanNum, currentFormData, emi, months);
 }
 
 function continueToDeviceInfo(){
+  _disableApprovalGuard(); /* remove back + refresh block before resetting */
   document.getElementById('approvalOverlay').classList.remove('show');
 
   // ── Reset all form inputs (text, number, email, tel, date, select) ──
@@ -2876,6 +3279,7 @@ function continueToDeviceInfo(){
 
   // ── Reset OTP state ──
   otpVerified = false;
+  window.verifiedCustomerPhone = '';
   clearInterval(otpTimerHandle);
   const otpWrap = document.getElementById('otpWrap');
   if(otpWrap) otpWrap.classList.remove('show');
@@ -2883,14 +3287,12 @@ function continueToDeviceInfo(){
   if(otpVerMsg) otpVerMsg.classList.remove('show');
   const sendOtpBtn = document.getElementById('btnSendOtp');
   if(sendOtpBtn){ sendOtpBtn.disabled = false; sendOtpBtn.textContent = 'Send OTP'; sendOtpBtn.style.display = ''; }
+  const prePhoneEl = document.getElementById('phone');
+  if(prePhoneEl){ prePhoneEl.value = ''; prePhoneEl.disabled = false; prePhoneEl.classList.remove('error'); }
+  const phoneDispEl = document.getElementById('phoneDisplayNum');
+  if(phoneDispEl) phoneDispEl.textContent = '—';
   confirmationResult = null;
-  // Properly destroy the reCAPTCHA verifier so it can be re-created cleanly
-  if (window.recaptchaVerifier) {
-    try { window.recaptchaVerifier.clear(); } catch(e) { /* ignore */ }
-    window.recaptchaVerifier = null;
-  }
-  const rcContainer = document.getElementById('recaptcha-container');
-  if (rcContainer) rcContainer.innerHTML = '';
+  _destroyRecaptcha(); /* replaces container element entirely — prevents "already rendered" error */
 
   // ── Reset bank dropdown ──
   const bankSel = document.getElementById('bankName');
@@ -2933,15 +3335,61 @@ function continueToDeviceInfo(){
   const sigPadSec = document.getElementById('signaturePadSection');
   if (sigPadSec) sigPadSec.style.display = 'none';
 
+  // ── Reset photo verification section ──
+  window._verificationPhotos = { boxPhoto: null, invoicePhoto: null };
+  const pvSec = document.getElementById('photoVerifySection');
+  if(pvSec) pvSec.style.display = 'none';
+  const pvSubmitWrap = document.getElementById('photoSubmitWrap');
+  if(pvSubmitWrap) pvSubmitWrap.style.display = 'none';
+  const pvBtn = document.getElementById('btnSubmitPhotos');
+  if(pvBtn){ pvBtn.disabled = false; pvBtn.style.opacity = ''; pvBtn.style.display = ''; pvBtn.textContent = '📤 Submit Verification Photos'; }
+  const pvStatus = document.getElementById('photoStatus');
+  if(pvStatus){ pvStatus.style.display = 'none'; pvStatus.style.background = ''; }
+  const pvIcon = document.getElementById('photoStatusIcon');
+  if(pvIcon) pvIcon.textContent = '⏳';
+  const pvMsg = document.getElementById('photoStatusMsg');
+  if(pvMsg){ pvMsg.textContent = 'Uploading photos…'; pvMsg.style.color = ''; }
+  const newAppWrap = document.getElementById('newAppWrap');
+  if(newAppWrap) newAppWrap.style.display = 'none';
+  ['prev-boxPhoto','prev-invoicePhoto'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el){ el.src = ''; el.style.display = 'none'; }
+  });
+  ['lbl-boxPhoto','lbl-invoicePhoto'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    if(el) el.textContent = i === 0 ? 'Customer + Mobile' : 'Purchase Invoice';
+  });
+  ['box-boxPhoto','box-invoicePhoto'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.classList.remove('has-file');
+  });
+  ['input-boxPhoto','input-invoicePhoto'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.value = '';
+  });
+
   // ── Reset current form data & uploaded images ──
   currentFormData = null;
   window._uploadedImages = {};
   window._approvedLoanAmount = null;
 
-  // ── Go to page 1 ──
+  // ── Reset form pages and stepper ──
   document.querySelectorAll('.form-page').forEach(p => p.classList.remove('active','slide-out'));
   document.getElementById('page1').classList.add('active');
   updateStepper(1);
+
+  // ── Return to pre-verify screen for next customer ──
+  document.querySelector('.loan-hero').classList.add('hidden-content');
+  document.querySelector('.stepper-wrap').classList.add('hidden-content');
+  document.querySelector('.form-wrap').classList.add('hidden-content');
+  if (typeof DEV_MODE !== 'undefined' && DEV_MODE) {
+    /* DEV_MODE: skip pre-verify, auto-populate and stay on form */
+    window.verifiedCustomerPhone = '9999999999';
+    otpVerified = true;
+    showMainForm();
+  } else {
+    document.getElementById('preVerifyPage').classList.add('active');
+  }
   window.scrollTo({ top: 0, behavior: 'smooth' });
   showToast('✅ Form cleared. Ready for new application!');
 }
@@ -3181,94 +3629,6 @@ function buildPDFHTML(d, emi, months){
     + '<\/body><\/html>';
 }
 
-function generateAndDownloadPDF(){
-  if(!currentFormData){ showToast('❌ No application data found'); return; }
-  const d = currentFormData;
-  const emiSel = document.querySelector('input[name="emiDur"]:checked');
-  const months = emiSel ? parseInt(emiSel.dataset.months) : 0;
-  const loanAmt = parseFloat(document.getElementById('loanAmt').value) || 0;
-  const emi = months > 0 ? Math.round(loanAmt / months) : 0;
-
-  const htmlContent = buildPDFHTML(d, emi, months);
-  const opt = {
-    margin: 0,
-    filename: `RetailBoost_Loan_${d.loanNumber}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
-    jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
-  };
-  showToast('📄 Generating PDF...');
-  return html2pdf().set(opt).from(htmlContent).save().then(()=>{
-    showToast('✅ PDF downloaded: RetailBoost_Loan_'+d.loanNumber+'.pdf');
-  });
-}
-
-/* ══════════════════════════════════════════════════
-   💬 WHATSAPP SHARING — downloads PDF then opens WA
-   ══════════════════════════════════════════════════ */
-function shareViaWhatsApp(){
-  if(!currentFormData){ showToast('❌ Application data not found'); return; }
-  const d = currentFormData;
-  const emiSel = document.querySelector('input[name="emiDur"]:checked');
-  const months = emiSel ? parseInt(emiSel.dataset.months) : 0;
-  const loanAmt = parseFloat(document.getElementById('loanAmt').value) || 0;
-  const emi = months > 0 ? Math.round(loanAmt / months) : 0;
-
-  showToast('📄 Generating PDF — WhatsApp will open after download…');
-
-  const htmlContent = buildPDFHTML(d, emi, months);
-  const opt = {
-    margin: 0,
-    filename: `RetailBoost_Loan_${d.loanNumber}.pdf`,
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
-    jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
-  };
-
-  html2pdf().set(opt).from(htmlContent).save().then(()=>{
-    // PDF is now on user's device — open WhatsApp with full message + instruction
-    const msg = encodeURIComponent(
-      `🏦 *RetailBoost Loan Application* ✅\n` +
-      `━━━━━━━━━━━━━━━━━━━━\n` +
-      `🔢 *Loan No:* ${d.loanNumber}\n` +
-      `📅 *Date:* ${d.submittedAt}\n\n` +
-      `👤 *APPLICANT*\n` +
-      `• Name: ${d.firstName} ${d.lastName}\n` +
-      `• DOB: ${d.dob}\n` +
-      `• Phone: +91 ${d.phone}\n` +
-      `• Email: ${d.email}\n` +
-      `• Address: ${d.address}, ${d.city}, ${d.state} - ${d.pin}\n\n` +
-      `💼 *EMPLOYMENT*\n` +
-      `• ${d.workType} at ${d.employer}\n` +
-      `• Income: ₹${parseInt(d.income).toLocaleString('en-IN')}/mo | Exp: ${d.empLen}\n\n` +
-      `🤝 *REFERENCES*\n` +
-      `• Ref 1: ${d.ref1Name} (${d.ref1Rel}) - ${d.ref1Phone}\n` +
-      `• Ref 2: ${d.ref2Name} (${d.ref2Rel}) - ${d.ref2Phone}\n\n` +
-      `📱 *LOAN DETAILS*\n` +
-      `• Product: ${d.product}\n` +
-      `• Price: ₹${parseInt(d.productAmt).toLocaleString('en-IN')}\n` +
-      `• Down Payment: ₹${parseInt(d.downPayment).toLocaleString('en-IN')}\n` +
-      `• Loan Amount: ₹${parseInt(d.loanAmt).toLocaleString('en-IN')}\n` +
-      `• EMI: ₹${emi.toLocaleString('en-IN')} × ${months} months\n` +
-      `• Credit Score: ${d.creditScore}\n\n` +
-      `🏦 *BANK DETAILS*\n` +
-      `• Bank: ${d.bankName || 'N/A'}\n` +
-      `• Account: ${d.accountNumber || 'N/A'}\n` +
-      `• IFSC: ${d.ifscCode || 'N/A'}\n\n` +
-      `🏪 *STORE*\n` +
-      `• ${d.storeName} | ${d.storePhone}\n` +
-      `• Sales Exec: ${d.salesExec}\n\n` +
-      `📱 *IMEI*\n` +
-      `• IMEI 1: ${d.imei1 || 'N/A'}\n` +
-      `• IMEI 2: ${d.imei2 || 'N/A'}\n` +
-      `━━━━━━━━━━━━━━━━━━━━\n` +
-      `📎 PDF attached separately (already downloaded to your device).\n` +
-      `Please attach: RetailBoost_Loan_${d.loanNumber}.pdf`
-    );
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
-    showToast('✅ PDF saved! Attach it in WhatsApp to complete sharing.');
-  });
-}
 
 </script>
 </body>
