@@ -13,75 +13,95 @@
      FIREBASE SDK  — loaded from CDN (no backend needed)
      ══════════════════════════════════════════════════ -->
 <script type="module">
-  import { initializeApp }            from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, RecaptchaVerifier, signInWithPhoneNumber }
-                                      from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { initializeApp }                                        from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, RecaptchaVerifier, signInWithPhoneNumber,
+           signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc, serverTimestamp }    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-  /* ─────────────────────────────────────────────────
-     🔧 STEP 1 — Paste your Firebase project config here
-     Go to: console.firebase.google.com → Project Settings → Your apps → SDK setup
-  ───────────────────────────────────────────────── */
   const firebaseConfig = {
-  apiKey: "AIzaSyAFFuohqtfzT2S1X4-THRQfnUp33JwSSjU",
-  authDomain: "retailboost-e5931.firebaseapp.com",
-  projectId: "retailboost-e5931",
-  storageBucket: "retailboost-e5931.firebasestorage.app",
-  messagingSenderId: "491960635046",
-  appId: "1:491960635046:web:b412e285989c656219ae67"
-};
-  const app  = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
+    apiKey:            "AIzaSyAFFuohqtfzT2S1X4-THRQfnUp33JwSSjU",
+    authDomain:        "retailboost-e5931.firebaseapp.com",
+    projectId:         "retailboost-e5931",
+    storageBucket:     "retailboost-e5931.firebasestorage.app",
+    messagingSenderId: "491960635046",
+    appId:             "1:491960635046:web:b412e285989c656219ae67"
+  };
+
+  const app     = initializeApp(firebaseConfig);
+  const auth    = getAuth(app);
+  const db      = getFirestore(app);
+  const storage = getStorage(app);
   auth.languageCode = 'en';
 
-  // expose to global scope so regular scripts can call them
-  window._firebaseAuth = auth;
-  window._RecaptchaVerifier     = RecaptchaVerifier;
-  window._signInWithPhoneNumber = signInWithPhoneNumber;
+  window._firebaseAuth               = auth;
+  window._firebaseFirestore          = db;
+  window._firebaseStorage            = storage;
+  window._RecaptchaVerifier          = RecaptchaVerifier;
+  window._signInWithPhoneNumber      = signInWithPhoneNumber;
+  window._signInWithEmailAndPassword = signInWithEmailAndPassword;
+  window._firebaseSignOut            = signOut;
+  window._onAuthStateChanged         = onAuthStateChanged;
+  window._collection                 = collection;
+  window._addDoc                     = addDoc;
+  window._serverTimestamp            = serverTimestamp;
+  window._storageRef                 = storageRef;
+  window._uploadBytes                = uploadBytes;
+  window._getDownloadURL             = getDownloadURL;
 </script>
 
 <script>
 /* ══════════════════════════════════════════════════
-   LOGIN AUTHENTICATION
-   Credentials stored as SHA-256 hashes only.
+   DEV MODE — set to true for local testing (bypasses Firebase login,
+   OTP, and Firestore save). Set to FALSE before going live.
    ══════════════════════════════════════════════════ */
-const _CH = {
-  u: '226b68f9e396a75b4443b8f91bdb81370bb308e6defb360b1bd36fa18adf50f0',
-  p: 'afa4784aff61a21e04a3b9b8c62af5d843019bb25f3ab34a7cd19e745d6c6a6d'
+var DEV_MODE = false;
+
+var MOCK_RETAILER = { uid: 'dev-retailer-001', email: 'dev@retailboost.in' };
+var currentRetailer = null;
+
+/* Surface JS errors as visible toasts so bugs are obvious during testing */
+window.onerror = function(msg, src, line) {
+  var el = document.getElementById('toast');
+  if(el){ el.textContent = '\u26A0\uFE0F JS Error: ' + msg + ' (line ' + line + ')'; el.classList.add('show'); setTimeout(function(){ el.classList.remove('show'); }, 6000); }
+  console.error('JS ERROR:', msg, 'line:', line);
+  return false;
 };
 
-async function _sha256(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
-}
-
+/* ══════════════════════════════════════════════════
+   LOGIN — Firebase Email/Password (or DEV bypass)
+   ══════════════════════════════════════════════════ */
 async function handleLogin(event) {
   event.preventDefault();
-
-  const username = document.getElementById('username').value.trim();
+  const email    = document.getElementById('username').value.trim();
   const password = document.getElementById('password').value;
   const errorEl  = document.getElementById('loginError');
   const btn      = event.target.querySelector('button[type=submit]');
-
   errorEl.classList.remove('show');
   errorEl.textContent = '';
-  if (btn) { btn.disabled = true; btn.textContent = 'Verifying…'; }
 
+  /* DEV_MODE: skip Firebase — use mock retailer */
+  if (DEV_MODE) {
+    currentRetailer = MOCK_RETAILER;
+    localStorage.setItem('retailboost_login', 'true');
+    hideLoginPage();
+    showToast('\u2705 Dev mode \u2014 logged in as ' + MOCK_RETAILER.email);
+    return;
+  }
+
+  if (btn) { btn.disabled = true; btn.textContent = 'Signing in\u2026'; }
   try {
-    const [uh, ph] = await Promise.all([_sha256(username), _sha256(password)]);
-    if (uh === _CH.u && ph === _CH.p) {
-      localStorage.setItem('retailboost_login', 'true');
-      hideLoginPage();
-      showToast('✅ Login successful!');
-    } else {
-      errorEl.textContent = 'Invalid ID or Password';
-      errorEl.classList.add('show');
-      document.getElementById('password').value = '';
-    }
+    const cred = await window._signInWithEmailAndPassword(window._firebaseAuth, email, password);
+    currentRetailer = { uid: cred.user.uid, email: cred.user.email };
+    localStorage.setItem('retailboost_login', 'true');
+    hideLoginPage();
+    showToast('\u2705 Login successful!');
   } catch(e) {
-    errorEl.textContent = 'Login error. Please try again.';
+    errorEl.textContent = 'Invalid email or password. Please try again.';
     errorEl.classList.add('show');
+    document.getElementById('password').value = '';
   } finally {
-    if (btn) { btn.disabled = false; btn.textContent = 'Login'; }
+    if (btn) { btn.disabled = false; btn.textContent = 'Sign In \u2192'; }
   }
 }
 
@@ -90,8 +110,6 @@ function hideLoginPage() {
   loginPage.classList.remove('active-login');
   loginPage.classList.add('hidden-login');
   document.getElementById('loginForm').reset();
-  
-  // Show main content
   document.querySelector('.loan-hero').classList.remove('hidden-content');
   document.querySelector('.stepper-wrap').classList.remove('hidden-content');
   document.querySelector('.form-wrap').classList.remove('hidden-content');
@@ -101,25 +119,44 @@ function showLoginPage() {
   const loginPage = document.getElementById('loginPage');
   loginPage.classList.add('active-login');
   loginPage.classList.remove('hidden-login');
-  
-  // Hide main content
   document.querySelector('.loan-hero').classList.add('hidden-content');
   document.querySelector('.stepper-wrap').classList.add('hidden-content');
   document.querySelector('.form-wrap').classList.add('hidden-content');
 }
 
-// Check if already logged in on page load
 window.addEventListener('DOMContentLoaded', function() {
-  const isLoggedIn = localStorage.getItem('retailboost_login');
-  if (isLoggedIn === 'true') {
+  if (DEV_MODE) {
+    currentRetailer = MOCK_RETAILER;
     hideLoginPage();
-  } else {
-    showLoginPage();
+    var banner = document.createElement('div');
+    banner.id = 'devBanner';
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#ff6b35;color:#fff;text-align:center;padding:6px 12px;font-size:.78rem;font-weight:700;font-family:Poppins,sans-serif;letter-spacing:.3px;';
+    banner.textContent = '\uD83D\uDD27 DEV MODE \u2014 Firebase bypassed. Click Continue to advance any step.';
+    document.body.prepend(banner);
+    return;
+  }
+  const cached = localStorage.getItem('retailboost_login') === 'true';
+  if (cached) hideLoginPage(); else showLoginPage();
+  if (window._onAuthStateChanged && window._firebaseAuth) {
+    window._onAuthStateChanged(window._firebaseAuth, function(user) {
+      if (user) {
+        currentRetailer = { uid: user.uid, email: user.email };
+        localStorage.setItem('retailboost_login', 'true');
+        hideLoginPage();
+      } else {
+        currentRetailer = null;
+        localStorage.removeItem('retailboost_login');
+        showLoginPage();
+      }
+    });
   }
 });
 
-// Add logout functionality
-function logout() {
+async function logout() {
+  if (!DEV_MODE && window._firebaseSignOut && window._firebaseAuth) {
+    try { await window._firebaseSignOut(window._firebaseAuth); } catch(e) {}
+  }
+  currentRetailer = null;
   localStorage.removeItem('retailboost_login');
   location.reload();
 }
@@ -155,7 +192,7 @@ body{background:var(--light);color:var(--text);-webkit-font-smoothing:antialiase
    ══════════════════════════════════════════════════ */
 /* LOGIN */
 .login-container{position:fixed;inset:0;background:linear-gradient(160deg,var(--navy-dark),var(--navy));display:flex;align-items:center;justify-content:center;z-index:10000;opacity:1;transition:opacity .4s;}
-.login-container.hidden-login{opacity:0;pointer-events:none;}
+.login-container.hidden-login{opacity:0;pointer-events:none;display:none !important;}
 .login-box{background:white;border-radius:24px;box-shadow:0 32px 80px rgba(0,0,0,.28);max-width:420px;width:90%;padding:44px 40px;text-align:center;}
 .login-header{margin-bottom:28px;}
 .login-icon{font-size:2.8rem;margin-bottom:14px;}
@@ -534,8 +571,8 @@ footer{background:#060F2E;color:rgba(255,255,255,.5);text-align:center;padding:2
     </div>
     <form id="loginForm" onsubmit="handleLogin(event)" class="login-form">
       <div class="login-field">
-        <label for="username">Username</label>
-        <input type="text" id="username" placeholder="Enter your username" required>
+        <label for="username">Email</label>
+        <input type="email" id="username" placeholder="Enter your email" required>
       </div>
       <div class="login-field">
         <label for="password">Password</label>
@@ -1475,10 +1512,159 @@ const WHATSAPP_NUMBER = '919187627737';   // ← your number
 const CALLMEBOT_KEY   = 'YOUR_CALLMEBOT_API_KEY'; // ← paste key here
 
 /* ══════════════════════════════════════════════════
+   FILE CONSTANTS
+   ══════════════════════════════════════════════════ */
+const ALLOWED_FILE_TYPES = ['image/jpeg','image/jpg','image/png','application/pdf'];
+const MAX_FILE_MB        = 2;
+
+/* ══════════════════════════════════════════════════
+   FIREBASE HELPERS — upload file + save to Firestore
+   ══════════════════════════════════════════════════ */
+
+/* Convert base64 data URL to Blob for Firebase Storage upload */
+function dataURLtoBlob(dataURL) {
+  const arr  = dataURL.split(',');
+  const mime = arr[0].match(/:(.*?);/)[1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8 = new Uint8Array(n);
+  while(n--) u8[n] = bstr.charCodeAt(n);
+  return new Blob([u8], { type: mime });
+}
+
+async function uploadFile(blob, path) {
+  if (!window._firebaseStorage) throw new Error('Firebase Storage not ready');
+  const ref  = window._storageRef(window._firebaseStorage, path);
+  const snap = await window._uploadBytes(ref, blob);
+  return await window._getDownloadURL(snap.ref);
+}
+
+/* Convert a flat JS object to Firestore REST API field format */
+function toFirestoreFields(obj) {
+  const fields = {};
+  for (const [k, v] of Object.entries(obj)) {
+    if (v === null || v === undefined) {
+      fields[k] = { nullValue: null };
+    } else if (typeof v === 'boolean') {
+      fields[k] = { booleanValue: v };
+    } else if (typeof v === 'number') {
+      fields[k] = { doubleValue: v };
+    } else if (typeof v === 'object') {
+      /* nested map (e.g. documentUrls) */
+      const mapFields = {};
+      for (const [mk, mv] of Object.entries(v)) {
+        mapFields[mk] = { stringValue: mv != null ? String(mv) : '' };
+      }
+      fields[k] = { mapValue: { fields: mapFields } };
+    } else {
+      fields[k] = { stringValue: String(v) };
+    }
+  }
+  return fields;
+}
+
+async function saveApplication(data) {
+  const auth = window._firebaseAuth;
+  if (!auth || !auth.currentUser) throw new Error('Not authenticated');
+
+  const token     = await auth.currentUser.getIdToken();
+  const projectId = 'retailboost-e5931';
+  const phone     = String(data.phone || 'unknown').replace(/\D/g, ''); /* digits only */
+
+  /* Use phone number as document ID — PATCH creates/overwrites by specific ID */
+  const url = 'https://firestore.googleapis.com/v1/projects/' + projectId +
+              '/databases/production/documents/loanApplications/' + phone;
+
+  const payload = Object.assign({}, data, {
+    timestamp: new Date().toISOString(),
+    savedAt:   new Date().toLocaleString('en-IN')
+  });
+
+  const resp = await fetch(url, {
+    method:  'PATCH',
+    headers: {
+      'Content-Type':  'application/json',
+      'Authorization': 'Bearer ' + token
+    },
+    body: JSON.stringify({ fields: toFirestoreFields(payload) })
+  });
+
+  if (!resp.ok) {
+    const errText = await resp.text();
+    throw new Error('Firestore REST ' + resp.status + ': ' + errText.substring(0, 200));
+  }
+
+  const result = await resp.json();
+  return result.name ? result.name.split('/').pop() : phone;
+}
+
+/* Runs AFTER approval screen is shown — never blocks the UI */
+async function saveToFirebaseInBackground(applicationId, formData) {
+  try {
+    console.log('[Firebase] saveToFirebaseInBackground called. DEV_MODE=', typeof DEV_MODE !== 'undefined' ? DEV_MODE : 'undefined');
+    if (typeof DEV_MODE !== 'undefined' && DEV_MODE) {
+      console.log('[DEV MODE] Firebase save skipped. formData:', formData);
+      return;
+    }
+    console.log('[Firebase] Firestore ready?', !!window._firebaseFirestore, '| Auth?', !!window._firebaseAuth, '| Retailer?', !!(typeof currentRetailer !== 'undefined' && currentRetailer));
+
+    const imgs     = window._uploadedImages || {};
+    const docUrls  = {};
+    const retailer = (typeof currentRetailer !== 'undefined') ? currentRetailer : null;
+    const phone    = String(formData.phone || 'unknown').replace(/\D/g, ''); /* digits only — used as folder + doc ID */
+
+    /* Upload each document into applications/{phone}/ folder */
+    const docList = [
+      { key: 'panCard',     label: 'PAN Card'         },
+      { key: 'custPhoto',   label: 'Customer Photo'   },
+      { key: 'aadharFront', label: 'Aadhaar Front'    },
+      { key: 'aadharBack',  label: 'Aadhaar Back'     },
+      { key: 'salarySlip',  label: 'Salary Slip'      },
+    ];
+    for (const { key } of docList) {
+      if (imgs[key]) {
+        try {
+          docUrls[key] = await uploadFile(dataURLtoBlob(imgs[key]), 'applications/' + phone + '/' + key);
+          console.log('\u2705 Uploaded', key);
+        } catch(e) { console.warn('Upload failed for ' + key + ':', e); }
+      }
+    }
+
+    /* Upload signature */
+    if (formData.signatureImage) {
+      try {
+        docUrls.signature = await uploadFile(dataURLtoBlob(formData.signatureImage), 'applications/' + phone + '/signature');
+        console.log('\u2705 Uploaded signature');
+      } catch(e) { console.warn('Signature upload failed:', e); }
+    }
+
+    /* Save all form data + document URLs to Firestore */
+    const payload = Object.assign({}, formData, {
+      applicationId:  applicationId,
+      retailerId:     retailer ? retailer.uid   : null,
+      retailerEmail:  retailer ? retailer.email : null,
+      documentUrls:   docUrls,
+      signatureImage: '',   /* don't store base64 in Firestore — URL is in documentUrls.signature */
+    });
+
+    console.log('[Firebase] Saving to Firestore. Fields:', Object.keys(payload).length, '| retailerId:', payload.retailerId);
+    await saveApplication(payload);
+    console.log('[Firebase] addDoc completed successfully');
+    console.log('\u2705 Application saved to Firebase:', applicationId);
+    showToast('\u2705 Application saved to Firebase!');
+  } catch(e) {
+    const msg = (e && e.message) ? e.message : String(e);
+    console.error('Firebase save error (non-blocking):', e);
+    showToast('\u26A0\uFE0F Firestore error: ' + msg.substring(0, 80));
+  }
+}
+
+/* ══════════════════════════════════════════════════
    FIREBASE OTP STATE
    ══════════════════════════════════════════════════ */
 let confirmationResult = null;  // Firebase confirmation object
-let otpVerified        = false;
+/* In DEV_MODE OTP is bypassed — pre-verify so page 1 validation passes */
+let otpVerified = (typeof DEV_MODE !== 'undefined' && DEV_MODE) ? true : false;
 let otpTimerHandle     = null;
 
 /* ── HELPERS ── */
@@ -1546,6 +1732,19 @@ function initRecaptcha(){
 
 async function sendOTP(){
   const ph = document.getElementById('phone').value;
+
+  /* DEV_MODE: instant mock verification — no real OTP needed */
+  if(typeof DEV_MODE !== 'undefined' && DEV_MODE){
+    otpVerified = true;
+    document.getElementById('otpWrap').classList.remove('show');
+    document.getElementById('otpVerifiedMsg').classList.add('show');
+    document.getElementById('phone').disabled = true;
+    document.getElementById('btnSendOtp').style.display = 'none';
+    document.getElementById('err-otp').classList.remove('show');
+    showToast('\u2705 [DEV MODE] Phone auto-verified');
+    return;
+  }
+
   if(!isValidIndianPhone(ph)){
     document.getElementById('err-phone').classList.add('show');
     document.getElementById('phone').classList.add('error');
@@ -1645,11 +1844,42 @@ function cancelOTP(){
   if(container) container.innerHTML = '';
 }
 
+async function checkPhoneAlreadyApplied(phone) {
+  try {
+    const auth = window._firebaseAuth;
+    if (!auth || !auth.currentUser) return false; /* can't check — allow through */
+    const token = await auth.currentUser.getIdToken();
+    const url = 'https://firestore.googleapis.com/v1/projects/retailboost-e5931' +
+                '/databases/production/documents/loanApplications/' +
+                phone.replace(/\D/g, '');
+    const resp = await fetch(url, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    return resp.ok; /* 200 = document exists = already applied */
+  } catch(e) {
+    return false; /* network error — allow through, don't block */
+  }
+}
+
 async function verifyOTP(){
   const code = document.getElementById('otpInput').value.trim();
   if(!confirmationResult){ showToast('Please send OTP first'); return; }
   try {
     await confirmationResult.confirm(code);
+
+    /* Check if this mobile number already has a loan application */
+    const phone = document.getElementById('phone').value.trim();
+    const alreadyApplied = await checkPhoneAlreadyApplied(phone);
+    if (alreadyApplied) {
+      showToast('❌ A loan application already exists for this mobile number.');
+      const errEl = document.getElementById('err-otp');
+      if (errEl) {
+        errEl.textContent = 'This mobile number already has an existing loan application. Only one loan is allowed per customer.';
+        errEl.classList.add('show');
+      }
+      return; /* block — don't set otpVerified */
+    }
+
     otpVerified = true;
     document.getElementById('otpWrap').classList.remove('show');
     document.getElementById('otpVerifiedMsg').classList.add('show');
@@ -1682,6 +1912,7 @@ const rules={
 
 
 function validatePage(page){
+  if(typeof DEV_MODE !== 'undefined' && DEV_MODE) return true;
   let valid=true;
   if(!rules[page]) return true; // unknown page — allow through
   rules[page].forEach(r=>{
@@ -2575,6 +2806,9 @@ async function showApproval(){
 
   currentFormData = collectFormData(loanNum, amount.toLocaleString('en-IN'));
 
+  /* 🔥 Save to Firebase in background — non-blocking */
+  saveToFirebaseInBackground(loanNum, currentFormData);
+
   document.getElementById('loanNumber').textContent  = loanNum;
   document.getElementById('emiDisplay').textContent   = emiSel ? emiSel.value : '—';
   
@@ -2720,6 +2954,11 @@ function animateCount(from,to,dur,elId){
 
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3500);}
 
+/* ─── end of form-logic script ─── */
+</script>
+
+<!-- PDF generation and WhatsApp sharing — isolated in separate block to prevent Chrome HTML parser issues -->
+<script>
 /* ══════════════════════════════════════════════════
    📄 PDF GENERATION — builds full application PDF
    ══════════════════════════════════════════════════ */
@@ -2937,9 +3176,9 @@ function buildPDFHTML(d, emi, months){
     + '<div style="font-size:8px;color:#aaa;margin-top:3px;">Computer-generated document</div>'
     + '</div>';
 
-  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#fff;color:#1a1a2e;font-size:11px;}table{border-collapse:collapse;}td{vertical-align:top;}</style></head><body>'
+  return '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:Arial,sans-serif;background:#fff;color:#1a1a2e;font-size:11px;}table{border-collapse:collapse;}td{vertical-align:top;}<\/style><\/head><body>'
     + header + detailsPage + docsPage + agreePage + footer
-    + '</body></html>';
+    + '<\/body><\/html>';
 }
 
 function generateAndDownloadPDF(){
