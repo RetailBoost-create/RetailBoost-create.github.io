@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#1A3FAA">
+<meta name="theme-color" content="#F97316">
 <title>RetailBoost | Stock & Finance Growth Partner</title>
 <!-- Performance: preconnect to external origins -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,31 +15,31 @@
 <style>
 /* ── NAVBAR APPLY LOAN BUTTON ── */
 .btn-loan {
-  background: linear-gradient(135deg, #10C48C, #059669);
-  color: white !important;
+  background: #fff;
+  color: #EA580C !important;
   padding: 8px 20px;
   border-radius: 24px;
   font-weight: 700;
   font-size: .82rem;
   transition: var(--t);
-  box-shadow: 0 4px 16px rgba(16,196,140,.35);
+  box-shadow: 0 4px 16px rgba(245,158,11,.35);
   margin-left: 8px;
   letter-spacing: .2px;
 }
 .btn-loan:hover {
   transform: translateY(-2px) !important;
-  box-shadow: 0 8px 24px rgba(16,196,140,.5) !important;
+  box-shadow: 0 8px 24px rgba(245,158,11,.5) !important;
   background: rgba(0,0,0,0) !important;
-  background: linear-gradient(135deg, #0dae7c, #047a57) !important;
+  background: linear-gradient(135deg, #FFEDD5, #FED7AA) !important;
 }
 .btn-loan::after { display: none !important; }
 
 /* ── HERO BADGE ── */
 .hero-badge {
   display: inline-flex; align-items: center; gap: 8px;
-  background: rgba(16,196,140,.18);
-  border: 1px solid rgba(16,196,140,.4);
-  color: #6EFFD4;
+  background: rgba(245,158,11,.18);
+  border: 1px solid rgba(245,158,11,.4);
+  color: #FDE68A;
   padding: 7px 18px; border-radius: 20px;
   font-size: .76rem; font-weight: 600; letter-spacing: .5px;
   margin-bottom: 20px;
@@ -53,7 +53,7 @@
   padding: 5px 16px; border-radius: 20px;
   font-size: .78rem; font-weight: 700; letter-spacing: .5px;
   margin-bottom: 16px; text-transform: uppercase;
-  border: 1px solid rgba(16,196,140,.25);
+  border: 1px solid rgba(245,158,11,.25);
 }
 .about-inner {
   max-width: 680px; margin: 0 auto;
@@ -111,9 +111,9 @@
 }
 .loan-step-card .step-num {
   font-weight: 800;
-  background: rgba(16,196,140,.25);
-  border: 1.5px solid rgba(16,196,140,.5);
-  color: #6EFFD4;
+  background: rgba(245,158,11,.25);
+  border: 1.5px solid rgba(245,158,11,.5);
+  color: #FDE68A;
   width: 40px; height: 40px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   margin: 0 auto 12px; font-size: .9rem;
@@ -146,7 +146,7 @@
 
 /* ── FOOTER ── */
 footer {
-  background: #060F2E;
+  background: #7C2D12;
   color: rgba(255,255,255,.45);
   text-align: center;
   padding: 30px 28px;
@@ -154,6 +154,111 @@ footer {
   border-top: 1px solid rgba(255,255,255,.05);
 }
 footer strong { color: rgba(255,255,255,.75); }
+
+/* ── SHOP BY CATEGORY ── */
+.shop-cats { position: relative; overflow: hidden; margin-top: 62px; padding: 44px 0 52px; background: radial-gradient(ellipse 80% 60% at 50% 0%, var(--surface-3) 0%, transparent 70%), linear-gradient(180deg, #fff 0%, var(--bg) 100%); border-bottom: 1px solid var(--border); }
+.shop-cats + .hero { margin-top: 0; }
+.shop-cats::before, .shop-cats::after { content: ''; position: absolute; border-radius: 50%; pointer-events: none; }
+.shop-cats::before { width: 280px; height: 280px; top: -90px; left: -70px; background: radial-gradient(circle, rgba(249,115,22,.2), transparent 70%); animation: blobMove 9s ease-in-out infinite; }
+.shop-cats::after { width: 320px; height: 320px; bottom: -120px; right: -80px; background: radial-gradient(circle, rgba(245,158,11,.22), transparent 70%); animation: blobMove 11s ease-in-out infinite reverse; }
+@keyframes blobMove { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(40px,24px) scale(1.15); } }
+.shop-cats .container { position: relative; z-index: 1; }
+.cat-head { text-align: center; margin-bottom: 30px; }
+.cat-pill { display: inline-flex; align-items: center; gap: 6px; background: #fff; border: 1px solid var(--border-2); color: var(--primary); font-size: .7rem; font-weight: 700; letter-spacing: .6px; text-transform: uppercase; padding: 6px 14px; border-radius: 20px; box-shadow: var(--shadow-xs); margin-bottom: 12px; }
+.cat-title { font-size: clamp(1.6rem, 4vw, 2.3rem); font-weight: 800; color: var(--text); line-height: 1.2; }
+.cat-title span { background: linear-gradient(90deg, var(--primary), var(--accent)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.cat-sub { font-size: .88rem; color: var(--muted); margin-top: 6px; }
+.cat-bar { width: 60px; height: 4px; border-radius: 4px; margin: 12px auto 0; background: linear-gradient(90deg, var(--accent), var(--primary-light), var(--accent)); background-size: 200% 100%; animation: barSlide 2.5s linear infinite; }
+@keyframes barSlide { to { background-position: 200% 0; } }
+.cat-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; max-width: 1040px; margin: 0 auto; }
+.cat-item { position: relative; display: flex; flex-direction: column; align-items: center; text-decoration: none; text-align: center; color: var(--text); font-size: .88rem; font-weight: 700; cursor: pointer; background: rgba(255,255,255,.85); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border: 1px solid var(--border); border-radius: 20px; padding: 24px 10px 18px; box-shadow: var(--shadow-xs); }
+.cat-item:hover { border-color: var(--primary-light); box-shadow: 0 14px 30px rgba(234,88,12,.16); }
+.cat-circle { position: relative; width: 72px; height: 72px; margin: 0 auto 12px; }
+.cat-circle::before { content: ''; position: absolute; inset: -3px; border-radius: 24px; background: conic-gradient(var(--primary), var(--accent), var(--primary-light), var(--primary)); opacity: 0; transition: opacity var(--t); }
+.cat-in { position: relative; z-index: 1; width: 100%; height: 100%; border-radius: 22px; background: linear-gradient(145deg, #FFEDD5, #FFF7ED); box-shadow: inset 0 0 0 1px rgba(249,115,22,.12); display: flex; align-items: center; justify-content: center; font-size: 2.1rem; transition: transform var(--t-spring), box-shadow var(--t); }
+.cat-ico { display: inline-block; animation: catFloat 3s ease-in-out infinite; animation-delay: calc(var(--i) * .3s); }
+.cat-item:hover .cat-circle::before { opacity: 1; }
+.cat-item:hover .cat-in { transform: translateY(-6px) scale(1.06); box-shadow: var(--shadow-md); }
+.cat-item:hover .cat-ico { animation: catWiggle .7s ease; }
+.cat-badge { position: absolute; top: 10px; right: 10px; z-index: 3; font-size: .56rem; font-weight: 800; letter-spacing: .6px; padding: 3px 8px; border-radius: 10px; text-transform: uppercase; }
+.cat-badge.live { background: #fff; color: var(--primary); box-shadow: 0 3px 10px rgba(124,45,18,.25); animation: badgePulse 1.6s ease-in-out infinite; }
+.cat-badge.soon { background: #FEF3C7; color: #B45309; border: 1px solid #FDE68A; }
+/* Mobiles (live) card stands out */
+.cat-item.is-live { background: linear-gradient(145deg, var(--primary-light), var(--primary)); color: #fff; border-color: transparent; box-shadow: 0 12px 28px rgba(234,88,12,.35); }
+.cat-item.is-live:hover { box-shadow: 0 18px 38px rgba(234,88,12,.45); }
+.cat-item.is-live .cat-in { background: #fff; box-shadow: 0 6px 16px rgba(124,45,18,.2); }
+.cat-item.is-live .cat-circle::before { background: rgba(255,255,255,.55); }
+.cat-item.is-live .cat-circle::after { content: ''; position: absolute; inset: 0; border-radius: 22px; border: 2px solid #fff; pointer-events: none; animation: catPing 2.8s ease-out infinite; }
+.cat-cta { display: inline-block; margin-top: 8px; font-size: .7rem; font-weight: 700; background: rgba(255,255,255,.22); border: 1px solid rgba(255,255,255,.45); padding: 3px 10px; border-radius: 12px; transition: background var(--t); }
+.cat-item.is-live:hover .cat-cta { background: rgba(255,255,255,.35); }
+@keyframes catFloat { 50% { transform: translateY(-5px); } }
+@keyframes catWiggle { 0%,100% { transform: rotate(0); } 25% { transform: rotate(-14deg) scale(1.15); } 75% { transform: rotate(12deg) scale(1.15); } }
+@keyframes catSpin { to { transform: rotate(360deg); } }
+@keyframes catPing { 0% { transform: scale(1); opacity: .5; } 70%,100% { transform: scale(1.38); opacity: 0; } }
+@keyframes badgePulse { 50% { transform: scale(1.12); } }
+.feat-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 40px; }
+.ft-wrap { display: flex; }
+.feat-tile { flex: 1; position: relative; overflow: hidden; display: flex; align-items: center; gap: 12px; text-decoration: none; cursor: pointer; background: linear-gradient(135deg, #FFEDD5, #FFF7ED); border: 1px solid var(--border-2); border-radius: var(--radius); padding: 16px; transition: transform var(--t), box-shadow var(--t), border-color var(--t); }
+.feat-tile::after { content: ''; position: absolute; top: 0; left: -70%; width: 45%; height: 100%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.75), transparent); transform: skewX(-20deg); transition: left .7s ease; pointer-events: none; }
+.feat-tile:hover::after { left: 130%; }
+.feat-tile:hover { transform: translateY(-5px); border-color: var(--primary-light); box-shadow: var(--shadow-md); }
+.ft-icon { width: 48px; height: 48px; border-radius: 14px; background: #fff; box-shadow: var(--shadow-xs); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0; transition: transform var(--t-spring); }
+.feat-tile:hover .ft-icon { transform: rotate(-8deg) scale(1.12); }
+.ft-title { font-weight: 700; font-size: .92rem; color: var(--text); line-height: 1.25; }
+.ft-sub { font-size: .76rem; font-weight: 600; color: var(--primary); margin-top: 3px; }
+.cat-head, .cat-item, .ft-wrap { transition: opacity .6s ease, transform .6s cubic-bezier(.22,.68,0,1.2), box-shadow .25s ease, border-color .25s ease; transition-delay: calc(var(--i, 0) * .09s), calc(var(--i, 0) * .09s), 0s, 0s; }
+.anim-ready .cat-head, .anim-ready .cat-item, .anim-ready .ft-wrap { opacity: 0; transform: translateY(26px) scale(.92); }
+.anim-ready.in .cat-head, .anim-ready.in .cat-item, .anim-ready.in .ft-wrap { opacity: 1; transform: none; }
+@media (max-width: 900px) { .feat-tiles { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 600px) {
+  .shop-cats { padding: 30px 0 36px; }
+  .cat-head { margin-bottom: 22px; }
+  .cat-row { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .cat-item { padding: 18px 6px 14px; font-size: .8rem; border-radius: 16px; }
+  .cat-circle { width: 56px; height: 56px; margin-bottom: 10px; }
+  .cat-in, .cat-item.is-live .cat-circle::after { border-radius: 17px; }
+  .cat-circle::before { border-radius: 19px; }
+  .cat-in { font-size: 1.7rem; }
+  .cat-badge { top: 6px; right: 6px; font-size: .5rem; padding: 2px 6px; }
+  .cat-cta { font-size: .62rem; padding: 2px 8px; margin-top: 6px; }
+  .feat-tile { padding: 12px; gap: 8px; }
+  .ft-icon { width: 38px; height: 38px; font-size: 1.3rem; border-radius: 10px; }
+  .ft-title { font-size: .8rem; }
+}
+
+/* ── COMING SOON MODAL ── */
+.cs-overlay {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(28,10,2,.65); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px; opacity: 0; visibility: hidden;
+  transition: opacity .25s ease, visibility .25s ease;
+}
+.cs-overlay.show { opacity: 1; visibility: visible; }
+.cs-box {
+  background: #fff; border-radius: 20px;
+  max-width: 400px; width: 100%; padding: 36px 28px 28px;
+  text-align: center; position: relative;
+  box-shadow: 0 24px 60px rgba(0,0,0,.35);
+  transform: translateY(20px) scale(.95);
+  transition: transform .25s ease;
+  font-family: 'Poppins', sans-serif;
+}
+.cs-overlay.show .cs-box { transform: none; }
+.cs-icon { font-size: 3rem; line-height: 1; margin-bottom: 12px; }
+.cs-box h3 { margin: 0 0 8px; font-size: 1.5rem; font-weight: 800; color: #EA580C; }
+.cs-box p { margin: 0 0 22px; font-size: .9rem; color: #555; line-height: 1.6; }
+.cs-actions { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.cs-btn {
+  padding: 10px 22px; border-radius: 24px; font-size: .85rem; font-weight: 700;
+  cursor: pointer; border: none; text-decoration: none; font-family: inherit;
+}
+.cs-btn.wa { background: linear-gradient(135deg,#FB923C,#EA580C); color: #fff; }
+.cs-btn.close { background: #FFEDD5; color: #C2410C; }
+.cs-x {
+  position: absolute; top: 12px; right: 14px; background: none; border: none;
+  font-size: 1.5rem; color: #999; cursor: pointer; line-height: 1;
+}
 </style>
 </head>
 <body>
@@ -184,10 +289,31 @@ footer strong { color: rgba(255,255,255,.75); }
       <a href="#works" onclick="closeNav()">How it Works</a>
       <a href="#benefits" onclick="closeNav()">Benefits</a>
       <a href="#join" onclick="closeNav()">Join</a>
-      <a href="loan-application.html" class="btn-loan">📋 Apply Loan</a>
+      <a href="#" class="btn-loan" onclick="openComingSoon(event)">📋 Apply Loan</a>
     </nav>
   </div>
 </header>
+
+<!-- SHOP BY CATEGORY -->
+<section class="shop-cats" id="shopCats">
+  <div class="container">
+    <div class="cat-head" style="--i:0"><div class="cat-pill">🛍️ RetailBoost Store</div><div class="cat-title">Shop by <span>Category</span></div><div class="cat-sub">Pick a category and start exploring</div><div class="cat-bar"></div></div>
+    <div class="cat-row">
+      <a class="cat-item is-live" style="--i:1" href="mobiles.html"><span class="cat-badge live">Live</span><div class="cat-circle" style="--i:0"><div class="cat-in"><span class="cat-ico" style="--i:0">📱</span></div></div>Mobiles<span class="cat-cta">Shop now →</span></a>
+      <a class="cat-item" style="--i:2" href="#" onclick="openComingSoon(event,'Our Accessories collection is launching shortly. Stay tuned, or reach us on WhatsApp for updates.')"><span class="cat-badge soon">Soon</span><div class="cat-circle" style="--i:1"><div class="cat-in"><span class="cat-ico" style="--i:1">🎧</span></div></div>Accessories</a>
+      <a class="cat-item" style="--i:3" href="#" onclick="openComingSoon(event,'Our Smart Watch collection is launching shortly. Stay tuned, or reach us on WhatsApp for updates.')"><span class="cat-badge soon">Soon</span><div class="cat-circle" style="--i:2"><div class="cat-in"><span class="cat-ico" style="--i:2">⌚</span></div></div>Smart Watch</a>
+      <a class="cat-item" style="--i:4" href="#" onclick="openComingSoon(event,'Our Laptops collection is launching shortly. Stay tuned, or reach us on WhatsApp for updates.')"><span class="cat-badge soon">Soon</span><div class="cat-circle" style="--i:3"><div class="cat-in"><span class="cat-ico" style="--i:3">💻</span></div></div>Laptops</a>
+      <a class="cat-item" style="--i:5" href="#" onclick="openComingSoon(event,'Our Tablets collection is launching shortly. Stay tuned, or reach us on WhatsApp for updates.')"><span class="cat-badge soon">Soon</span><div class="cat-circle" style="--i:4"><div class="cat-in"><span class="cat-ico" style="--i:4">📲</span></div></div>Tablets</a>
+      <a class="cat-item" style="--i:6" href="#" onclick="openComingSoon(event,'Our Gadgets collection is launching shortly. Stay tuned, or reach us on WhatsApp for updates.')"><span class="cat-badge soon">Soon</span><div class="cat-circle" style="--i:5"><div class="cat-in"><span class="cat-ico" style="--i:5">🎮</span></div></div>Gadgets</a>
+    </div>
+    <div class="feat-tiles">
+      <div class="ft-wrap" style="--i:7"><a class="feat-tile" href="#" onclick="openComingSoon(event,'Deals are launching shortly. Stay tuned, or reach us on WhatsApp for updates.')"><span class="ft-icon">🏷️</span><div><div class="ft-title">Today's Deals</div><div class="ft-sub">Shop Now →</div></div></a></div>
+      <div class="ft-wrap" style="--i:8"><a class="feat-tile" href="#" onclick="openComingSoon(event,'Easy EMI is launching shortly. Stay tuned, or reach us on WhatsApp for updates.')"><span class="ft-icon">💳</span><div><div class="ft-title">Easy EMI</div><div class="ft-sub">0% Finance · Know More →</div></div></a></div>
+      <div class="ft-wrap" style="--i:9"><a class="feat-tile" href="#" onclick="openComingSoon(event,'Exchange offers are launching shortly. Stay tuned, or reach us on WhatsApp for updates.')"><span class="ft-icon">🔄</span><div><div class="ft-title">Exchange Offer</div><div class="ft-sub">Get Best Value</div></div></a></div>
+      <div class="ft-wrap" style="--i:10"><a class="feat-tile" href="#" onclick="openComingSoon(event,'Fast delivery details are coming shortly. Stay tuned, or reach us on WhatsApp for updates.')"><span class="ft-icon">🚚</span><div><div class="ft-title">Fast Delivery</div><div class="ft-sub">Across India</div></div></a></div>
+    </div>
+  </div>
+</section>
 
 <!-- HERO -->
 <section class="hero">
@@ -406,7 +532,7 @@ footer strong { color: rgba(255,255,255,.75); }
     </div>
 
     <br><br>
-    <a href="loan-application.html" class="btn-apply">🚀 Apply Now — Free &amp; Instant →</a>
+    <a href="#" class="btn-apply" onclick="openComingSoon(event)">🚀 Apply Now — Free &amp; Instant →</a>
     <div class="trust-strip">
       <span>🔒 100% Secure</span>
       <span>📱 WhatsApp Support</span>
@@ -431,6 +557,47 @@ footer strong { color: rgba(255,255,255,.75); }
 </footer>
 
 <a class="whatsapp" href="https://wa.me/919187627737" title="Chat on WhatsApp">💬</a>
+
+<!-- COMING SOON MODAL -->
+<div class="cs-overlay" id="csOverlay" role="dialog" aria-modal="true" aria-labelledby="csTitle">
+  <div class="cs-box">
+    <button class="cs-x" onclick="closeComingSoon()" aria-label="Close">&times;</button>
+    <div class="cs-icon">🚀</div>
+    <h3 id="csTitle">Coming Soon!</h3>
+    <p id="csMsg">Our loan application is launching shortly. Stay tuned, or reach us on WhatsApp for updates.</p>
+    <div class="cs-actions">
+      <a href="https://wa.me/919187627737" class="cs-btn wa">💬 WhatsApp Us</a>
+      <button class="cs-btn close" onclick="closeComingSoon()">Close</button>
+    </div>
+  </div>
+</div>
+<script>
+var csDefaultMsg='Our loan application is launching shortly. Stay tuned, or reach us on WhatsApp for updates.';
+function openComingSoon(e,msg){
+  if(e) e.preventDefault();
+  document.getElementById('csMsg').textContent = msg || csDefaultMsg;
+  if(typeof closeNav==='function') closeNav();
+  document.getElementById('csOverlay').classList.add('show');
+}
+function closeComingSoon(){
+  document.getElementById('csOverlay').classList.remove('show');
+}
+document.getElementById('csOverlay').addEventListener('click',function(e){
+  if(e.target===this) closeComingSoon();
+});
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape') closeComingSoon();
+});
+(function(){
+  var sc=document.getElementById('shopCats');
+  if(sc&&'IntersectionObserver' in window){
+    sc.classList.add('anim-ready');
+    var start=function(){new IntersectionObserver(function(en,ob){en.forEach(function(x){if(x.isIntersecting){sc.classList.add('in');ob.disconnect();}});},{threshold:.15}).observe(sc);};
+    /* categories are now at the top: wait until the welcome screen (script.js, closes 2.8s after load) fades out */
+    if(document.getElementById('welcomeScreen')){window.addEventListener('load',function(){setTimeout(start,2900);});}else{start();}
+  }
+})();
+</script>
 
 <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
 <script src="script.js"></script>

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#F97316">
+<title>Cart | RetailBoost</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+.page-top{margin-top:62px;background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 60%,#FB923C 100%);color:#fff;text-align:center;padding:30px 20px 26px}
+.page-top h1{font-size:clamp(1.5rem,4vw,2rem);font-weight:800}
+.page-top p{opacity:.9;font-size:.88rem;margin-top:4px}
+.wrap{max-width:1100px;margin:auto;padding:24px 18px 90px}
+
+/* stepper */
+.steps{display:flex;justify-content:center;gap:0;margin:2px auto 22px;max-width:640px}
+.stp{flex:1;text-align:center;position:relative;font-size:.74rem;font-weight:600;color:var(--muted-2)}
+.stp::before{content:'';position:absolute;top:15px;left:-50%;width:100%;height:3px;background:var(--border-2);z-index:0}
+.stp:first-child::before{display:none}
+.stp i{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;width:32px;height:32px;margin:0 auto 6px;border-radius:50%;background:#fff;border:2px solid var(--border-2);font-style:normal;font-weight:800;font-size:.8rem;transition:var(--t)}
+.stp.done{color:var(--primary)}.stp.done::before,.stp.on::before{background:var(--primary)}
+.stp.done i{background:var(--primary);border-color:var(--primary);color:#fff}
+.stp.on{color:var(--text)}.stp.on i{border-color:var(--primary);color:var(--primary);box-shadow:0 0 0 5px rgba(249,115,22,.18)}
+
+.userbar{display:none;justify-content:space-between;align-items:center;gap:10px;background:#fff;border:1px solid var(--border-2);border-radius:var(--radius-sm);padding:10px 16px;margin-bottom:18px;font-size:.84rem;font-weight:600;color:var(--text-2)}
+.userbar.show{display:flex}
+.userbar button{background:none;border:0;color:var(--primary);font:inherit;font-weight:700;cursor:pointer}
+
+.layout{display:grid;grid-template-columns:1fr 340px;gap:22px;align-items:start}
+.panel{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-xs);display:none;animation:rise .35s ease both}
+.panel.show{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
+.panel h2{font-size:1.15rem;font-weight:800;color:var(--text);margin-bottom:4px}
+.panel .sub{font-size:.84rem;color:var(--muted);margin-bottom:18px}
+
+/* cart items */
+.item{display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--border);align-items:center}
+.item:last-child{border-bottom:0}
+.thumb{width:74px;height:74px;border-radius:14px;background:#FFEDD5;display:flex;align-items:center;justify-content:center;font-size:2.2rem;flex-shrink:0}
+.i-info{flex:1;min-width:0}
+.i-name{font-weight:700;font-size:.95rem;line-height:1.3}
+.i-spec{font-size:.78rem;color:var(--muted);margin-top:2px}
+.i-price{margin-top:4px;font-weight:800;color:var(--primary)}.i-price s{color:var(--muted-2);font-weight:500;font-size:.78rem;margin-left:6px}
+.i-act{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.qty{display:flex;align-items:center;border:1.5px solid var(--border-2);border-radius:20px;overflow:hidden}
+.qty button{width:30px;height:30px;border:0;background:#fff;color:var(--primary);font-size:1.05rem;font-weight:800;cursor:pointer}
+.qty button:hover{background:var(--accent-light)}
+.qty span{min-width:28px;text-align:center;font-weight:700;font-size:.88rem}
+.rm{background:none;border:0;color:#b91c1c;font:inherit;font-size:.76rem;font-weight:600;cursor:pointer}
+
+/* summary */
+.summary{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow-xs);position:sticky;top:80px}
+.summary h3{font-size:1rem;font-weight:800;margin-bottom:14px}
+.row{display:flex;justify-content:space-between;font-size:.88rem;padding:6px 0;color:var(--text-2)}
+.row.save{color:#15803d;font-weight:600}
+.row.total{border-top:1.5px dashed var(--border-2);margin-top:8px;padding-top:14px;font-size:1.05rem;font-weight:800;color:var(--text)}
+
+/* buttons / forms */
+.btn-main{display:block;width:100%;border:0;border-radius:30px;padding:14px 20px;font:inherit;font-size:.95rem;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--primary-light),var(--primary));box-shadow:0 8px 24px rgba(234,88,12,.32);cursor:pointer;transition:var(--t);margin-top:16px}
+.btn-main:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(234,88,12,.42)}
+.btn-main:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.btn-ghost{background:#fff;color:var(--primary);border:1.5px solid var(--primary);box-shadow:none}
+.btn-ghost:hover{background:var(--accent-light);box-shadow:none}
+.link{background:none;border:0;color:var(--primary);font:inherit;font-weight:700;font-size:.82rem;cursor:pointer;padding:0}
+.link:disabled{color:var(--muted-2);cursor:default}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fld{display:flex;flex-direction:column;gap:5px}.fld.full{grid-column:1/-1}
+.fld label{font-size:.76rem;font-weight:700;color:var(--text-2)}
+.fld input,.fld select,.fld textarea{font:inherit;font-size:.9rem;padding:11px 13px;border:1.5px solid var(--border-2);border-radius:10px;background:#fff;color:var(--text);outline:0;transition:border-color var(--t),box-shadow var(--t);width:100%}
+.fld input:focus,.fld select:focus,.fld textarea:focus{border-color:var(--primary);box-shadow:0 0 0 4px rgba(249,115,22,.14)}
+.fld.err input,.fld.err select,.fld.err textarea{border-color:#dc2626}
+.emsg{font-size:.72rem;color:#dc2626;font-weight:600;min-height:0;display:none}.fld.err .emsg{display:block}
+.phone-in{display:flex;align-items:stretch}
+.phone-in span{display:flex;align-items:center;padding:0 14px;background:var(--surface-3);border:1.5px solid var(--border-2);border-right:0;border-radius:10px 0 0 10px;font-weight:700;font-size:.9rem;color:var(--text-2)}
+.phone-in input{border-radius:0 10px 10px 0}
+.otp-in{letter-spacing:.7em;text-align:center;font-size:1.4rem!important;font-weight:800;padding-left:.7em!important}
+.demo{background:#FEF3C7;border:1px dashed #F59E0B;color:#92400E;border-radius:10px;padding:10px 14px;font-size:.8rem;font-weight:600;margin:14px 0 4px;line-height:1.5}
+.demo b{font-size:1rem;letter-spacing:.2em;color:#B45309}
+.chk{display:flex;gap:9px;align-items:center;font-size:.84rem;font-weight:600;color:var(--text-2);margin-top:14px;cursor:pointer}
+.chk input{width:17px;height:17px;accent-color:var(--primary)}
+.seg{display:flex;gap:10px}
+.seg label{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;border:1.5px solid var(--border-2);border-radius:10px;padding:10px;font-size:.84rem;font-weight:700;cursor:pointer;color:var(--text-2)}
+.seg input{accent-color:var(--primary);width:auto}
+.seg label:has(input:checked){border-color:var(--primary);background:var(--accent-light);color:var(--primary)}
+
+/* address cards */
+.acard{display:flex;gap:12px;align-items:flex-start;border:1.5px solid var(--border-2);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px;cursor:pointer;transition:var(--t)}
+.acard:hover{border-color:var(--primary-light)}
+.acard.sel{border-color:var(--primary);background:#FFF7ED;box-shadow:0 0 0 3px rgba(249,115,22,.14)}
+.acard input{margin-top:4px;accent-color:var(--primary);width:auto}
+.a-name{font-weight:700;font-size:.92rem}
+.a-type{display:inline-block;font-size:.64rem;font-weight:800;letter-spacing:.5px;text-transform:uppercase;background:var(--accent-light);color:var(--accent-dark);padding:2px 8px;border-radius:8px;margin-left:8px}
+.a-line{font-size:.82rem;color:var(--muted);line-height:1.55;margin-top:3px}
+.a-del{margin-left:auto;background:none;border:0;color:#b91c1c;font:inherit;font-size:.74rem;font-weight:600;cursor:pointer}
+.rv-box{border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:14px;background:var(--surface-2)}
+.rv-box h4{font-size:.78rem;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between}
+.rv-item{display:flex;justify-content:space-between;gap:10px;font-size:.86rem;padding:4px 0}
+.note{font-size:.78rem;color:var(--muted);line-height:1.6;margin-top:12px}
+
+.empty{text-align:center;padding:30px 10px}
+.empty .big{font-size:3.4rem;margin-bottom:8px}
+.empty h2{margin-bottom:6px}
+.done-ico{width:78px;height:78px;border-radius:50%;background:linear-gradient(135deg,#22c55e,#15803d);color:#fff;font-size:2.2rem;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;animation:pop .5s cubic-bezier(.22,.68,0,1.4) both}
+@keyframes pop{from{transform:scale(0)}}
+.cart-link{position:relative}
+.badge{position:absolute;top:-4px;right:-2px;background:#fff;color:var(--primary);font-size:.62rem;font-weight:800;min-width:17px;height:17px;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);background:#2B1305;color:#fff;padding:10px 22px;border-radius:24px;font-size:.85rem;font-weight:600;opacity:0;pointer-events:none;transition:var(--t);z-index:10001}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:860px){.layout{grid-template-columns:1fr}.summary{position:static}}
+@media(max-width:560px){
+  .panel{padding:18px 14px}
+  .fgrid{grid-template-columns:1fr}
+  .item{flex-wrap:wrap}.i-act{flex-direction:row;align-items:center;width:100%;justify-content:space-between}
+  .stp{font-size:.66rem}
+}
+</style>
+</head>
+<body>
+<header class="navbar" id="navbar">
+  <div class="container nav-flex">
+    <h2 class="logo">Retail<span>Boost</span></h2>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    <nav id="mainNav">
+      <a href="index.html">← Home</a>
+      <a href="mobiles.html">📱 Mobiles</a>
+      <a href="cart.html" class="cart-link" style="background:rgba(255,255,255,.18)">🛒 Cart <span class="badge" id="cartCount">0</span></a>
+    </nav>
+  </div>
+</header>
+
+<section class="page-top"><h1>🛒 Your Cart</h1><p>Quick, secure checkout in a few steps</p></section>
+
+<main class="wrap">
+  <div class="steps" id="steps">
+    <div class="stp" data-s="cart"><i>1</i>Cart</div>
+    <div class="stp" data-s="login"><i>2</i>Login</div>
+    <div class="stp" data-s="addr"><i>3</i>Address</div>
+    <div class="stp" data-s="review"><i>4</i>Review</div>
+  </div>
+  <div class="userbar" id="userbar"></div>
+
+  <div class="layout" id="layout">
+    <div>
+      <!-- 1. CART -->
+      <section class="panel" id="p-cart"></section>
+
+      <!-- 2. LOGIN -->
+      <section class="panel" id="p-login">
+        <h2>Login to continue</h2>
+        <p class="sub">Enter your mobile number. We'll verify it with an OTP, and save your address for next time.</p>
+        <div id="ph-1">
+          <div class="fld" id="f-phone"><label>Mobile number</label>
+            <div class="phone-in"><span>+91</span><input id="phone" type="tel" inputmode="numeric" maxlength="10" placeholder="10-digit mobile number" autocomplete="tel-national"></div>
+            <div class="emsg">Enter a valid 10-digit mobile number</div></div>
+          <button class="btn-main" id="sendOtp">Send OTP</button>
+        </div>
+        <div id="ph-2" style="display:none">
+          <p class="sub" style="margin-bottom:10px">OTP sent to <b id="sentTo"></b> · <button class="link" id="chgNum">Change</button></p>
+          <div class="fld" id="f-otp"><label>Enter 6-digit OTP</label>
+            <input id="otp" class="otp-in" type="text" inputmode="numeric" maxlength="6" placeholder="••••••" autocomplete="one-time-code">
+            <div class="emsg" id="otpErr">Incorrect OTP</div></div>
+          <div class="demo">🧪 <b style="font-size:.8rem;letter-spacing:0">DEMO MODE</b> — no real SMS is sent yet. Use this OTP: <b id="demoOtp"></b></div>
+          <button class="btn-main" id="verify">Verify &amp; Continue</button>
+          <p class="note" style="text-align:center">Didn't get it? <button class="link" id="resend" disabled>Resend OTP</button> <span id="timer"></span></p>
+        </div>
+      </section>
+
+      <!-- 3. ADDRESS -->
+      <section class="panel" id="p-addr">
+        <h2>Delivery address</h2>
+        <p class="sub">Saved addresses are remembered, so next time you won't need to type them again.</p>
+        <div id="saved"></div>
+        <div id="addrForm">
+          <div class="fgrid">
+            <div class="fld" id="f-name"><label>Full name</label><input id="a-name" autocomplete="name" placeholder="Your full name"><div class="emsg">Please enter your name</div></div>
+            <div class="fld" id="f-pin"><label>Pincode</label><input id="a-pin" inputmode="numeric" maxlength="6" autocomplete="postal-code" placeholder="6-digit pincode"><div class="emsg">Enter a valid 6-digit pincode</div></div>
+            <div class="fld full" id="f-line"><label>House no., building, street, area</label><textarea id="a-line" rows="2" autocomplete="street-address" placeholder="e.g. 12, Gandhi Road, Indiranagar"></textarea><div class="emsg">Please enter your address</div></div>
+            <div class="fld"><label>Landmark (optional)</label><input id="a-land" placeholder="Near..."></div>
+            <div class="fld" id="f-city"><label>City / Town</label><input id="a-city" autocomplete="address-level2" placeholder="City"><div class="emsg">Please enter your city</div></div>
+            <div class="fld full" id="f-state"><label>State</label><select id="a-state" autocomplete="address-level1"><option value="">Select state</option></select><div class="emsg">Please select your state</div></div>
+            <div class="fld full"><label>Address type</label>
+              <div class="seg"><label><input type="radio" name="atype" value="Home" checked> 🏠 Home</label><label><input type="radio" name="atype" value="Work"> 🏢 Work</label></div></div>
+          </div>
+          <label class="chk"><input type="checkbox" id="a-save" checked> Save this address for next time</label>
+        </div>
+        <button class="btn-main" id="addrNext">Deliver to this address</button>
+      </section>
+
+      <!-- 4. REVIEW -->
+      <section class="panel" id="p-review"></section>
+
+      <!-- DONE -->
+      <section class="panel" id="p-done"></section>
+    </div>
+
+    <aside class="summary" id="summary"></aside>
+  </div>
+</main>
+
+<footer><strong>RetailBoost</strong> © 2026 — All rights reserved</footer>
+<a class="whatsapp" href="https://wa.me/919187627737" title="Chat on WhatsApp">💬</a>
+<div class="toast" id="toast"></div>
+
+<script>
+var WA='919187627737';   /* order goes to this WhatsApp number */
+var STATES=['Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab','Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand','West Bengal','Andaman & Nicobar Islands','Chandigarh','Dadra & Nagar Haveli and Daman & Diu','Delhi','Jammu & Kashmir','Ladakh','Lakshadweep','Puducherry'];
+var $=function(id){return document.getElementById(id);};
+function get(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+function set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function del(k){try{localStorage.removeItem(k);}catch(e){}}
+function inr(n){return '₹'+n.toLocaleString('en-IN');}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show');},2200);}
+
+var cart=get('rb_cart',[]),phone=get('rb_session',null),users=get('rb_users',{});
+var step='cart',otp=null,chosen=null,orderUrl='',timerH=null;
+
+STATES.forEach(function(s){var o=document.createElement('option');o.value=o.textContent=s;$('a-state').appendChild(o);});
+
+function myAddrs(){return phone&&users[phone]?users[phone].addresses||[]:[];}
+function saveCart(){set('rb_cart',cart);$('cartCount').textContent=cart.reduce(function(s,i){return s+i.q;},0);}
+function totals(){
+  var sub=0,mrp=0,n=0;
+  cart.forEach(function(i){sub+=i.p*i.q;mrp+=i.o*i.q;n+=i.q;});
+  return {sub:sub,mrp:mrp,save:mrp-sub,n:n};
+}
+
+/* ── step control ── */
+var ORDER=['cart','login','addr','review'];
+function go(s){
+  step=s;
+  ['cart','login','addr','review','done'].forEach(function(p){$('p-'+p).classList.toggle('show',p===s);});
+  var idx=ORDER.indexOf(s);
+  document.querySelectorAll('.stp').forEach(function(el,i){el.classList.toggle('on',i===idx);el.classList.toggle('done',idx>i||s==='done');});
+  $('steps').style.display=(s==='done'||(!cart.length&&s==='cart'))?'none':'flex';
+  $('layout').style.gridTemplateColumns='';
+  $('summary').style.display=(s==='done'||!cart.length)?'none':'';
+  if(s==='done'||!cart.length)$('layout').style.gridTemplateColumns='1fr';
+  renderUser();
+  if(s==='cart')renderCart();
+  if(s==='login')resetLogin();
+  if(s==='addr')renderAddr();
+  if(s==='review')renderReview();
+  renderSummary();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function renderUser(){
+  var u=$('userbar');
+  if(phone&&step!=='done'){u.classList.add('show');u.innerHTML='<span>👤 Logged in as +91 '+esc(phone)+'</span><button id="logout">Logout</button>';
+    $('logout').onclick=function(){phone=null;chosen=null;del('rb_session');toast('Logged out');go('cart');};}
+  else u.classList.remove('show');
+}
+function renderSummary(){
+  var t=totals();
+  $('summary').innerHTML='<h3>Price details</h3><div class="row"><span>Price ('+t.n+' item'+(t.n===1?'':'s')+')</span><span>'+inr(t.mrp)+'</span></div>'+
+  '<div class="row save"><span>Discount</span><span>− '+inr(t.save)+'</span></div><div class="row"><span>Delivery</span><span style="color:#15803d;font-weight:600">FREE</span></div>'+
+  '<div class="row total"><span>Total</span><span>'+inr(t.sub)+'</span></div>'+
+  (t.save>0?'<p class="note" style="color:#15803d;font-weight:600">🎉 You save '+inr(t.save)+' on this order</p>':'');
+}
+
+/* ── 1. cart ── */
+function renderCart(){
+  var el=$('p-cart');
+  if(!cart.length){
+    el.innerHTML='<div class="empty"><div class="big">🛒</div><h2>Your cart is empty</h2><p class="sub">Add a phone to get started.</p><a href="mobiles.html" class="btn-main" style="text-decoration:none;max-width:260px;margin:14px auto 0">Browse Mobiles</a></div>';
+    return;
+  }
+  el.innerHTML='<h2>My Cart ('+totals().n+')</h2><p class="sub">Review your phones, then continue to checkout.</p>'+
+  cart.map(function(i,k){
+    return '<div class="item"><div class="thumb">📱</div><div class="i-info"><div class="i-name">'+esc(i.n)+'</div><div class="i-spec">'+esc(i.s)+'</div><div class="i-price">'+inr(i.p)+'<s>'+inr(i.o)+'</s></div></div>'+
+    '<div class="i-act"><div class="qty"><button data-q="-1" data-k="'+k+'" aria-label="Decrease">−</button><span>'+i.q+'</span><button data-q="1" data-k="'+k+'" aria-label="Increase">+</button></div><button class="rm" data-r="'+k+'">Remove</button></div></div>';
+  }).join('')+
+  '<button class="btn-main" id="proceed">Proceed to Buy</button><button class="btn-main btn-ghost" id="more">+ Add more phones</button>';
+  $('proceed').onclick=proceed;
+  $('more').onclick=function(){location.href='mobiles.html';};
+}
+function proceed(){if(!cart.length)return;go(phone?'addr':'login');}
+$('p-cart').addEventListener('click',function(e){
+  var q=e.target.closest('[data-q]'),r=e.target.closest('[data-r]');
+  if(q){var it=cart[+q.dataset.k];it.q=Math.max(1,Math.min(10,it.q+(+q.dataset.q)));saveCart();renderCart();renderSummary();}
+  if(r){cart.splice(+r.dataset.r,1);saveCart();toast('Item removed');go('cart');}
+});
+
+/* ── 2. login (DEMO OTP) ── */
+function resetLogin(){
+  clearInterval(timerH);otp=null;
+  $('ph-1').style.display='';$('ph-2').style.display='none';
+  $('f-phone').classList.remove('err');$('f-otp').classList.remove('err');$('otp').value='';
+}
+function sendOtp(){
+  var v=$('phone').value.replace(/\D/g,'');
+  if(!/^[6-9]\d{9}$/.test(v)){$('f-phone').classList.add('err');return;}
+  $('f-phone').classList.remove('err');
+  otp={phone:v,code:String(Math.floor(100000+Math.random()*900000)),exp:Date.now()+5*60000,tries:0};
+  $('sentTo').textContent='+91 '+v;$('demoOtp').textContent=otp.code;
+  $('ph-1').style.display='none';$('ph-2').style.display='';$('otp').value='';$('otp').focus();
+  startTimer();
+}
+function startTimer(){
+  var s=30;$('resend').disabled=true;clearInterval(timerH);
+  $('timer').textContent='(in '+s+'s)';
+  timerH=setInterval(function(){s--;if(s<=0){clearInterval(timerH);$('resend').disabled=false;$('timer').textContent='';}else $('timer').textContent='(in '+s+'s)';},1000);
+}
+function verify(){
+  var v=$('otp').value.replace(/\D/g,''),er=$('otpErr');
+  if(!otp)return;
+  if(Date.now()>otp.exp){er.textContent='OTP expired. Please resend.';$('f-otp').classList.add('err');return;}
+  if(otp.tries>=5){er.textContent='Too many attempts. Please resend OTP.';$('f-otp').classList.add('err');return;}
+  if(v!==otp.code){otp.tries++;er.textContent='Incorrect OTP ('+(5-otp.tries)+' tries left)';$('f-otp').classList.add('err');return;}
+  phone=otp.phone;set('rb_session',phone);
+  if(!users[phone]){users[phone]={addresses:[]};set('rb_users',users);}
+  toast('✓ Mobile number verified');otp=null;go('addr');
+}
+$('sendOtp').onclick=sendOtp;
+$('phone').addEventListener('keydown',function(e){if(e.key==='Enter')sendOtp();});
+$('verify').onclick=verify;
+$('otp').addEventListener('keydown',function(e){if(e.key==='Enter')verify();});
+$('resend').onclick=function(){sendOtp();toast('New OTP generated');};
+$('chgNum').onclick=resetLogin;
+
+/* ── 3. address ── */
+var useNew=false;
+function renderAddr(){
+  var list=myAddrs();
+  if(!list.length)useNew=true;
+  if(!chosen||!list.some(function(a){return a.id===chosen.id;})){if(!useNew&&list.length)chosen=list[0];}
+  $('saved').innerHTML=list.map(function(a){
+    var sel=!useNew&&chosen&&chosen.id===a.id;
+    return '<label class="acard'+(sel?' sel':'')+'" data-id="'+a.id+'"><input type="radio" name="addr"'+(sel?' checked':'')+'><div><div class="a-name">'+esc(a.name)+'<span class="a-type">'+esc(a.type)+'</span></div><div class="a-line">'+esc(a.line)+(a.land?', '+esc(a.land):'')+'<br>'+esc(a.city)+', '+esc(a.state)+' – '+esc(a.pin)+'<br>📞 +91 '+esc(phone)+'</div></div><button class="a-del" data-del="'+a.id+'">Delete</button></label>';
+  }).join('')+(list.length?'<button class="link" id="newAddr" style="margin:2px 0 14px">'+(useNew?'← Use a saved address':'+ Add a new address')+'</button>':'');
+  $('addrForm').style.display=useNew?'':'none';
+  $('addrNext').textContent=useNew?'Save & Deliver Here':'Deliver to this address';
+  if(list.length)$('newAddr').onclick=function(e){e.preventDefault();useNew=!useNew;if(!useNew&&list.length&&!chosen)chosen=list[0];renderAddr();};
+}
+$('saved').addEventListener('click',function(e){
+  var d=e.target.closest('[data-del]');
+  if(d){e.preventDefault();e.stopPropagation();
+    users[phone].addresses=users[phone].addresses.filter(function(a){return a.id!==d.dataset.del;});set('rb_users',users);
+    if(chosen&&chosen.id===d.dataset.del)chosen=null;toast('Address deleted');renderAddr();return;}
+  var c=e.target.closest('.acard');
+  if(c){chosen=myAddrs().filter(function(a){return a.id===c.dataset.id;})[0];useNew=false;renderAddr();}
+});
+function fieldOk(id,ok){$(id).classList.toggle('err',!ok);return ok;}
+$('addrNext').onclick=function(){
+  if(!useNew){if(!chosen)return toast('Please choose an address');return go('review');}
+  var a={name:$('a-name').value.trim(),pin:$('a-pin').value.trim(),line:$('a-line').value.trim(),land:$('a-land').value.trim(),city:$('a-city').value.trim(),state:$('a-state').value,type:document.querySelector('input[name=atype]:checked').value};
+  var ok=true;
+  ok=fieldOk('f-name',a.name.length>1)&ok;ok=fieldOk('f-pin',/^[1-9]\d{5}$/.test(a.pin))&ok;
+  ok=fieldOk('f-line',a.line.length>4)&ok;ok=fieldOk('f-city',a.city.length>1)&ok;ok=fieldOk('f-state',!!a.state)&ok;
+  if(!ok)return;
+  a.id='a'+Date.now();
+  if($('a-save').checked){users[phone].addresses.push(a);set('rb_users',users);}
+  chosen=a;useNew=false;
+  ['a-name','a-pin','a-line','a-land','a-city'].forEach(function(i){$(i).value='';});$('a-state').value='';
+  go('review');
+};
+
+/* ── 4. review & place order ── */
+function renderReview(){
+  var t=totals(),a=chosen;
+  if(!a){return go('addr');}
+  $('p-review').innerHTML='<h2>Review your order</h2><p class="sub">Check everything, then place your order.</p>'+
+  '<div class="rv-box"><h4>Items</h4>'+cart.map(function(i){return '<div class="rv-item"><span>'+esc(i.n)+' <small style="color:var(--muted)">('+esc(i.s)+') × '+i.q+'</small></span><b>'+inr(i.p*i.q)+'</b></div>';}).join('')+'</div>'+
+  '<div class="rv-box"><h4>Deliver to <button class="link" id="chgAddr">Change</button></h4><div class="a-name">'+esc(a.name)+'<span class="a-type">'+esc(a.type)+'</span></div><div class="a-line">'+esc(a.line)+(a.land?', '+esc(a.land):'')+'<br>'+esc(a.city)+', '+esc(a.state)+' – '+esc(a.pin)+'<br>📞 +91 '+esc(phone)+'</div></div>'+
+  '<div class="rv-item" style="font-size:1.05rem;padding:8px 2px"><b>Total payable</b><b style="color:var(--primary)">'+inr(t.sub)+'</b></div>'+
+  '<button class="btn-main" id="place">Place Order on WhatsApp</button>'+
+  '<p class="note">Your order and address are sent to RetailBoost on WhatsApp. Our team confirms availability, payment and EMI options with you there.</p>';
+  $('chgAddr').onclick=function(){useNew=false;go('addr');};
+  $('place').onclick=placeOrder;
+}
+function placeOrder(){
+  var t=totals(),a=chosen,L=[];
+  L.push('*New Order — RetailBoost*','');
+  L.push('Customer: '+a.name,'Mobile: +91 '+phone,'');
+  L.push('*Items*');
+  cart.forEach(function(i,k){L.push((k+1)+'. '+i.n+' ('+i.s+') × '+i.q+' — '+inr(i.p*i.q));});
+  L.push('','*Total: '+inr(t.sub)+'*','');
+  L.push('*Deliver to ('+a.type+')*',a.line+(a.land?', '+a.land:''),a.city+', '+a.state+' - '+a.pin);
+  orderUrl='https://wa.me/'+WA+'?text='+encodeURIComponent(L.join('\n'));
+  var total=t.sub,n=t.n;
+  cart=[];saveCart();
+  $('p-done').innerHTML='<div class="empty"><div class="done-ico">✓</div><h2>Almost done — send your order</h2><p class="sub">WhatsApp should open with your order ready. <b>Tap Send</b> there to confirm it with RetailBoost.</p>'+
+  '<div class="rv-box" style="text-align:left;max-width:380px;margin:0 auto 6px"><div class="rv-item"><span>Items</span><b>'+n+'</b></div><div class="rv-item"><span>Total</span><b>'+inr(total)+'</b></div></div>'+
+  '<a class="btn-main" href="'+orderUrl+'" target="_blank" rel="noopener" style="text-decoration:none;max-width:320px;margin:14px auto 0">💬 Open WhatsApp</a>'+
+  '<a class="btn-main btn-ghost" href="mobiles.html" style="text-decoration:none;max-width:320px;margin:10px auto 0">Continue Shopping</a></div>';
+  go('done');
+  window.open(orderUrl,'_blank');
+}
+
+$('navToggle').addEventListener('click',function(){this.classList.toggle('open');$('mainNav').classList.toggle('open');});
+window.addEventListener('scroll',function(){$('navbar').classList.toggle('scrolled',window.scrollY>40);});
+
+/* start */
+saveCart();
+go('cart');
+if(location.hash==='#checkout'&&cart.length){history.replaceState(null,'',location.pathname);proceed();}
+</script>
+</body>
+</html>

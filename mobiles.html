@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#F97316">
+<title>Mobiles | RetailBoost</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+.mb-hero{margin-top:62px;background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 60%,#FB923C 100%);color:#fff;text-align:center;padding:46px 20px 40px;position:relative;overflow:hidden}
+.mb-hero::before{content:'';position:absolute;width:320px;height:320px;border-radius:50%;top:-120px;right:-60px;background:radial-gradient(circle,rgba(255,255,255,.25),transparent 70%);animation:blob 9s ease-in-out infinite}
+@keyframes blob{50%{transform:translate(-30px,30px) scale(1.15)}}
+.mb-hero h1{font-size:clamp(1.8rem,5vw,2.6rem);font-weight:800;position:relative}
+.mb-hero p{opacity:.92;margin-top:8px;font-size:.95rem;position:relative}
+.crumb{font-size:.8rem;margin-bottom:10px;position:relative}.crumb a{color:#fff;opacity:.85;text-decoration:none}
+.demo-pill{display:inline-block;margin-top:14px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);padding:4px 14px;border-radius:20px;font-size:.72rem;font-weight:600;position:relative}
+.mb-wrap{max-width:1160px;margin:auto;padding:26px 18px 80px}
+
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:16px}
+.search{flex:1 1 260px;display:flex;align-items:center;background:#fff;border:1px solid var(--border-2);border-radius:30px;padding-left:16px}
+.search input{flex:1;border:0;outline:0;padding:12px;font:inherit;font-size:.9rem;background:transparent;color:var(--text);min-width:0}
+.sort{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border-2);border-radius:30px;padding:0 6px 0 16px;font-size:.8rem;font-weight:600;color:var(--text-2)}
+.sort select{border:0;outline:0;background:transparent;font:inherit;font-size:.85rem;font-weight:700;color:var(--primary);padding:12px 10px 12px 0;cursor:pointer}
+.bdd{position:relative}
+.bdd-btn{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--border-2);border-radius:30px;padding:12px 16px;font:inherit;font-size:.85rem;font-weight:700;color:var(--primary);cursor:pointer;white-space:nowrap}
+.bdd-btn:hover,.bdd.open .bdd-btn{border-color:var(--primary)}
+.bdd-btn .car{font-size:.7rem;transition:transform var(--t)}
+.bdd.open .bdd-btn .car{transform:rotate(180deg)}
+.bdd-menu{display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:50;background:#fff;border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-md);min-width:230px;max-height:320px;overflow-y:auto;padding:6px}
+.bdd.open .bdd-menu{display:block}
+.bdd-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;font-size:.86rem;font-weight:600;color:var(--text-2);cursor:pointer}
+.bdd-item:hover{background:var(--surface-3)}
+.bdd-item input{accent-color:var(--primary);width:16px;height:16px;cursor:pointer}
+.bdd-item small{margin-left:auto;color:var(--muted);font-weight:600}
+.bdd-foot{border-top:1px solid var(--border);margin-top:4px;padding:8px 10px 4px;text-align:right}
+.bdd-foot button{background:none;border:0;color:var(--primary);font:inherit;font-weight:700;font-size:.82rem;cursor:pointer}
+
+.fl-label{font-size:.72rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);margin:14px 0 8px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--border-2);background:#fff;color:var(--text-2);padding:8px 16px;border-radius:20px;font:inherit;font-size:.8rem;font-weight:600;cursor:pointer;transition:var(--t);white-space:nowrap}
+.chip small{opacity:.6;font-weight:600;margin-left:4px}
+.chip:hover{border-color:var(--primary)}
+.chip.active{background:linear-gradient(135deg,var(--primary-light),var(--primary));color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(234,88,12,.3)}
+.resbar{display:flex;justify-content:space-between;align-items:center;margin:20px 0 14px;font-size:.84rem;color:var(--muted);font-weight:500}
+.resbar b{color:var(--text)}
+.clear{background:none;border:0;color:var(--primary);font:inherit;font-weight:700;font-size:.82rem;cursor:pointer;display:none}
+.clear.show{display:inline}
+
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:18px}
+.pcard{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;position:relative;display:flex;flex-direction:column;transition:transform var(--t),box-shadow var(--t),border-color var(--t);animation:rise .45s ease both}
+.pcard:hover{transform:translateY(-6px);box-shadow:var(--shadow-md);border-color:var(--primary-light)}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}}
+.pimg{height:160px;display:flex;align-items:center;justify-content:center;font-size:4rem;position:relative}
+.off{position:absolute;top:10px;left:10px;background:var(--primary);color:#fff;font-size:.68rem;font-weight:700;padding:3px 9px;border-radius:10px}
+.btag{position:absolute;bottom:10px;left:10px;background:rgba(255,255,255,.9);color:var(--text-2);font-size:.66rem;font-weight:700;padding:3px 10px;border-radius:10px}
+.heart{position:absolute;top:8px;right:10px;background:#fff;border:0;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:1rem;color:#c7c7c7;box-shadow:var(--shadow-xs)}
+.heart.on{color:#e11d48}
+.pbody{padding:14px;display:flex;flex-direction:column;gap:4px;flex:1}
+.pname{font-weight:700;font-size:.93rem;line-height:1.3}.pspec{font-size:.78rem;color:var(--muted)}
+.price{font-size:1.1rem;font-weight:800;color:var(--primary)}
+.old{font-size:.78rem;color:var(--muted-2);text-decoration:line-through;margin-left:6px;font-weight:500}
+.rate{font-size:.76rem;color:var(--muted)}
+.pbtns{display:flex;gap:8px;margin-top:auto;padding-top:10px}
+.pbtns button{flex:1;padding:9px 6px;border-radius:8px;font:inherit;font-size:.78rem;font-weight:700;cursor:pointer;text-align:center;transition:var(--t)}
+.b-cart{border:1.5px solid var(--primary);background:#fff;color:var(--primary)}.b-cart:hover{background:var(--accent-light)}
+.b-buy{border:1.5px solid var(--primary);background:var(--primary);color:#fff}.b-buy:hover{background:var(--primary-dark);border-color:var(--primary-dark)}
+.empty{grid-column:1/-1;text-align:center;color:var(--muted);padding:50px 0}
+.cart-link{position:relative}
+.badge{position:absolute;top:-4px;right:-2px;background:#fff;color:var(--primary);font-size:.62rem;font-weight:800;min-width:17px;height:17px;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.toast{position:fixed;left:50%;bottom:90px;transform:translate(-50%,20px);background:#2B1305;color:#fff;padding:10px 22px;border-radius:24px;font-size:.85rem;font-weight:600;opacity:0;pointer-events:none;transition:var(--t);z-index:10001}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:700px){
+  .brand-chips{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px;margin:0 -18px;padding-left:18px;padding-right:18px;scrollbar-width:none}
+  .brand-chips::-webkit-scrollbar{display:none}
+  .sort{width:100%;justify-content:space-between}
+  .bdd{width:100%}.bdd-btn{width:100%;justify-content:space-between}.bdd-menu{right:0}
+  .pgrid{grid-template-columns:repeat(2,1fr);gap:12px}
+  .pimg{height:130px;font-size:3.2rem}
+  .pbtns{flex-direction:column}
+}
+@media(max-width:380px){.pgrid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="navbar" id="navbar">
+  <div class="container nav-flex">
+    <h2 class="logo">Retail<span>Boost</span></h2>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    <nav id="mainNav">
+      <a href="index.html">← Home</a>
+      <a href="mobiles.html" style="background:rgba(255,255,255,.18)">📱 Mobiles</a>
+      <a href="cart.html" class="cart-link">🛒 Cart <span class="badge" id="cartCount">0</span></a>
+    </nav>
+  </div>
+</header>
+
+<section class="mb-hero">
+  <div class="crumb"><a href="index.html">Home</a> › Mobiles</div>
+  <h1>📱 Mobiles</h1>
+  <p>Latest smartphones with easy EMI and best prices</p>
+  <span class="demo-pill">Demo page · sample products</span>
+</section>
+
+<main class="mb-wrap">
+  <div class="toolbar">
+    <div class="search">🔍<input id="q" type="search" placeholder="Search mobiles..."></div>
+    <div class="bdd" id="bdd">
+      <button type="button" class="bdd-btn" id="bddBtn" aria-haspopup="true" aria-expanded="false"><span id="bddLabel">Brand</span><span class="car">▾</span></button>
+      <div class="bdd-menu" id="brands"></div>
+    </div>
+    <label class="sort">Sort by
+      <select id="sort">
+        <option value="pop">Popularity</option>
+        <option value="plh">Price: Low to High</option>
+        <option value="phl">Price: High to Low</option>
+        <option value="rate">Rating</option>
+        <option value="disc">Biggest Discount</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="resbar"><span id="count"></span><button class="clear" id="clear">✕ Clear all filters</button></div>
+  <div class="pgrid" id="grid"></div>
+</main>
+
+<footer><strong>RetailBoost</strong> © 2026 — All rights reserved</footer>
+<a class="whatsapp" href="https://wa.me/919187627737" title="Chat on WhatsApp">💬</a>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══ EDIT YOUR PRODUCTS HERE ═══
+   b = brand key, n = name, s = specs, p = price, o = old price, r = rating, c = review count (used for Popularity) */
+var BRANDS=[['samsung','Samsung'],['vivo','vivo'],['iqoo','iQOO'],['pixel','Google Pixel'],['apple','Apple'],['poco','POCO'],['redmi','Redmi'],['realme','realme'],['motorola','Motorola'],['oneplus','OnePlus'],['nothing','Nothing'],['aiplus','AI+']];
+var P=[
+{b:'samsung',n:'Samsung Galaxy A Series 5G',s:'8GB + 128GB',p:18999,o:21999,r:4.4,c:3200},
+{b:'samsung',n:'Samsung Galaxy M Series 5G',s:'6GB + 128GB',p:13499,o:15999,r:4.3,c:2100},
+{b:'vivo',n:'vivo T Series 5G',s:'8GB + 128GB',p:19999,o:22999,r:4.5,c:2800},
+{b:'vivo',n:'vivo Y Series',s:'4GB + 128GB',p:11499,o:12999,r:4.2,c:1900},
+{b:'iqoo',n:'iQOO Z Series 5G',s:'8GB + 128GB',p:17999,o:20999,r:4.6,c:1500},
+{b:'iqoo',n:'iQOO Neo Series 5G',s:'12GB + 256GB',p:32999,o:36999,r:4.6,c:900},
+{b:'pixel',n:'Google Pixel A Series',s:'8GB + 128GB',p:49999,o:52999,r:4.6,c:540},
+{b:'pixel',n:'Google Pixel Series',s:'12GB + 256GB',p:74999,o:79999,r:4.7,c:320},
+{b:'apple',n:'Apple iPhone Series',s:'128GB',p:59999,o:64999,r:4.7,c:4100},
+{b:'apple',n:'Apple iPhone Pro Series',s:'256GB',p:114999,o:119999,r:4.8,c:2600},
+{b:'poco',n:'POCO X Series 5G',s:'8GB + 256GB',p:21999,o:25999,r:4.5,c:3600},
+{b:'poco',n:'POCO M Series',s:'4GB + 128GB',p:8999,o:10999,r:4.2,c:4200},
+{b:'redmi',n:'Redmi Note Series 5G',s:'8GB + 128GB',p:16999,o:19999,r:4.4,c:5200},
+{b:'redmi',n:'Redmi A Series',s:'4GB + 64GB',p:6999,o:8499,r:4.0,c:3800},
+{b:'realme',n:'realme Narzo Series',s:'6GB + 128GB',p:12999,o:14999,r:4.3,c:2400},
+{b:'realme',n:'realme P Series 5G',s:'8GB + 256GB',p:20999,o:23999,r:4.4,c:1700},
+{b:'motorola',n:'Motorola Edge Series 5G',s:'8GB + 256GB',p:24999,o:29999,r:4.4,c:1300},
+{b:'motorola',n:'Motorola Moto G Series',s:'4GB + 128GB',p:9999,o:11999,r:4.2,c:2000},
+{b:'oneplus',n:'OnePlus Nord Series 5G',s:'12GB + 256GB',p:29999,o:33999,r:4.5,c:1800},
+{b:'oneplus',n:'OnePlus Flagship Series 5G',s:'16GB + 512GB',p:64999,o:69999,r:4.7,c:900},
+{b:'nothing',n:'Nothing Phone (a) Series',s:'8GB + 128GB',p:24999,o:26999,r:4.4,c:1000},
+{b:'nothing',n:'Nothing Phone Series',s:'12GB + 256GB',p:39999,o:44999,r:4.5,c:700},
+{b:'aiplus',n:'AI+ Pulse Series',s:'4GB + 64GB',p:6999,o:7999,r:4.1,c:600},
+{b:'aiplus',n:'AI+ Nova Series 5G',s:'8GB + 128GB',p:14999,o:17999,r:4.2,c:500}
+];
+P.forEach(function(x,i){x.id='m'+(i+1);});
+var BN={};BRANDS.forEach(function(b){BN[b[0]]=b[1];});
+
+var tints=['#FFEDD5','#FEF3C7','#FFE4D6','#FDE68A66'];
+var selB={},sortBy='pop';
+var grid=document.getElementById('grid'),q=document.getElementById('q');
+
+function inr(n){return '₹'+n.toLocaleString('en-IN');}
+function disc(x){return Math.round((x.o-x.p)/x.o*100);}
+function get(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+function set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+
+/* brand dropdown (multi-select checkboxes) */
+(function(){
+  var h='';
+  BRANDS.forEach(function(b){
+    var n=P.filter(function(x){return x.b===b[0];}).length;
+    h+='<label class="bdd-item"><input type="checkbox" value="'+b[0]+'">'+b[1]+'<small>'+n+'</small></label>';
+  });
+  h+='<div class="bdd-foot"><button type="button" id="bddClear">Clear</button></div>';
+  document.getElementById('brands').innerHTML=h;
+})();
+function syncBrands(){
+  var n=Object.keys(selB).length;
+  document.getElementById('bddLabel').textContent=n?'Brand ('+n+')':'Brand';
+  document.querySelectorAll('#brands input').forEach(function(c){c.checked=!!selB[c.value];});
+}
+
+function activeFilters(){return Object.keys(selB).length>0||q.value.trim()!==''||false;}
+
+function render(){
+  var t=q.value.trim().toLowerCase(),bs=Object.keys(selB);
+  var list=P.filter(function(x){
+    var okB=!bs.length||selB[x.b];
+    var okT=!t||x.n.toLowerCase().indexOf(t)>-1||BN[x.b].toLowerCase().indexOf(t)>-1;
+    return okB&&okT;
+  });
+  list.sort(function(a,b){
+    if(sortBy==='plh')return a.p-b.p;
+    if(sortBy==='phl')return b.p-a.p;
+    if(sortBy==='rate')return b.r-a.r||b.c-a.c;
+    if(sortBy==='disc')return disc(b)-disc(a);
+    return b.c-a.c;
+  });
+  document.getElementById('count').innerHTML='Showing <b>'+list.length+'</b> of '+P.length+' phones';
+  document.getElementById('clear').classList.toggle('show',activeFilters());
+  grid.innerHTML=list.length?list.map(function(x,k){
+    return '<div class="pcard" style="animation-delay:'+Math.min(k,12)*.04+'s"><div class="pimg" style="background:'+tints[parseInt(x.id.slice(1),10)%4]+'"><span class="off">-'+disc(x)+'%</span><button class="heart" aria-label="Wishlist" onclick="this.classList.toggle(\'on\')">♥</button>📱<span class="btag">'+BN[x.b]+'</span></div>'+
+    '<div class="pbody"><div class="pname">'+x.n+'</div><div class="pspec">'+x.s+'</div><div><span class="price">'+inr(x.p)+'</span><span class="old">'+inr(x.o)+'</span></div><div class="rate">★ '+x.r+' ('+x.c.toLocaleString('en-IN')+' reviews)</div>'+
+    '<div class="pbtns"><button class="b-cart" onclick="addCart(\''+x.id+'\',false,this)">Add to Cart</button><button class="b-buy" onclick="addCart(\''+x.id+'\',true,this)">Buy Now</button></div></div></div>';
+  }).join(''):'<div class="empty">😕 No phones found. Try different brands or search.</div>';
+}
+
+/* cart: saved in the browser so cart.html can read it */
+function cartQty(){return get('rb_cart',[]).reduce(function(s,i){return s+i.q;},0);}
+function updBadge(){document.getElementById('cartCount').textContent=cartQty();}
+function addCart(id,buy,btn){
+  var x=P.filter(function(p){return p.id===id;})[0],cart=get('rb_cart',[]),f=cart.filter(function(i){return i.id===id;})[0];
+  if(f){f.q=Math.min(f.q+1,10);}else{cart.push({id:x.id,n:x.n,s:x.s,p:x.p,o:x.o,q:1});}
+  set('rb_cart',cart);updBadge();
+  if(btn){btn.textContent='Added ✓';}
+  toast(x.n+' added — opening your cart');
+  setTimeout(function(){location.href='cart.html'+(buy?'#checkout':'');},450);
+}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show');},1800);}
+
+var bdd=document.getElementById('bdd'),bddBtn=document.getElementById('bddBtn');
+bddBtn.addEventListener('click',function(){
+  var o=bdd.classList.toggle('open');bddBtn.setAttribute('aria-expanded',o);
+});
+document.addEventListener('click',function(e){
+  if(!bdd.contains(e.target)){bdd.classList.remove('open');bddBtn.setAttribute('aria-expanded',false);}
+});
+document.getElementById('brands').addEventListener('change',function(e){
+  var c=e.target;if(c.type!=='checkbox')return;
+  if(c.checked)selB[c.value]=true;else delete selB[c.value];
+  syncBrands();render();
+});
+document.getElementById('bddClear').addEventListener('click',function(){selB={};syncBrands();render();});
+document.getElementById('sort').addEventListener('change',function(){sortBy=this.value;render();});
+q.addEventListener('input',render);
+document.getElementById('clear').addEventListener('click',function(){
+  selB={};q.value='';
+  syncBrands();render();
+});
+document.getElementById('navToggle').addEventListener('click',function(){
+  this.classList.toggle('open');document.getElementById('mainNav').classList.toggle('open');
+});
+window.addEventListener('scroll',function(){document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>40);});
+window.addEventListener('pageshow',updBadge);
+updBadge();render();
+</script>
+</body>
+</html>
