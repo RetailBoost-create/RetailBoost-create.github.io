@@ -226,6 +226,17 @@ footer strong { color: rgba(255,255,255,.75); }
   .ft-title { font-size: .8rem; }
 }
 
+/* category photos (Images folder): round crop hides the black corners */
+.cat-circle.has-img { width: 100px; height: 100px; }
+.cat-row .cat-item .cat-circle.has-img::before, .cat-row .cat-item .cat-circle.has-img::after { border-radius: 50%; }
+.cat-row .cat-circle.has-img .cat-in { border-radius: 50%; overflow: hidden; background: #fff; box-shadow: 0 0 0 2px #fff, var(--shadow-sm); }
+.cat-row .cat-item.is-live .cat-circle.has-img .cat-in { box-shadow: 0 0 0 3px #fff, 0 6px 16px rgba(124,45,18,.3); }
+.cat-img { position: absolute; top: -6%; left: -6%; width: 112%; height: 112%; max-width: none; object-fit: cover; display: block; }
+.cat-item:hover .cat-img { animation: catWiggle .7s ease; }
+@media (max-width: 600px) {
+  .cat-circle.has-img { width: 76px; height: 76px; }
+}
+
 /* ── COMING SOON MODAL ── */
 .cs-overlay {
   position: fixed; inset: 0; z-index: 10000;
@@ -299,12 +310,12 @@ footer strong { color: rgba(255,255,255,.75); }
   <div class="container">
     <div class="cat-head" style="--i:0"><div class="cat-pill">🛍️ RetailBoost Store</div><div class="cat-title">Shop by <span>Category</span></div><div class="cat-sub">Pick a category and start exploring</div><div class="cat-bar"></div></div>
     <div class="cat-row">
-      <a class="cat-item is-live" style="--i:1" href="mobiles.html"><span class="cat-badge live">Live</span><div class="cat-circle" style="--i:0"><div class="cat-in"><span class="cat-ico" style="--i:0">📱</span></div></div>Mobiles<span class="cat-cta">Shop now →</span></a>
-      <a class="cat-item" style="--i:2" href="#" onclick="openComingSoon(event,'Our Accessories collection is launching shortly. Stay tuned, or reach us on WhatsApp for updates.')"><span class="cat-badge soon">Soon</span><div class="cat-circle" style="--i:1"><div class="cat-in"><span class="cat-ico" style="--i:1">🎧</span></div></div>Accessories</a>
-      <a class="cat-item" style="--i:3" href="#" onclick="openComingSoon(event,'Our Smart Watch collection is launching shortly. Stay tuned, or reach us on WhatsApp for updates.')"><span class="cat-badge soon">Soon</span><div class="cat-circle" style="--i:2"><div class="cat-in"><span class="cat-ico" style="--i:2">⌚</span></div></div>Smart Watch</a>
-      <a class="cat-item" style="--i:4" href="#" onclick="openComingSoon(event,'Our Laptops collection is launching shortly. Stay tuned, or reach us on WhatsApp for updates.')"><span class="cat-badge soon">Soon</span><div class="cat-circle" style="--i:3"><div class="cat-in"><span class="cat-ico" style="--i:3">💻</span></div></div>Laptops</a>
-      <a class="cat-item" style="--i:5" href="#" onclick="openComingSoon(event,'Our Tablets collection is launching shortly. Stay tuned, or reach us on WhatsApp for updates.')"><span class="cat-badge soon">Soon</span><div class="cat-circle" style="--i:4"><div class="cat-in"><span class="cat-ico" style="--i:4">📲</span></div></div>Tablets</a>
-      <a class="cat-item" style="--i:6" href="#" onclick="openComingSoon(event,'Our Gadgets collection is launching shortly. Stay tuned, or reach us on WhatsApp for updates.')"><span class="cat-badge soon">Soon</span><div class="cat-circle" style="--i:5"><div class="cat-in"><span class="cat-ico" style="--i:5">🎮</span></div></div>Gadgets</a>
+      <a class="cat-item is-live" style="--i:1" href="mobiles.html"><span class="cat-badge live">Live</span><div class="cat-circle has-img" style="--i:0"><div class="cat-in"><img class="cat-img" src="Images/Mobiles.jpeg" alt="" width="200" height="200"></div></div>Mobiles<span class="cat-cta">Shop now →</span></a>
+      <a class="cat-item" style="--i:2" href="#" onclick="openComingSoon(event,'Our Accessories collection is launching shortly. Stay tuned, or reach us on WhatsApp for updates.')"><span class="cat-badge soon">Soon</span><div class="cat-circle has-img" style="--i:1"><div class="cat-in"><img class="cat-img" src="Images/Accessories.jpeg" alt="" width="200" height="200"></div></div>Accessories</a>
+      <a class="cat-item" style="--i:3" href="#" onclick="openComingSoon(event,'Our Smart Watch collection is launching shortly. Stay tuned, or reach us on WhatsApp for updates.')"><span class="cat-badge soon">Soon</span><div class="cat-circle has-img" style="--i:2"><div class="cat-in"><img class="cat-img" src="Images/Smart%20Watch.jpeg" alt="" width="200" height="200"></div></div>Smart Watch</a>
+      <a class="cat-item" style="--i:4" href="#" onclick="openComingSoon(event,'Our Laptops collection is launching shortly. Stay tuned, or reach us on WhatsApp for updates.')"><span class="cat-badge soon">Soon</span><div class="cat-circle has-img" style="--i:3"><div class="cat-in"><img class="cat-img" src="Images/Laptop.jpeg" alt="" width="200" height="200"></div></div>Laptops</a>
+      <a class="cat-item" style="--i:5" href="#" onclick="openComingSoon(event,'Our Tablets collection is launching shortly. Stay tuned, or reach us on WhatsApp for updates.')"><span class="cat-badge soon">Soon</span><div class="cat-circle has-img" style="--i:4"><div class="cat-in"><img class="cat-img" src="Images/Tablets.jpeg" alt="" width="200" height="200"></div></div>Tablets</a>
+      <a class="cat-item" style="--i:6" href="#" onclick="openComingSoon(event,'Our Gadgets collection is launching shortly. Stay tuned, or reach us on WhatsApp for updates.')"><span class="cat-badge soon">Soon</span><div class="cat-circle has-img" style="--i:5"><div class="cat-in"><img class="cat-img" src="Images/Gadgets.jpeg" alt="" width="200" height="200"></div></div>Gadgets</a>
     </div>
     <div class="feat-tiles">
       <div class="ft-wrap" style="--i:7"><a class="feat-tile" href="#" onclick="openComingSoon(event,'Deals are launching shortly. Stay tuned, or reach us on WhatsApp for updates.')"><span class="ft-icon">🏷️</span><div><div class="ft-title">Today's Deals</div><div class="ft-sub">Shop Now →</div></div></a></div>
