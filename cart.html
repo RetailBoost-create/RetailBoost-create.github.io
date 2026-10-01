@@ -116,6 +116,7 @@
   .item{flex-wrap:wrap}.i-act{flex-direction:row;align-items:center;width:100%;justify-content:space-between}
   .stp{font-size:.66rem}
 }
+.i-stk{font-size:.75rem;font-weight:700;color:#B91C1C;margin-top:4px}
 </style>
 </head>
 <body>
@@ -204,6 +205,7 @@
 <a class="whatsapp" href="https://wa.me/919187627737" title="Chat on WhatsApp">💬</a>
 <div class="toast" id="toast"></div>
 
+<script src="products.js"></script>
 <script>
 var WA='919187627737';   /* order goes to this WhatsApp number */
 var STATES=['Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab','Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand','West Bengal','Andaman & Nicobar Islands','Chandigarh','Dadra & Nagar Haveli and Daman & Diu','Delhi','Jammu & Kashmir','Ladakh','Lakshadweep','Puducherry'];
@@ -222,6 +224,8 @@ STATES.forEach(function(s){var o=document.createElement('option');o.value=o.text
 
 function myAddrs(){return phone&&users[phone]?users[phone].addresses||[]:[];}
 function saveCart(){set('rb_cart',cart);$('cartCount').textContent=cart.reduce(function(s,i){return s+i.q;},0);}
+/* stock limit from products.js (unknown product: old limit of 10) */
+function maxQty(i){var s=typeof stockOf==="function"?stockOf(i.id):null;return s===null?10:Math.min(10,s);}
 function totals(){
   var sub=0,mrp=0,n=0;
   cart.forEach(function(i){sub+=i.p*i.q;mrp+=i.o*i.q;n+=i.q;});
@@ -270,17 +274,24 @@ function renderCart(){
   }
   el.innerHTML='<h2>My Cart ('+totals().n+')</h2><p class="sub">Review your phones, then continue to checkout.</p>'+
   cart.map(function(i,k){
-    return '<div class="item"><div class="thumb">📱</div><div class="i-info"><div class="i-name">'+esc(i.n)+'</div><div class="i-spec">'+esc(i.s)+'</div><div class="i-price">'+inr(i.p)+'<s>'+inr(i.o)+'</s></div></div>'+
+    var mx=maxQty(i),warn=!mx?'<div class="i-stk">Out of stock — please remove</div>':i.q>mx?'<div class="i-stk">Only '+mx+' left — please reduce quantity</div>':'';
+    return '<div class="item"><div class="thumb">📱</div><div class="i-info"><div class="i-name">'+esc(i.n)+'</div><div class="i-spec">'+esc(i.s)+'</div><div class="i-price">'+inr(i.p)+'<s>'+inr(i.o)+'</s></div>'+warn+'</div>'+
     '<div class="i-act"><div class="qty"><button data-q="-1" data-k="'+k+'" aria-label="Decrease">−</button><span>'+i.q+'</span><button data-q="1" data-k="'+k+'" aria-label="Increase">+</button></div><button class="rm" data-r="'+k+'">Remove</button></div></div>';
   }).join('')+
   '<button class="btn-main" id="proceed">Proceed to Buy</button><button class="btn-main btn-ghost" id="more">+ Add more phones</button>';
   $('proceed').onclick=proceed;
   $('more').onclick=function(){location.href='mobiles.html';};
 }
-function proceed(){if(!cart.length)return;go(phone?'addr':'login');}
+function proceed(){
+  if(!cart.length)return;
+  if(cart.some(function(i){return i.q>maxQty(i);})){if(location.hash)history.replaceState(null,'',location.pathname);go('cart');return toast('Some phones are out of stock or have fewer units left. Please update your cart.');}
+  go(phone?'addr':'login');
+}
 $('p-cart').addEventListener('click',function(e){
   var q=e.target.closest('[data-q]'),r=e.target.closest('[data-r]');
-  if(q){var it=cart[+q.dataset.k];it.q=Math.max(1,Math.min(10,it.q+(+q.dataset.q)));saveCart();renderCart();renderSummary();}
+  if(q){var it=cart[+q.dataset.k],mx=maxQty(it);
+    if(+q.dataset.q>0&&it.q>=mx){toast(mx?'Only '+mx+' in stock':'This phone is out of stock');return;}
+    it.q=Math.max(1,Math.min(mx||1,it.q+(+q.dataset.q)));saveCart();renderCart();renderSummary();}
   if(r){cart.splice(+r.dataset.r,1);saveCart();toast('Item removed');go('cart');}
 });
 
