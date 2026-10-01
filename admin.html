@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#F97316">
+<title>Admin | RetailBoost</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+.adm-tag{font-size:.6rem;font-weight:700;letter-spacing:.6px;text-transform:uppercase;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.4);color:#fff;padding:3px 8px;border-radius:10px;vertical-align:middle;margin-left:6px}
+
+/* login */
+.login{margin-top:62px;min-height:calc(100vh - 140px);display:flex;align-items:center;justify-content:center;padding:30px 16px}
+.lcard{background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);padding:30px 26px;width:100%;max-width:390px}
+.lcard .l-ico{width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,var(--primary-light),var(--primary));display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:14px;box-shadow:0 8px 20px rgba(234,88,12,.3)}
+.lcard h1{font-size:1.35rem;font-weight:800}
+.lcard .sub{font-size:.85rem;color:var(--muted);margin:4px 0 18px}
+.lcard label{display:block;font-size:.75rem;font-weight:700;color:var(--text-2);margin:12px 0 6px}
+.lcard input{width:100%;border:1px solid var(--border-2);border-radius:10px;padding:11px 12px;font:inherit;font-size:.9rem;color:var(--text);outline:0;background:#fff}
+.lcard input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(249,115,22,.15)}
+.lcard .err{color:#B91C1C;font-size:.78rem;font-weight:600;min-height:1.2em;margin-top:10px}
+.lcard .btn{width:100%;padding:12px;font-size:.9rem;margin-top:4px}
+.demo-hint{margin-top:16px;background:var(--accent-light);border:1px dashed #FCD34D;color:var(--accent-dark);border-radius:10px;padding:10px 12px;font-size:.76rem;line-height:1.5}
+
+/* dashboard */
+.ad-wrap{max-width:1200px;margin:62px auto 0;padding:22px 18px 70px}
+.demo-bar{background:var(--accent-light);border:1px solid #FDE68A;color:var(--accent-dark);border-radius:12px;padding:10px 14px;font-size:.8rem;font-weight:600;display:flex;gap:8px 14px;align-items:center;flex-wrap:wrap;justify-content:space-between;margin-bottom:20px}
+.linkbtn{background:none;border:0;color:var(--primary);font:inherit;font-weight:700;font-size:.8rem;cursor:pointer;text-decoration:underline}
+.ad-head{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between;margin-bottom:18px}
+.ad-head h1{font-size:1.55rem;font-weight:800;line-height:1.2}
+.ad-head p{font-size:.85rem;color:var(--muted);margin-top:2px}
+.ranges{display:flex;gap:6px;flex-wrap:wrap}
+.rg{border:1px solid var(--border-2);background:#fff;color:var(--text-2);padding:7px 14px;border-radius:20px;font:inherit;font-size:.78rem;font-weight:600;cursor:pointer;transition:var(--t)}
+.rg:hover{border-color:var(--primary)}
+.rg.active{background:linear-gradient(135deg,var(--primary-light),var(--primary));color:#fff;border-color:transparent;box-shadow:0 4px 12px rgba(234,88,12,.28)}
+.custom{display:none;gap:8px;align-items:center;font-size:.8rem;color:var(--muted);margin-top:8px;flex-wrap:wrap;justify-content:flex-end}
+.custom.show{display:flex}
+.custom input{border:1px solid var(--border-2);border-radius:8px;padding:6px 8px;font:inherit;font-size:.8rem;color:var(--text);background:#fff}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:18px}
+.kpi{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-xs)}
+.k-l{font-size:.7rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)}
+.k-v{font-size:1.5rem;font-weight:800;margin-top:6px;color:var(--text);line-height:1.15;word-break:break-word}
+.k-s{font-size:.74rem;color:var(--muted);margin-top:4px;font-weight:500}
+.kpi.main{background:linear-gradient(135deg,var(--primary-light),var(--primary));border-color:transparent;box-shadow:0 10px 26px rgba(234,88,12,.3)}
+.kpi.main .k-l,.kpi.main .k-v,.kpi.main .k-s{color:#fff}
+.up{color:#15803D;font-weight:700}.down{color:#B91C1C;font-weight:700}
+.kpi.main .up,.kpi.main .down{color:#fff}
+
+.card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow-xs);min-width:0}
+.card h3{font-size:.98rem;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:8px 10px;margin-bottom:12px;flex-wrap:wrap}
+.card h3 small{font-size:.76rem;color:var(--muted);font-weight:600}
+.grid2{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:18px}
+.side{display:flex;flex-direction:column;gap:14px;min-width:0}
+.seg{display:inline-flex;background:var(--surface-3);border-radius:20px;padding:3px}
+.seg button{border:0;background:transparent;font:inherit;font-size:.74rem;font-weight:700;color:var(--text-2);padding:5px 12px;border-radius:16px;cursor:pointer}
+.seg button.active{background:#fff;color:var(--primary);box-shadow:var(--shadow-xs)}
+.chart{position:relative;width:100%}
+.chart svg{display:block;max-width:100%}
+.chart .ax{font-size:10px;fill:var(--muted);font-family:Poppins,sans-serif}
+.chart .gl{stroke:var(--border);stroke-dasharray:3 3}
+.chart .bar{fill:var(--primary-light);transition:fill .15s}
+.chart .bar.hl{fill:var(--primary-dark)}
+.chart .hit{cursor:pointer}
+.tip{position:absolute;pointer-events:none;background:var(--text);color:#fff;font-size:.74rem;padding:6px 10px;border-radius:8px;white-space:nowrap;transform:translate(-50%,calc(-100% - 8px));opacity:0;transition:opacity .12s;z-index:2}
+.tip.show{opacity:1}
+.tip b{display:block;font-size:.85rem}
+.c-note{font-size:.72rem;color:var(--muted);margin-top:8px}
+
+.rank{list-style:none}
+.rank li{margin-bottom:11px;font-size:.8rem}
+.rank li:last-child{margin-bottom:0}
+.r-top{display:flex;justify-content:space-between;gap:8px;font-weight:600;color:var(--text-2)}
+.r-top span:last-child{color:var(--text);font-weight:700;white-space:nowrap}
+.r-bar{height:6px;background:var(--surface-3);border-radius:4px;margin-top:5px;overflow:hidden}
+.r-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--primary));border-radius:4px}
+.st-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.st-box{border-radius:10px;padding:10px 12px;font-size:.74rem;font-weight:600}
+.st-box b{display:block;font-size:1.15rem;font-weight:800}
+.s-new{background:#DBEAFE;color:#1D4ED8}
+.s-confirmed{background:var(--accent-light);color:var(--accent-dark)}
+.s-delivered{background:#DCFCE7;color:#15803D}
+.s-cancelled{background:#FEE2E2;color:#B91C1C}
+.empty-s{font-size:.8rem;color:var(--muted);padding:6px 0}
+
+.otools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.otools input,.otools select{border:1px solid var(--border-2);border-radius:20px;padding:9px 14px;font:inherit;font-size:.82rem;background:#fff;color:var(--text);outline:0}
+.otools input{flex:1 1 220px;min-width:0}
+.otools input:focus,.otools select:focus{border-color:var(--primary)}
+.btn{border:1.5px solid var(--primary);background:var(--primary);color:#fff;border-radius:20px;padding:9px 16px;font:inherit;font-size:.8rem;font-weight:700;cursor:pointer;transition:var(--t)}
+.btn:hover{background:var(--primary-dark);border-color:var(--primary-dark)}
+.btn.ghost{background:#fff;color:var(--primary)}
+.btn.ghost:hover{background:var(--accent-light)}
+.btn:disabled{opacity:.6;cursor:wait}
+table.ot{width:100%;border-collapse:collapse;font-size:.82rem}
+.ot th{text-align:left;font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700;padding:10px;border-bottom:1px solid var(--border);white-space:nowrap}
+.ot td{padding:11px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+.ot tbody tr:hover td{background:var(--surface-2)}
+.oid{font-weight:700;color:var(--primary);background:none;border:0;font:inherit;font-size:.82rem;cursor:pointer;padding:0;text-decoration:underline dotted;white-space:nowrap}
+.muted{color:var(--muted);font-size:.74rem}
+.amt{font-weight:700;white-space:nowrap}
+.st-sel{border:0;border-radius:14px;padding:5px 8px;font:inherit;font-size:.74rem;font-weight:700;cursor:pointer;outline:0}
+.more{text-align:center;margin-top:14px}
+
+.mo{position:fixed;inset:0;background:rgba(43,19,5,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:10002}
+.mo.show{display:flex}
+.mo-box{background:#fff;border-radius:var(--radius-lg);max-width:460px;width:100%;max-height:90vh;overflow:auto;padding:22px;position:relative;box-shadow:var(--shadow-lg)}
+.mo-x{position:absolute;top:12px;right:12px;border:0;background:var(--surface-3);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;color:var(--text-2)}
+.mo-box h4{font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:16px 0 6px}
+.pill{display:inline-block;border-radius:12px;padding:3px 10px;font-size:.72rem;font-weight:700}
+.mo-row{display:flex;justify-content:space-between;gap:10px;font-size:.84rem;padding:6px 0;border-bottom:1px dashed var(--border)}
+.toast{position:fixed;left:50%;bottom:30px;transform:translate(-50%,20px);background:#2B1305;color:#fff;padding:10px 22px;border-radius:24px;font-size:.85rem;font-weight:600;opacity:0;pointer-events:none;transition:var(--t);z-index:10003}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+
+@media(max-width:900px){.grid2{grid-template-columns:1fr}}
+@media(max-width:700px){
+  .ad-wrap{padding:16px 14px 60px}
+  .ad-head h1{font-size:1.3rem}
+  .kpis{grid-template-columns:repeat(2,1fr);gap:10px}
+  .kpi{padding:13px}
+  .k-v{font-size:1.2rem}
+  .kpi.main{grid-column:1/-1}
+  .ot thead{display:none}
+  .ot tr{display:grid;grid-template-columns:1fr auto;grid-template-areas:"id amt" "cust st" "items items";gap:4px 10px;padding:12px 2px;border-bottom:1px solid var(--border)}
+  .ot td{border:0;padding:0}
+  .ot tbody tr:hover td{background:none}
+  .ot .c-id{grid-area:id}.ot .c-amt{grid-area:amt;text-align:right}
+  .ot .c-cust{grid-area:cust}.ot .c-st{grid-area:st;text-align:right}
+  .ot .c-items{grid-area:items;color:var(--text-2);font-size:.78rem}
+  .ot td.empty-row{grid-column:1/-1}
+}
+</style>
+</head>
+<body>
+<header class="navbar" id="navbar">
+  <div class="container nav-flex">
+    <h2 class="logo">Retail<span>Boost</span><small class="adm-tag">Admin</small></h2>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    <nav id="mainNav">
+      <a href="index.html">🏪 View Store</a>
+      <a href="#" id="logoutBtn" style="display:none">Logout</a>
+    </nav>
+  </div>
+</header>
+
+<!-- LOGIN -->
+<section class="login" id="loginView" style="display:none">
+  <form class="lcard" id="loginForm" autocomplete="off">
+    <div class="l-ico">🔐</div>
+    <h1>Admin Login</h1>
+    <p class="sub">Sign in to see orders and sales.</p>
+    <label for="lEmail">Email</label>
+    <input id="lEmail" type="email" placeholder="admin@retailboost.in" required>
+    <label for="lPass">Password</label>
+    <input id="lPass" type="password" placeholder="••••••••" required>
+    <div class="err" id="lErr"></div>
+    <button class="btn" type="submit" id="lBtn">Sign in</button>
+    <div class="demo-hint"><b>Demo login – not secure.</b><br>Email: <b>admin@retailboost.in</b> · Password: <b>demo1234</b><br>Real login (AWS Cognito) will replace this.</div>
+  </form>
+</section>
+
+<!-- DASHBOARD -->
+<main class="ad-wrap" id="app" style="display:none">
+  <div class="demo-bar"><span>⚠️ DEMO DATA — these are sample orders, not real sales. Status changes are saved only in this browser.</span><button class="linkbtn" id="resetDemo">Reset demo data</button></div>
+
+  <div class="ad-head">
+    <div><h1>Sales Dashboard</h1><p>Showing: <b id="rangeLabel">Last 7 days</b></p></div>
+    <div>
+      <div class="ranges" id="ranges">
+        <button class="rg" data-r="today">Today</button>
+        <button class="rg active" data-r="7d">7 days</button>
+        <button class="rg" data-r="30d">30 days</button>
+        <button class="rg" data-r="month">This month</button>
+        <button class="rg" data-r="all">All</button>
+        <button class="rg" data-r="custom">Custom</button>
+      </div>
+      <div class="custom" id="custom">From <input type="date" id="cFrom"> To <input type="date" id="cTo"></div>
+    </div>
+  </div>
+
+  <div class="kpis" id="kpis"></div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3><span>Sales over time <small id="chartTotal"></small></span>
+        <span class="seg" id="metric"><button class="active" data-m="rev">Revenue</button><button data-m="units">Phones sold</button><button data-m="orders">Orders</button></span></h3>
+      <div class="chart" id="chart"></div>
+      <div class="c-note">Revenue and phones sold count <b>Delivered</b> orders only, grouped by order date. Orders counts every order placed.</div>
+    </div>
+    <div class="side">
+      <div class="card"><h3>Order status</h3><div class="st-grid" id="stGrid"></div></div>
+      <div class="card"><h3>Top phones <small>by phones sold</small></h3><ul class="rank" id="topPhones"></ul></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3><span>Orders <small id="oCount"></small></span><button class="btn ghost" id="csvBtn">⬇ Download CSV</button></h3>
+      <div class="otools">
+        <input id="oSearch" type="search" placeholder="Search order no., customer, mobile, phone, city...">
+        <select id="oStatus"><option value="all">All statuses</option><option>New</option><option>Confirmed</option><option>Delivered</option><option>Cancelled</option></select>
+      </div>
+      <table class="ot">
+        <thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Amount</th><th>Status</th></tr></thead>
+        <tbody id="oBody"></tbody>
+      </table>
+      <div class="more" id="moreWrap"><button class="btn ghost" id="moreBtn">Show more</button></div>
+    </div>
+    <div class="side">
+      <div class="card"><h3>Top brands <small>by revenue</small></h3><ul class="rank" id="topBrands"></ul></div>
+      <div class="card"><h3>Top cities <small>by orders</small></h3><ul class="rank" id="topCities"></ul></div>
+    </div>
+  </div>
+</main>
+
+<div class="mo" id="mo"><div class="mo-box" id="moBox"></div></div>
+<div class="toast" id="toast"></div>
+<footer><strong>RetailBoost</strong> © 2026 — Admin (demo)</footer>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   DATA LAYER
+   DEMO NOW: login is a fixed demo password, orders are generated sample data.
+   LATER (AWS): replace only Auth and DataAPI below with calls to
+   Cognito (login) and API Gateway + Lambda + DynamoDB (orders).
+   Everything below the data layer reads data only through them.
+   ═══════════════════════════════════════════════════════════════ */
+var DEMO_USER='admin@retailboost.in',DEMO_PASS='demo1234';
+var LS_STATUS='rb_admin_demo_status',SS_LOGIN='rb_admin_demo_login';
+var loggedIn=false;
+function lsGet(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
+function lsDel(k){try{localStorage.removeItem(k);}catch(e){}}
+
+var Auth={
+  isLoggedIn:function(){try{return loggedIn||sessionStorage.getItem(SS_LOGIN)==='1';}catch(e){return loggedIn;}},
+  login:function(email,pass){return new Promise(function(res,rej){setTimeout(function(){
+    if(email.trim().toLowerCase()===DEMO_USER&&pass===DEMO_PASS){loggedIn=true;try{sessionStorage.setItem(SS_LOGIN,'1');}catch(e){}res();}
+    else rej(new Error('Wrong email or password'));
+  },350);});},
+  logout:function(){loggedIn=false;try{sessionStorage.removeItem(SS_LOGIN);}catch(e){}return Promise.resolve();}
+};
+
+var DataAPI={
+  /* order: {id, ts, name, phone, addr:{line,city,state,pin,type}, items:[{b,n,s,p,q}], qty, total, status} */
+  getOrders:function(){
+    var ov=lsGet(LS_STATUS,{});
+    return Promise.resolve(demoOrders().map(function(o){if(ov[o.id])o.status=ov[o.id];return o;}));
+  },
+  updateStatus:function(id,status){var ov=lsGet(LS_STATUS,{});ov[id]=status;lsSet(LS_STATUS,ov);return Promise.resolve();},
+  resetDemo:function(){lsDel(LS_STATUS);return Promise.resolve();}
+};
+
+/* ── sample data (same SAMPLE phones as mobiles.html; w = popularity weight) ── */
+var BRAND_NAMES={samsung:'Samsung',vivo:'vivo',iqoo:'iQOO',pixel:'Google Pixel',apple:'Apple',poco:'POCO',redmi:'Redmi',realme:'realme',motorola:'Motorola',oneplus:'OnePlus',nothing:'Nothing',aiplus:'AI+'};
+var PRODUCTS=[
+{b:'samsung',n:'Samsung Galaxy A Series 5G',s:'8GB + 128GB',p:18999,w:3200},{b:'samsung',n:'Samsung Galaxy M Series 5G',s:'6GB + 128GB',p:13499,w:2100},
+{b:'vivo',n:'vivo T Series 5G',s:'8GB + 128GB',p:19999,w:2800},{b:'vivo',n:'vivo Y Series',s:'4GB + 128GB',p:11499,w:1900},
+{b:'iqoo',n:'iQOO Z Series 5G',s:'8GB + 128GB',p:17999,w:1500},{b:'iqoo',n:'iQOO Neo Series 5G',s:'12GB + 256GB',p:32999,w:900},
+{b:'pixel',n:'Google Pixel A Series',s:'8GB + 128GB',p:49999,w:540},{b:'pixel',n:'Google Pixel Series',s:'12GB + 256GB',p:74999,w:320},
+{b:'apple',n:'Apple iPhone Series',s:'128GB',p:59999,w:4100},{b:'apple',n:'Apple iPhone Pro Series',s:'256GB',p:114999,w:2600},
+{b:'poco',n:'POCO X Series 5G',s:'8GB + 256GB',p:21999,w:3600},{b:'poco',n:'POCO M Series',s:'4GB + 128GB',p:8999,w:4200},
+{b:'redmi',n:'Redmi Note Series 5G',s:'8GB + 128GB',p:16999,w:5200},{b:'redmi',n:'Redmi A Series',s:'4GB + 64GB',p:6999,w:3800},
+{b:'realme',n:'realme Narzo Series',s:'6GB + 128GB',p:12999,w:2400},{b:'realme',n:'realme P Series 5G',s:'8GB + 256GB',p:20999,w:1700},
+{b:'motorola',n:'Motorola Edge Series 5G',s:'8GB + 256GB',p:24999,w:1300},{b:'motorola',n:'Motorola Moto G Series',s:'4GB + 128GB',p:9999,w:2000},
+{b:'oneplus',n:'OnePlus Nord Series 5G',s:'12GB + 256GB',p:29999,w:1800},{b:'oneplus',n:'OnePlus Flagship Series 5G',s:'16GB + 512GB',p:64999,w:900},
+{b:'nothing',n:'Nothing Phone (a) Series',s:'8GB + 128GB',p:24999,w:1000},{b:'nothing',n:'Nothing Phone Series',s:'12GB + 256GB',p:39999,w:700},
+{b:'aiplus',n:'AI+ Pulse Series',s:'4GB + 64GB',p:6999,w:600},{b:'aiplus',n:'AI+ Nova Series 5G',s:'8GB + 128GB',p:14999,w:500}
+];
+var FIRST=['Rahul','Priya','Arjun','Sneha','Vikram','Anjali','Karthik','Divya','Rohit','Pooja','Suresh','Lakshmi','Amit','Neha','Ravi','Kavya','Manoj','Deepa','Sanjay','Meera','Naveen','Swathi','Imran','Fatima','Joseph','Ayesha','Harish','Bhavana'];
+var LAST=['Sharma','Reddy','Kumar','Patel','Nair','Iyer','Singh','Rao','Gupta','Das','Khan','Shetty','Joshi','Menon','Verma','Naidu'];
+var STREETS=['MG Road','Gandhi Nagar','Station Road','Main Bazaar','Park Street','Lake View Colony','Temple Street','Nehru Nagar','2nd Cross, Indiranagar','Market Road'];
+var CITIES=[['Bengaluru','Karnataka','560'],['Hyderabad','Telangana','500'],['Chennai','Tamil Nadu','600'],['Mumbai','Maharashtra','400'],['Pune','Maharashtra','411'],['Delhi','Delhi','110'],['Kolkata','West Bengal','700'],['Ahmedabad','Gujarat','380'],['Jaipur','Rajasthan','302'],['Lucknow','Uttar Pradesh','226'],['Vijayawada','Andhra Pradesh','520'],['Mysuru','Karnataka','570'],['Kochi','Kerala','682'],['Nagpur','Maharashtra','440']];
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function demoOrders(){
+  var rnd=mulberry32(20261001),now=new Date(),out=[],totW=0;
+  PRODUCTS.forEach(function(p){totW+=p.w;});
+  function pick(a){return a[Math.floor(rnd()*a.length)];}
+  function pickProduct(){var r=rnd()*totW;for(var i=0;i<PRODUCTS.length;i++){r-=PRODUCTS[i].w;if(r<=0)return PRODUCTS[i];}return PRODUCTS[0];}
+  for(var d=89;d>=0;d--){
+    var day=new Date(now.getFullYear(),now.getMonth(),now.getDate()-d),wk=day.getDay()===0||day.getDay()===6;
+    var n=Math.round((1.5+rnd()*4+(wk?2:0))*(0.6+0.6*(1-d/90))),times=[],k;
+    for(k=0;k<n;k++)times.push(d===0?day.getTime()+rnd()*(now-day):day.getTime()+(9+rnd()*13)*3600000);
+    times.sort(function(a,b){return a-b;});
+    for(k=0;k<times.length;k++){
+      var items=[],m=rnd()<0.15?2:1,j,p;
+      for(j=0;j<m;j++){p=pickProduct();if(items.some(function(i){return i.n===p.n;}))continue;items.push({b:p.b,n:p.n,s:p.s,p:p.p,q:rnd()<0.08?2:1});}
+      var r=rnd(),st;
+      if(d>7)st=r<0.86?'Delivered':'Cancelled';
+      else if(d>=3)st=r<0.5?'Delivered':r<0.8?'Confirmed':r<0.9?'New':'Cancelled';
+      else st=r<0.1?'Delivered':r<0.45?'Confirmed':r<0.95?'New':'Cancelled';
+      var c=pick(CITIES),qty=0,total=0;
+      items.forEach(function(i){qty+=i.q;total+=i.p*i.q;});
+      out.push({id:'RB'+ymd(day).replace(/-/g,'').slice(2)+'-'+String(k+1).padStart(3,'0'),ts:times[k],
+        name:pick(FIRST)+' '+pick(LAST),phone:'90000'+String(10000+Math.floor(rnd()*90000)),
+        addr:{line:(1+Math.floor(rnd()*400))+', '+pick(STREETS),city:c[0],state:c[1],pin:c[2]+String(Math.floor(rnd()*1000)).padStart(3,'0'),type:rnd()<0.7?'Home':'Work'},
+        items:items,qty:qty,total:total,status:st});
+    }
+  }
+  return out;
+}
+
+/* ═══ DASHBOARD ═══ */
+var STATUSES=['New','Confirmed','Delivered','Cancelled'];
+var S={orders:[],range:'7d',cFrom:'',cTo:'',status:'all',q:'',shown:20,metric:'rev',r:null,inRange:[],filtered:[],geo:null};
+function $(id){return document.getElementById(id);}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function inr(n){return '₹'+Math.round(n).toLocaleString('en-IN');}
+function trim1(v){return v.toFixed(1).replace(/\.0$/,'');}
+function shortInr(v){return v>=1e7?'₹'+trim1(v/1e7)+'Cr':v>=1e5?'₹'+trim1(v/1e5)+'L':v>=1e3?'₹'+trim1(v/1e3)+'K':'₹'+Math.round(v);}
+function pad2(n){return(n<10?'0':'')+n;}
+function ymd(d){return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());}
+function parseYmd(s){var a=s.split('-');return new Date(+a[0],a[1]-1,+a[2]);}
+function dayStart(d){return new Date(d.getFullYear(),d.getMonth(),d.getDate());}
+function addDays(d,n){return new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);}
+function fmtDate(d){return d.toLocaleDateString('en-IN',{day:'numeric',month:'short'});}
+function fmtDT(ts){var d=new Date(ts);return d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})+', '+d.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'});}
+function fmtPhone(p){return p.slice(0,5)+' '+p.slice(5);}
+function hourLabel(h){return (h%12||12)+(h<12?'am':'pm');}
+function toast(m){var t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove('show');},2000);}
+
+function getRange(){
+  var t=dayStart(new Date()),from,to=addDays(t,1),label;
+  switch(S.range){
+    case 'today':from=t;label='Today';break;
+    case '30d':from=addDays(t,-29);label='Last 30 days';break;
+    case 'month':from=new Date(t.getFullYear(),t.getMonth(),1);label='This month';break;
+    case 'all':
+      var min=S.orders.reduce(function(m,o){return Math.min(m,o.ts);},t.getTime());
+      from=dayStart(new Date(min));label='All time';break;
+    case 'custom':
+      from=S.cFrom?parseYmd(S.cFrom):addDays(t,-6);
+      if(S.cTo)to=addDays(parseYmd(S.cTo),1);
+      if(to<=from)to=addDays(from,1);
+      label=fmtDate(from)+' – '+fmtDate(addDays(to,-1));break;
+    default:from=addDays(t,-6);label='Last 7 days';
+  }
+  return {from:from,to:to,label:label};
+}
+function ordersIn(from,to){var a=from.getTime(),b=to.getTime();return S.orders.filter(function(o){return o.ts>=a&&o.ts<b;});}
+function stats(list){
+  var s={rev:0,sold:0,del:0,orders:list.length,pend:0,pendV:0,canc:0};
+  list.forEach(function(o){
+    if(o.status==='Delivered'){s.rev+=o.total;s.sold+=o.qty;s.del++;}
+    else if(o.status==='Cancelled')s.canc++;
+    else{s.pend++;s.pendV+=o.total;}
+  });
+  return s;
+}
+function change(cur,prev){
+  if(prev===null)return '';
+  if(!prev)return cur?'New vs previous period':'';
+  var p=Math.round((cur-prev)/prev*100);
+  return '<span class="'+(p>=0?'up':'down')+'">'+(p>=0?'▲ ':'▼ ')+Math.abs(p)+'%</span> vs previous period';
+}
+
+function renderAll(){
+  var r=getRange();S.r=r;
+  S.inRange=ordersIn(r.from,r.to);
+  $('rangeLabel').textContent=r.label;
+  renderKpis();drawChart();renderSide();renderTable();
+}
+
+function renderKpis(){
+  var r=S.r,s=stats(S.inRange),p=null;
+  if(S.range!=='all'){var days=Math.round((r.to-r.from)/864e5);p=stats(ordersIn(addDays(r.from,-days),r.from));}
+  var k=[
+    ['main','Revenue (Delivered)',inr(s.rev),change(s.rev,p?p.rev:null)||'Delivered orders only'],
+    ['','Phones sold',s.sold.toLocaleString('en-IN'),change(s.sold,p?p.sold:null)||('from '+s.del+' delivered orders')],
+    ['','Orders placed',s.orders.toLocaleString('en-IN'),s.canc+' cancelled'],
+    ['','Pending orders',s.pend.toLocaleString('en-IN'),inr(s.pendV)+' waiting (New + Confirmed)'],
+    ['','Avg. order value',s.del?inr(s.rev/s.del):'—','per delivered order']
+  ];
+  $('kpis').innerHTML=k.map(function(x){return '<div class="kpi '+x[0]+'"><div class="k-l">'+x[1]+'</div><div class="k-v">'+x[2]+'</div><div class="k-s">'+x[3]+'</div></div>';}).join('');
+}
+
+function drawChart(){
+  var r=S.r,box=$('chart'),W=Math.max(box.clientWidth,260),H=W<520?220:260;
+  var hourly=(r.to-r.from)<=864e5,rows=[],i,d;
+  if(hourly){for(i=0;i<24;i++)rows.push({k:i,lab:hourLabel(i),full:fmtDate(r.from)+', '+hourLabel(i)+' – '+hourLabel((i+1)%24),v:0});}
+  else{for(d=r.from;d<r.to;d=addDays(d,1))rows.push({k:ymd(d),lab:fmtDate(d),full:d.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'}),v:0});}
+  var idx={};rows.forEach(function(x,j){idx[x.k]=j;});
+  S.inRange.forEach(function(o){
+    var dt=new Date(o.ts),j=idx[hourly?dt.getHours():ymd(dt)];
+    if(j===undefined)return;
+    if(S.metric==='orders')rows[j].v++;
+    else if(o.status==='Delivered')rows[j].v+=S.metric==='rev'?o.total:o.qty;
+  });
+  var raw=0,sum=0;rows.forEach(function(x){raw=Math.max(raw,x.v);sum+=x.v;});
+  var max;
+  if(S.metric==='rev'){var pw10=Math.pow(10,Math.floor(Math.log10(raw||1))),f=(raw||1)/pw10;max=(f<=1?1:f<=2?2:f<=5?5:10)*pw10;}
+  else max=Math.max(4,Math.ceil(raw/4)*4);
+  var fmtV=function(v){return S.metric==='rev'?shortInr(v):String(Math.round(v));};
+  var pl=W<520?42:54,pr=6,pt=12,pb=28,pw=W-pl-pr,ph=H-pt-pb,n=rows.length,bw=pw/n;
+  var s='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Sales chart">';
+  for(i=0;i<=4;i++){var y=pt+ph-ph*i/4;s+='<line class="gl" x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y+'" y2="'+y+'"/><text class="ax" x="'+(pl-6)+'" y="'+(y+3)+'" text-anchor="end">'+fmtV(max*i/4)+'</text>';}
+  var every=Math.max(1,Math.ceil(n/Math.max(1,Math.floor(pw/(hourly?36:48)))));
+  rows.forEach(function(x,j){
+    var h=ph*x.v/max,bx=pl+j*bw,w=Math.max(1.5,bw*0.66);
+    s+='<rect class="bar" data-i="'+j+'" x="'+(bx+(bw-w)/2).toFixed(1)+'" y="'+(pt+ph-h).toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="'+Math.min(4,w/3).toFixed(1)+'"/>';
+    s+='<rect class="hit" data-i="'+j+'" x="'+bx.toFixed(1)+'" y="'+pt+'" width="'+bw.toFixed(1)+'" height="'+ph+'" fill="transparent"/>';
+    if(j%every===0)s+='<text class="ax" x="'+(bx+bw/2).toFixed(1)+'" y="'+(H-9)+'" text-anchor="middle">'+x.lab+'</text>';
+  });
+  box.innerHTML=s+'</svg><div class="tip" id="tip"></div>';
+  S.geo={rows:rows,pl:pl,pt:pt,ph:ph,bw:bw,max:max,W:W,fmt:S.metric==='rev'?inr:function(v){return v+(S.metric==='units'?' phones':' orders');}};
+  $('chartTotal').textContent='· '+S.geo.fmt(sum);
+}
+function showTip(i){
+  var g=S.geo;if(!g||!g.rows[i])return;
+  var x=g.rows[i],cx=g.pl+i*g.bw+g.bw/2,y=g.pt+g.ph-g.ph*x.v/g.max,tip=$('tip');
+  tip.innerHTML='<b>'+g.fmt(x.v)+'</b>'+esc(x.full);
+  tip.style.left=Math.min(Math.max(cx,70),g.W-70)+'px';tip.style.top=y+'px';tip.classList.add('show');
+  document.querySelectorAll('#chart .bar').forEach(function(b){b.classList.toggle('hl',b.getAttribute('data-i')===String(i));});
+}
+function hideTip(){var t=$('tip');if(t)t.classList.remove('show');document.querySelectorAll('#chart .bar.hl').forEach(function(b){b.classList.remove('hl');});}
+
+function rankList(el,rows,fmt){
+  if(!rows.length){$(el).innerHTML='<li class="empty-s">No delivered orders in this period.</li>';return;}
+  var top=rows[0].v;
+  $(el).innerHTML=rows.map(function(x){return '<li><div class="r-top"><span>'+esc(x.k)+'</span><span>'+fmt(x)+'</span></div><div class="r-bar"><i style="width:'+Math.max(4,x.v/top*100)+'%"></i></div></li>';}).join('');
+}
+function renderSide(){
+  var cnt={New:0,Confirmed:0,Delivered:0,Cancelled:0},ph={},br={},ct={};
+  S.inRange.forEach(function(o){
+    cnt[o.status]++;
+    if(o.status!=='Cancelled')ct[o.addr.city]=(ct[o.addr.city]||0)+1;
+    if(o.status!=='Delivered')return;
+    o.items.forEach(function(i){
+      ph[i.n]=ph[i.n]||{q:0,r:0};ph[i.n].q+=i.q;ph[i.n].r+=i.p*i.q;
+      var b=BRAND_NAMES[i.b]||i.b;br[b]=(br[b]||0)+i.p*i.q;
+    });
+  });
+  $('stGrid').innerHTML=STATUSES.map(function(s){return '<div class="st-box s-'+s.toLowerCase()+'"><b>'+cnt[s]+'</b>'+s+'</div>';}).join('');
+  rankList('topPhones',Object.keys(ph).map(function(k){return{k:k,v:ph[k].q,r:ph[k].r};}).sort(function(a,b){return b.v-a.v||b.r-a.r;}).slice(0,5),function(x){return x.v+' sold';});
+  rankList('topBrands',Object.keys(br).map(function(k){return{k:k,v:br[k]};}).sort(function(a,b){return b.v-a.v;}).slice(0,5),function(x){return shortInr(x.v);});
+  var cities=Object.keys(ct).map(function(k){return{k:k,v:ct[k]};}).sort(function(a,b){return b.v-a.v;}).slice(0,5);
+  if(cities.length)rankList('topCities',cities,function(x){return x.v+' orders';});
+  else $('topCities').innerHTML='<li class="empty-s">No orders in this period.</li>';
+}
+
+function renderTable(){
+  var q=S.q.trim().toLowerCase();
+  var list=S.inRange.filter(function(o){
+    if(S.status!=='all'&&o.status!==S.status)return false;
+    if(!q)return true;
+    return (o.id+' '+o.name+' '+o.phone+' '+o.addr.city+' '+o.items.map(function(i){return i.n;}).join(' ')).toLowerCase().indexOf(q)>-1;
+  }).sort(function(a,b){return b.ts-a.ts;});
+  S.filtered=list;
+  $('oCount').textContent='· '+list.length+' order'+(list.length===1?'':'s');
+  $('oBody').innerHTML=list.length?list.slice(0,S.shown).map(function(o){
+    return '<tr><td class="c-id"><button class="oid" data-id="'+o.id+'">'+o.id+'</button><div class="muted">'+fmtDT(o.ts)+'</div></td>'+
+      '<td class="c-cust">'+esc(o.name)+'<div class="muted">+91 '+fmtPhone(o.phone)+' · '+esc(o.addr.city)+'</div></td>'+
+      '<td class="c-items">'+o.items.map(function(i){return esc(i.n)+(i.q>1?' × '+i.q:'');}).join('<br>')+'</td>'+
+      '<td class="c-amt amt">'+inr(o.total)+'</td>'+
+      '<td class="c-st"><select class="st-sel s-'+o.status.toLowerCase()+'" data-id="'+o.id+'" aria-label="Order status">'+STATUSES.map(function(s){return '<option'+(s===o.status?' selected':'')+'>'+s+'</option>';}).join('')+'</select></td></tr>';
+  }).join(''):'<tr><td class="empty-row muted" colspan="5" style="padding:24px 10px;text-align:center">No orders match. Try another date range, status or search.</td></tr>';
+  $('moreWrap').style.display=list.length>S.shown?'block':'none';
+}
+
+function openOrder(id){
+  var o=S.orders.filter(function(x){return x.id===id;})[0];if(!o)return;
+  $('moBox').innerHTML='<button class="mo-x" id="moX" aria-label="Close">✕</button>'+
+    '<div class="muted">Order</div><div style="font-size:1.2rem;font-weight:800">'+o.id+'</div>'+
+    '<div class="muted" style="margin-top:2px">'+fmtDT(o.ts)+' · <span class="pill s-'+o.status.toLowerCase()+'">'+o.status+'</span></div>'+
+    '<h4>Items</h4>'+o.items.map(function(i){return '<div class="mo-row"><span>'+esc(i.n)+' <span class="muted">('+esc(i.s)+') × '+i.q+'</span></span><b>'+inr(i.p*i.q)+'</b></div>';}).join('')+
+    '<div class="mo-row" style="border:0;font-size:.95rem"><b>Total</b><b style="color:var(--primary)">'+inr(o.total)+'</b></div>'+
+    '<h4>Customer</h4><div style="font-size:.86rem;line-height:1.6"><b>'+esc(o.name)+'</b> <span class="muted">('+esc(o.addr.type)+')</span><br>📞 +91 '+fmtPhone(o.phone)+'<br>'+esc(o.addr.line)+'<br>'+esc(o.addr.city)+', '+esc(o.addr.state)+' – '+esc(o.addr.pin)+'</div>'+
+    '<p class="muted" style="margin-top:14px">Sample order — demo data only.</p>';
+  $('mo').classList.add('show');
+  $('moX').onclick=closeOrder;
+}
+function closeOrder(){$('mo').classList.remove('show');}
+
+function downloadCSV(){
+  var rows=[['Order ID','Date','Time','Customer','Mobile','City','State','Pincode','Items','Qty','Amount','Status']];
+  S.filtered.forEach(function(o){
+    var d=new Date(o.ts);
+    rows.push([o.id,ymd(d),d.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit'}),o.name,'+91 '+o.phone,o.addr.city,o.addr.state,o.addr.pin,
+      o.items.map(function(i){return i.n+' ('+i.s+') x'+i.q;}).join('; '),o.qty,o.total,o.status]);
+  });
+  var csv='﻿'+rows.map(function(r){return r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(',');}).join('\r\n');
+  var url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');
+  a.href=url;a.download='retailboost-orders-'+ymd(new Date())+'.csv';document.body.appendChild(a);a.click();a.remove();
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);
+  toast(S.filtered.length+' orders downloaded');
+}
+
+/* ── views ── */
+function showLogin(){$('app').style.display='none';$('loginView').style.display='flex';$('logoutBtn').style.display='none';$('lPass').value='';$('lErr').textContent='';}
+function boot(){
+  $('loginView').style.display='none';$('app').style.display='block';$('logoutBtn').style.display='';
+  DataAPI.getOrders().then(function(list){S.orders=list;renderAll();}).catch(function(){toast('Could not load orders');});
+}
+
+/* ── events ── */
+$('loginForm').addEventListener('submit',function(e){
+  e.preventDefault();var b=$('lBtn');b.disabled=true;b.textContent='Signing in...';$('lErr').textContent='';
+  Auth.login($('lEmail').value,$('lPass').value).then(boot).catch(function(err){$('lErr').textContent=err.message;}).then(function(){b.disabled=false;b.textContent='Sign in';});
+});
+$('logoutBtn').addEventListener('click',function(e){
+  e.preventDefault();$('navToggle').classList.remove('open');$('mainNav').classList.remove('open');
+  Auth.logout().then(showLogin);
+});
+$('ranges').addEventListener('click',function(e){
+  var b=e.target.closest('.rg');if(!b)return;
+  S.range=b.dataset.r;S.shown=20;
+  document.querySelectorAll('#ranges .rg').forEach(function(x){x.classList.toggle('active',x===b);});
+  if(S.range==='custom'&&!S.cFrom){var r=S.r||getRange();S.cFrom=ymd(r.from);S.cTo=ymd(addDays(r.to,-1));$('cFrom').value=S.cFrom;$('cTo').value=S.cTo;}
+  $('custom').classList.toggle('show',S.range==='custom');
+  renderAll();
+});
+['cFrom','cTo'].forEach(function(id){$(id).max=ymd(new Date());$(id).addEventListener('change',function(){S[id]=this.value;S.shown=20;renderAll();});});
+$('metric').addEventListener('click',function(e){
+  var b=e.target.closest('button');if(!b)return;S.metric=b.dataset.m;
+  document.querySelectorAll('#metric button').forEach(function(x){x.classList.toggle('active',x===b);});drawChart();
+});
+$('chart').addEventListener('mousemove',function(e){var i=e.target.getAttribute&&e.target.getAttribute('data-i');if(i===null||i===undefined)hideTip();else showTip(+i);});
+$('chart').addEventListener('click',function(e){var i=e.target.getAttribute&&e.target.getAttribute('data-i');if(i!==null&&i!==undefined)showTip(+i);});
+$('chart').addEventListener('mouseleave',hideTip);
+$('oSearch').addEventListener('input',function(){S.q=this.value;S.shown=20;renderTable();});
+$('oStatus').addEventListener('change',function(){S.status=this.value;S.shown=20;renderTable();});
+$('moreBtn').addEventListener('click',function(){S.shown+=20;renderTable();});
+$('csvBtn').addEventListener('click',downloadCSV);
+$('oBody').addEventListener('click',function(e){var b=e.target.closest('.oid');if(b)openOrder(b.dataset.id);});
+$('oBody').addEventListener('change',function(e){
+  var sel=e.target;if(!sel.classList.contains('st-sel'))return;
+  var id=sel.dataset.id,st=sel.value,o=S.orders.filter(function(x){return x.id===id;})[0];
+  DataAPI.updateStatus(id,st).then(function(){if(o)o.status=st;renderAll();toast(id+' marked '+st);});
+});
+$('resetDemo').addEventListener('click',function(){
+  if(!confirm('Reset all status changes back to the original demo data?'))return;
+  DataAPI.resetDemo().then(boot).then(function(){toast('Demo data reset');});
+});
+$('mo').addEventListener('click',function(e){if(e.target===this)closeOrder();});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeOrder();});
+var rsz;window.addEventListener('resize',function(){clearTimeout(rsz);rsz=setTimeout(function(){if(S.r&&$('app').style.display!=='none')drawChart();},150);});
+$('navToggle').addEventListener('click',function(){this.classList.toggle('open');$('mainNav').classList.toggle('open');});
+window.addEventListener('scroll',function(){$('navbar').classList.toggle('scrolled',window.scrollY>40);});
+
+if(Auth.isLoggedIn())boot();else showLogin();
+</script>
+</body>
+</html>
